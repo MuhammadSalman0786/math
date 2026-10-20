@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AllMath - Math is Easy :)</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo">
+        <i class="fa-solid fa-cube logo-icon"></i>
+        <div>
+          <span class="logo-title">AllMath</span>
+          <span class="logo-sub">Math is Easy :)</span>
+        </div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="icon-btn" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+      <button class="icon-btn" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <button class="btn-pricing"><i class="fa-solid fa-crown"></i> Pricing</button>
+      <button class="btn-login"><i class="fa-regular fa-user"></i> Login</button>
+    </div>
+  </header>
+
+  <!-- Main Container Layout -->
+  <div class="app-layout">
+    <!-- Left Sidebar: Recents & DB History -->
+    <aside class="sidebar">
+      <button class="btn-new-chat" id="btnNewChat">
+        <i class="fa-solid fa-plus"></i> New Chat
+      </button>
+
+      <div class="history-section">
+        <div class="history-header">
+          <span><i class="fa-regular fa-clock"></i> Recents</span>
+          <button id="btnClearHistory" title="Clear All History"><i class="fa-regular fa-trash-can"></i></button>
+        </div>
+        
+        <div id="historyList" class="history-list">
+          <div class="no-history" id="noHistoryBox">
+            <i class="fa-regular fa-comments empty-icon"></i>
+            <p>No History Found</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="credits-badge">
+          <span class="bolt"><i class="fa-solid fa-bolt"></i> 10,000 credits</span>
+          <span class="tag">Free</span>
+        </div>
+        <p class="credits-text">Get 7x more free credits</p>
+        <button class="btn-register">Register Now</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="header-section text-center">
+        <h1 class="main-heading">AllMath Solver</h1>
+        <p class="sub-heading">Solve math problems instantly with single-line step-by-step breakdown.</p>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="calc-tabs">
+        <button class="calc-tab active" data-mode="expression"><i class="fa-solid fa-square-root-variable"></i> Math Solver</button>
+        <button class="calc-tab" data-mode="proportion"><i class="fa-solid fa-divide"></i> Proportion</button>
+        <button class="calc-tab" data-mode="age"><i class="fa-solid fa-calendar-days"></i> Age Calculator</button>
+      </div>
+
+      <!-- Input Box Container -->
+      <div class="solver-card">
+        <!-- 1. General Expression Input (Default) -->
+        <div id="expressionInputs" class="input-view">
+          <textarea id="mainExprInput" class="main-textarea" rows="3" placeholder="Enter problem e.g. 1^3 + 2^3 + ... + n^3 = n^2(n+1)^2/4 or 5 + 3 * 2^3 - (4 / 2)"></textarea>
+        </div>
+
+        <!-- 2. Proportion Inputs -->
+        <div id="proportionInputs" class="input-view hidden">
+          <p class="note-text">Note: One of the input value should be alphabet e.g: <strong>x</strong></p>
+          <div class="fraction-equation-container">
+            <div class="fraction-box">
+              <input type="text" id="propA" value="45" class="prop-input" placeholder="A">
+              <div class="fraction-divider"></div>
+              <input type="text" id="propB" value="52" class="prop-input" placeholder="B">
+            </div>
+            <span class="equal-sign">=</span>
+            <div class="fraction-box">
+              <input type="text" id="propC" value="634" class="prop-input" placeholder="C">
+              <div class="fraction-divider"></div>
+              <input type="text" id="propD" value="x" class="prop-input" placeholder="D">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Age Input -->
+        <div id="ageInputs" class="input-view hidden">
+          <label class="input-label">Select Date of Birth:</label>
+          <input type="date" id="dobInput" value="2000-01-01" class="prop-input date-input">
+        </div>
+
+        <!-- Toolbar Inside Box -->
+        <div class="input-bottom-bar">
+          <div class="bar-left">
+            <button class="icon-tool-btn fx-btn" id="btnToggleFx" title="Open Symbols"><i class="fa-solid fa-function"></i> <em>f(x) Symbols</em></button>
+          </div>
+          <button class="btn-calculate" id="btnCalculate">
+            <i class="fa-solid fa-paper-plane"></i> Calculate
+          </button>
+        </div>
+      </div>
+
+      <!-- Symbol Keyboard Drawer -->
+      <div class="symbols-drawer hidden" id="symbolsDrawer">
+        <div class="symbols-tabs">
+          <button class="sym-tab active" data-cat="quick">Quick Access</button>
+          <button class="sym-tab" data-cat="arithmetic">Arithmetic</button>
+          <button class="sym-tab" data-cat="algebra">Algebra</button>
+          <button class="sym-tab" data-cat="trig">Trigonometry</button>
+          <button class="sym-tab" data-cat="calculus">Calculus</button>
+          <button class="sym-tab" data-cat="linalg">Linear Algebra</button>
+          <button class="sym-tab" data-cat="discrete">Sets & Logic</button>
+          <button class="sym-tab" data-cat="greek">Greek</button>
+        </div>
+        <div class="symbols-grid" id="symbolsGrid"></div>
+      </div>
+
+      <!-- AllMath Step-by-Step Result Card -->
+      <div class="result-container hidden" id="resultCard">
+        <div class="result-top-bar">
+          <span class="result-label">Result</span>
+          <div class="action-buttons">
+            <button class="btn-result-action" id="btnCopy"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button class="btn-result-action" id="btnPdf"><i class="fa-solid fa-download"></i> PDF</button>
+          </div>
+        </div>
+        <div class="result-body">
+          <span class="answer-title">Answer</span>
+          <div class="big-answer-box" id="bigAnswerBox"></div>
+          <div class="solution-details-box">
+            <h3 class="solution-heading">Single-Line Step-by-Step Solution</h3>
+            <div id="katexStepsList" class="steps-flow"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
