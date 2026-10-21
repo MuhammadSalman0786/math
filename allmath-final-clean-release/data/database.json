@@ -1,0 +1,37 @@
+{
+  "calculations": [
+    {
+      "id": 1792604965502,
+      "created_at": "2026-10-21T17:49:25.502Z",
+      "title": "4/2",
+      "type": "expression",
+      "query": "4/2",
+      "answer": "2",
+      "steps": [
+        {
+          "label": "Step 1: Write down the given expression",
+          "katex": "4/2"
+        },
+        {
+          "label": "Step 2: Perform Division: 4 \\div 2 = 2",
+          "katex": "= 2"
+        },
+        {
+          "label": "Step 3: Final Answer",
+          "katex": "\\mathbf{Answer = 2}"
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "user_1792604476259",
+      "email": "alizakhan2584@gmail.com",
+      "name": "Aliza",
+      "picture": "https://lh3.googleusercontent.com/a/ACg8ocJyy8Lx3eH0TdDchHD_W99FXW0ra3_UV9rTveKCe8gykqcSRQ=s96-c",
+      "provider": "google",
+      "created_at": "2026-10-21T17:41:16.259Z",
+      "last_login": "2026-10-21T17:49:53.111Z"
+    }
+  ]
+}

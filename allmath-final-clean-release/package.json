@@ -1,0 +1,15 @@
+{
+  "name": "allmath-clone",
+  "version": "1.3.0",
+  "description": "AllMath AI Math Solver Clone with Google Auth, Database User Storage, and Full Blog Reader",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mathjs": "^14.0.1"
+  }
+}

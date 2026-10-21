@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Math Solver - Math is Easy :) | Step-by-Step AI Solver</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <!-- Google Identity Services Official SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <!-- Modern Floating Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-left">
+      <button class="mobile-menu-btn" id="btnToggleSidebar" aria-label="Toggle Sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <a href="#" class="logo nav-link-action" data-target="home">
+        <i class="fa-solid fa-cube logo-icon"></i>
+        <div class="logo-text-group">
+          <span class="logo-title">Math Solver</span>
+          <span class="logo-sub">Math is Easy :)</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Centered Nav Links -->
+    <nav class="nav-center">
+      <a href="#home" class="nav-link active nav-link-action" data-target="home"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="#about" class="nav-link nav-link-action" data-target="about"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="#blog" class="nav-link nav-link-action" data-target="blog"><i class="fa-solid fa-newspaper"></i> Blog</a>
+      <a href="#solver" class="nav-link nav-link-action" data-target="solver" data-calc="expression"><i class="fa-solid fa-calculator"></i> Math Solver</a>
+      
+      <!-- More Calculators Dropdown -->
+      <div class="nav-dropdown" id="moreCalcDropdown">
+        <button class="dropdown-trigger" id="dropdownTrigger">
+          <i class="fa-solid fa-shapes"></i>
+          <span>More Calculators</span>
+          <i class="fa-solid fa-chevron-down arrow-icon"></i>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="#solver" class="dropdown-item nav-link-action" data-target="solver" data-calc="expression">
+            <div class="dropdown-icon-box bg-blue"><i class="fa-solid fa-square-root-variable"></i></div>
+            <div class="dropdown-item-info">
+              <span class="dropdown-item-title">Math & Induction Solver</span>
+              <span class="dropdown-item-desc">Step-by-step BODMAS & series proofs</span>
+            </div>
+          </a>
+          <a href="#solver" class="dropdown-item nav-link-action" data-target="solver" data-calc="proportion">
+            <div class="dropdown-icon-box bg-emerald"><i class="fa-solid fa-divide"></i></div>
+            <div class="dropdown-item-info">
+              <span class="dropdown-item-title">Proportion Calculator</span>
+              <span class="dropdown-item-desc">Solve cross multiplications A/B = C/D</span>
+            </div>
+          </a>
+          <a href="#solver" class="dropdown-item nav-link-action" data-target="solver" data-calc="age">
+            <div class="dropdown-icon-box bg-amber"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="dropdown-item-info">
+              <span class="dropdown-item-title">Age Calculator</span>
+              <span class="dropdown-item-desc">Calculate exact age, days, and hours</span>
+            </div>
+          </a>
+          <a href="#solver" class="dropdown-item nav-link-action" data-target="solver" data-calc="acdc">
+            <div class="dropdown-icon-box bg-cyan"><i class="fa-solid fa-bolt"></i></div>
+            <div class="dropdown-item-info">
+              <span class="dropdown-item-title">AC to DC Calculator</span>
+              <span class="dropdown-item-desc">Convert Peak/RMS voltage to DC output</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="nav-right">
+      <button class="icon-btn theme-toggle-btn" id="btnThemeToggle" title="Toggle Light/Dark Theme">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+
+      <div id="authContainer">
+        <button class="btn-login" id="btnOpenLogin">
+          <i class="fa-regular fa-user"></i> <span>Login</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-layout">
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="appSidebar">
+      <div class="sidebar-top-mobile">
+        <span class="mobile-sidebar-title"><i class="fa-regular fa-clock"></i> History & Recents</span>
+        <button class="btn-close-sidebar" id="btnCloseSidebar" aria-label="Close Sidebar"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <button class="btn-new-chat" id="btnNewChat">
+        <i class="fa-solid fa-plus"></i> New Query
+      </button>
+
+      <div class="history-section">
+        <div class="history-header">
+          <span><i class="fa-regular fa-clock"></i> Recents</span>
+          <button id="btnClearHistory" title="Clear All History"><i class="fa-regular fa-trash-can"></i></button>
+        </div>
+        <div id="historyList" class="history-list">
+          <div class="no-history" id="noHistoryBox">
+            <i class="fa-regular fa-comments empty-icon"></i>
+            <p>No History Found</p>
+          </div>
+        </div>
+      </div>
+
+      
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- 1. Home / Solver View -->
+      <section id="sectionHome" class="content-view">
+        <div class="header-section text-center center-heading-wrap">
+          <h1 class="main-heading" id="dynamicCalcHeading">Math Solver</h1>
+          <p class="sub-heading" id="dynamicCalcSubheading">Solve math problems instantly with single-line step-by-step breakdown.</p>
+        </div>
+
+        <div class="solver-card" id="solverCardAnchor">
+          <div class="active-mode-header">
+            <span class="active-mode-pill" id="currentModeLabel"><i class="fa-solid fa-calculator"></i> Math Solver</span>
+            <span class="switch-hint-text">Switch tool in <strong>More Calculators</strong> </span>
+          </div>
+
+          <div id="expressionInputs" class="input-view">
+            <textarea id="mainExprInput" class="main-textarea" rows="3" placeholder="Enter problem e.g. 1^3 + 2^3 + ... + n^3 = n^2(n+1)^2/4 or 5 + 3 * 2^3 - (4 / 2)"></textarea>
+          </div>
+
+          <div id="proportionInputs" class="input-view hidden">
+            <p class="note-text">Note: One of the input values should be an alphabet e.g: <strong>x</strong></p>
+            <div class="fraction-equation-container">
+              <div class="fraction-box">
+                <input type="text" id="propA" value="45" class="prop-input" placeholder="A" inputmode="text">
+                <div class="fraction-divider"></div>
+                <input type="text" id="propB" value="52" class="prop-input" placeholder="B" inputmode="text">
+              </div>
+              <span class="equal-sign">=</span>
+              <div class="fraction-box">
+                <input type="text" id="propC" value="634" class="prop-input" placeholder="C" inputmode="text">
+                <div class="fraction-divider"></div>
+                <input type="text" id="propD" value="x" class="prop-input" placeholder="D" inputmode="text">
+              </div>
+            </div>
+          </div>
+
+          <div id="ageInputs" class="input-view hidden">
+            <label class="input-label"><i class="fa-regular fa-calendar"></i> Select Date of Birth:</label>
+            <input type="date" id="dobInput" value="2000-01-01" class="prop-input date-input">
+          </div>
+
+          <div id="acdcInputs" class="input-view hidden">
+            <div class="acdc-form-grid">
+              <div class="acdc-field">
+                <label class="input-label"><i class="fa-solid fa-plug"></i> Input AC Voltage (V):</label>
+                <input type="number" id="acdcVoltage" value="220" class="prop-input" placeholder="e.g. 220" step="any" min="0">
+              </div>
+              <div class="acdc-field">
+                <label class="input-label"><i class="fa-solid fa-sliders"></i> Voltage Type:</label>
+                <select id="acdcConversion" class="prop-select">
+                  <option value="rms_to_dc">RMS Voltage to DC (Household 220V / 110V AC)</option>
+                  <option value="peak_to_dc">Peak Voltage (V_peak) to DC</option>
+                </select>
+              </div>
+              <div class="acdc-field">
+                <label class="input-label"><i class="fa-solid fa-wave-square"></i> Rectification Circuit:</label>
+                <select id="acdcRectifier" class="prop-select">
+                  <option value="full_wave">Full-Wave Rectifier (Bridge / Center-Tapped)</option>
+                  <option value="half_wave">Half-Wave Rectifier (Single Diode)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-bottom-bar">
+            <div class="bar-left">
+              <button class="icon-tool-btn fx-btn" id="btnToggleFx" title="Open Symbols">
+                <i class="fa-solid fa-function"></i> <em>f(x)</em> <span class="fx-text">Symbols</span>
+              </button>
+            </div>
+            <button class="btn-calculate" id="btnCalculate">
+              <i class="fa-solid fa-paper-plane"></i> <span>Calculate</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="symbols-drawer hidden" id="symbolsDrawer">
+          <div class="symbols-header-mobile">
+            <span><i class="fa-solid fa-keyboard"></i> Math Symbols</span>
+            <button id="btnCloseFxDrawer" class="btn-close-sm"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="symbols-tabs-scroll">
+            <div class="symbols-tabs">
+              <button class="sym-tab active" data-cat="quick">Quick Access</button>
+              <button class="sym-tab" data-cat="arithmetic">Arithmetic</button>
+              <button class="sym-tab" data-cat="algebra">Algebra</button>
+              <button class="sym-tab" data-cat="trig">Trig</button>
+              <button class="sym-tab" data-cat="calculus">Calculus</button>
+              <button class="sym-tab" data-cat="linalg">Matrices</button>
+              <button class="sym-tab" data-cat="discrete">Sets & Logic</button>
+              <button class="sym-tab" data-cat="greek">Greek</button>
+            </div>
+          </div>
+          <div class="symbols-grid" id="symbolsGrid"></div>
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-container hidden" id="resultCard">
+          <div class="result-top-bar">
+            <span class="result-label"><i class="fa-solid fa-check-circle text-emerald"></i> Calculation Result</span>
+            <div class="action-buttons">
+              <button class="btn-result-action" id="btnCopy"><i class="fa-regular fa-copy"></i> Copy</button>
+              <button class="btn-result-action" id="btnPdf"><i class="fa-solid fa-download"></i> PDF</button>
+            </div>
+          </div>
+          <div class="result-body">
+            <span class="answer-title">Final Computed Answer</span>
+            <div class="big-answer-box" id="bigAnswerBox"></div>
+            <div class="solution-details-box">
+              <h3 class="solution-heading">Single-Line Step-by-Step Solution</h3>
+              <div id="katexStepsList" class="steps-flow"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descriptions Section -->
+        <div class="calculator-descriptions-wrapper">
+          <div class="calc-desc-card" id="descExpression">
+            <div class="desc-card-header">
+              <i class="fa-solid fa-square-root-variable desc-icon text-emerald"></i>
+              <div>
+                <h3 class="desc-card-title">About Math Solver Step-by-Step Math & Induction Solver</h3>
+                <span class="desc-card-subtitle">Comprehensive BODMAS Execution & Formal Mathematical Proofs</span>
+              </div>
+            </div>
+            <p class="desc-paragraph">
+              The <strong>Math Solver AI Expression Solver</strong> is built to resolve everyday arithmetic and advanced mathematical proofs without skipping a single detail. Operating under strict order of operations (Parentheses, Exponents, Multiplication & Division, Addition & Subtraction), each calculation is performed one line at a time to ensure complete conceptual clarity for students and researchers.
+            </p>
+            <p class="desc-paragraph">
+              For higher secondary and intermediate students (F.Sc / Class 11 & 12), the solver incorporates an advanced <strong>Mathematical Induction Engine</strong>. When propositions such as \(1^3 + 2^3 + \dots + n^3 = rac{n^2(n+1)^2}{4}\) or sum of squares are entered, the engine systematically verifies the Base Step (\(n = 1\)), establishes the Inductive Hypothesis (\(n = k\)), executes algebraic LCM factoring for \(n = k + 1\), and presents a rigorous textbook conclusion.
+            </p>
+          </div>
+
+          <div class="calc-desc-card" id="descProportion">
+            <div class="desc-card-header">
+              <i class="fa-solid fa-divide desc-icon text-blue"></i>
+              <div>
+                <h3 class="desc-card-title">How Proportion & Cross-Multiplication Works</h3>
+                <span class="desc-card-subtitle">Solving Unknown Variables in Rational Fractions \(rac{A}{B} = rac{C}{D}\)</span>
+              </div>
+            </div>
+            <p class="desc-paragraph">
+              A mathematical proportion is an equation stating that two distinct ratios or fractions are equivalent. In standard form, given \(rac{A}{B} = rac{C}{D}\), the fundamental property of cross-products dictates that the product of extremes equals the product of means: \(A 	imes D = B 	imes C\).
+            </p>
+            <p class="desc-paragraph">
+              Our <strong>Proportion Calculator</strong> allows you to place an unknown variable (such as \(x\)) in any of the four numerator or denominator fields. It instantly generates the isolated cross product, performs right-hand numeric multiplication, isolates the variable through division, and yields accurate 4-decimal precision.
+            </p>
+          </div>
+
+          <div class="calc-desc-card" id="descAge">
+            <div class="desc-card-header">
+              <i class="fa-solid fa-calendar-days desc-icon text-amber"></i>
+              <div>
+                <h3 class="desc-card-title">Chronological Age Calculation & Time Metrics</h3>
+                <span class="desc-card-subtitle">Accurate Gregorian Calendar Days, Leap Year Handling, & Living Hours</span>
+              </div>
+            </div>
+            <p class="desc-paragraph">
+              The <strong>Math Solver Age Calculator</strong> determines the exact elapsed duration between a person's date of birth and the current calendar day. Unlike rudimentary approximations that divide elapsed days by 365, our algorithm dynamically accommodates varying month lengths alongside leap year compensations.
+            </p>
+            <p class="desc-paragraph">
+              In addition to rendering exact years, elapsed months, and residual days, the breakdown presents total living days and cumulative living hours.
+            </p>
+          </div>
+
+          <div class="calc-desc-card" id="descAcdc">
+            <div class="desc-card-header">
+              <i class="fa-solid fa-bolt desc-icon text-cyan"></i>
+              <div>
+                <h3 class="desc-card-title">AC to DC Conversion & Rectification Fundamentals</h3>
+                <span class="desc-card-subtitle">Peak Voltage, Root Mean Square (RMS), & DC Output Characteristics</span>
+              </div>
+            </div>
+            <p class="desc-paragraph">
+              Alternating Current (AC) oscillates periodically in a sinusoidal waveform. For a <strong>Full-Wave Bridge Rectifier</strong>, both polarities of the AC cycle are directed to the load, resulting in an average DC voltage of \(V_{DC} = rac{2 	imes V_{peak}}{\pi} pprox 0.6366 	imes V_{peak}\). In contrast, a <strong>Half-Wave Rectifier</strong> utilizes only one half of the waveform, delivering \(V_{DC} = rac{V_{peak}}{\pi} pprox 0.3183 	imes V_{peak}\).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. About Page Section -->
+      <section id="sectionAbout" class="content-view page-section hidden">
+        <div class="page-container">
+          <span class="badge-tag">About Us</span>
+          <h2 class="page-title">Making Mathematics Easy and Accessible for Everyone</h2>
+          <p class="lead-text">Math Solver is a next-generation mathematical engine engineered to provide clear, single-step breakdowns for students, teachers, and engineers worldwide.</p>
+          <div class="features-grid">
+            <div class="feature-card">
+              <i class="fa-solid fa-bolt feature-icon"></i>
+              <h3>Instant Calculations</h3>
+              <p>Execute arithmetic, advanced algebra, and proofs in milliseconds with local precision.</p>
+            </div>
+            <div class="feature-card">
+              <i class="fa-solid fa-list-check feature-icon"></i>
+              <h3>Step-by-Step Clarity</h3>
+              <p>Each operation is broken into isolated, digestible single lines following PEMDAS & mathematical induction.</p>
+            </div>
+            <div class="feature-card">
+              <i class="fa-solid fa-database feature-icon"></i>
+              <h3>Persistent Recents & DB</h3>
+              <p>Your previous queries and logged-in user accounts remain securely stored in your server's database.json.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Blog Page Section -->
+      <section id="sectionBlog" class="content-view page-section hidden">
+        <div class="page-container" id="blogListPage">
+          <span class="badge-tag">Educational Blog</span>
+          <h2 class="page-title">Math Guides, Formulas & Electronics Tutorials</h2>
+          <p class="lead-text">Click any article below to read the comprehensive tutorial and mathematical derivation.</p>
+          
+          <div class="blog-grid">
+            <article class="blog-card" data-post-id="induction">
+              <div class="blog-meta"><i class="fa-regular fa-calendar"></i> October 2026 • Mathematics • 5 min read</div>
+              <h3>Mastering Mathematical Induction for Inter & College Exams</h3>
+              <p>Learn how to establish base cases, formulate inductive hypotheses, and simplify algebra to score maximum marks in sum of series proofs.</p>
+              <button class="btn-read-article" data-post-id="induction"><i class="fa-solid fa-book-open"></i> Read Full Article →</button>
+            </article>
+
+            <article class="blog-card" data-post-id="acdc">
+              <div class="blog-meta"><i class="fa-regular fa-calendar"></i> October 2026 • Electronics • 6 min read</div>
+              <h3>Understanding AC to DC Rectification: Peak vs RMS Voltage</h3>
+              <p>A comprehensive breakdown of bridge rectifiers, ripple factors, and converting alternating current to continuous direct current with circuit mathematics.</p>
+              <button class="btn-read-article" data-post-id="acdc"><i class="fa-solid fa-book-open"></i> Read Full Article →</button>
+            </article>
+
+            <article class="blog-card" data-post-id="proportion">
+              <div class="blog-meta"><i class="fa-regular fa-calendar"></i> October 2026 • Quick Tips • 4 min read</div>
+              <h3>Cross-Multiplication Made Simple: The Ratio & Proportion Guide</h3>
+              <p>Discover real-world applications of proportional equations and fast methods to isolate variables effortlessly in scientific ratios.</p>
+              <button class="btn-read-article" data-post-id="proportion"><i class="fa-solid fa-book-open"></i> Read Full Article →</button>
+            </article>
+          </div>
+        </div>
+
+        <div class="page-container hidden text-left" id="blogReaderPage">
+          <button class="btn-back-to-blogs" id="btnBackToBlogs"><i class="fa-solid fa-arrow-left"></i> Back to all articles</button>
+          <div id="blogArticleContent"></div>
+        </div>
+      </section>
+
+      <!-- 4. Contact Us Section -->
+      <section id="sectionContact" class="content-view page-section hidden">
+        <div class="page-container max-w-650">
+          <span class="badge-tag">Get in Touch</span>
+          <h2 class="page-title">Contact Math Solver Support</h2>
+          <p class="lead-text">Have a suggestion for a new calculator or found a mathematical question you'd like us to support? Send us a message.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); showToast('Message Received', 'Thank you! Your message has been sent successfully.', 'success'); this.reset();">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" class="prop-input text-left" placeholder="e.g. John Doe" required>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" class="prop-input text-left" placeholder="name@example.com" required>
+            </div>
+            <div class="form-group">
+              <label>Message / Suggestion</label>
+              <textarea class="main-textarea" rows="4" placeholder="How can we help you?" required></textarea>
+            </div>
+            <button type="submit" class="btn-calculate w-full">Send Message</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 5. Privacy Policy Section -->
+      <section id="sectionPrivacy" class="content-view page-section hidden">
+        <div class="page-container max-w-750 text-left">
+          <span class="badge-tag">Legal</span>
+          <h2 class="page-title">Privacy Policy</h2>
+          <p class="policy-date">Last Updated: October 2026</p>
+          <div class="policy-body">
+            <h3>1. Information Collection & Google Data</h3>
+            <p>Math Solver operates as a privacy-first educational tool. When you sign in with Google, we securely receive your basic profile (name and email) to authenticate your session and store your saved calculations in your database.json file.</p>
+            <h3>2. Data Security</h3>
+            <p>We do not sell, rent, or distribute personal identity records to third parties. All mathematical evaluations run directly on your Node.js application.</p>
+            <h3>3. Cookies & Local Cache</h3>
+            <p>Temporary preferences such as selected calculator modes and theme toggles are maintained purely on the client-side browser.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Terms and Conditions Section -->
+      <section id="sectionTerms" class="content-view page-section hidden">
+        <div class="page-container max-w-750 text-left">
+          <span class="badge-tag">Legal</span>
+          <h2 class="page-title">Terms & Conditions</h2>
+          <p class="policy-date">Effective Date: October 2026</p>
+          <div class="policy-body">
+            <h3>1. Acceptance of Terms</h3>
+            <p>By accessing or utilizing Math Solver calculators, you agree to comply with standard academic integrity and educational usage policies.</p>
+            <h3>2. Academic Disclaimer</h3>
+            <p>All calculations and inductive proofs are generated for study assistance and learning verification. Users are encouraged to verify critical architectural or engineering values.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="logo">
+            <i class="fa-solid fa-cube logo-icon"></i>
+            <div>
+              <span class="logo-title text-white">Math Solver</span>
+              <span class="logo-sub text-white-70">Math is Easy :)</span>
+            </div>
+          </div>
+          <p class="footer-desc">
+            Your all-in-one step-by-step math problem solver and engineering suite. Simplifying proportion calculations, algebraic induction, and voltage conversions.
+          </p>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="#home" class="nav-link-action" data-target="home">Home</a></li>
+            <li><a href="#about" class="nav-link-action" data-target="about">About Us</a></li>
+            <li><a href="#blog" class="nav-link-action" data-target="blog">Blog & Tutorials</a></li>
+            <li><a href="#contact" class="nav-link-action" data-target="contact">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Calculators</h4>
+          <ul class="footer-links">
+            <li><a href="#solver" class="nav-link-action" data-target="solver" data-calc="expression">Math Solver</a></li>
+            <li><a href="#solver" class="nav-link-action" data-target="solver" data-calc="proportion">Proportion Calculator</a></li>
+            <li><a href="#solver" class="nav-link-action" data-target="solver" data-calc="age">Age Calculator</a></li>
+            <li><a href="#solver" class="nav-link-action" data-target="solver" data-calc="acdc">AC to DC Calculator</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Policies</h4>
+          <ul class="footer-links">
+            <li><a href="#privacy" class="nav-link-action" data-target="privacy">Privacy Policy</a></li>
+            <li><a href="#terms" class="nav-link-action" data-target="terms">Terms & Conditions</a></li>
+            <li><a href="#contact" class="nav-link-action" data-target="contact">Help & Support</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Math Solver. All rights reserved. Database-backed & Google-enabled.</p>
+        <div class="footer-bottom-links">
+          <a href="#privacy" class="nav-link-action" data-target="privacy">Privacy</a>
+          <span>•</span>
+          <a href="#terms" class="nav-link-action" data-target="terms">Terms</a>
+          <span>•</span>
+          <a href="#contact" class="nav-link-action" data-target="contact">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================
+       1-CLICK GOOGLE AUTHENTICATION MODAL
+       =================================================== -->
+  <div class="auth-modal-backdrop hidden" id="authModalBackdrop">
+    <div class="auth-modal-card">
+      <button class="btn-close-modal" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div id="googleAuthSection">
+        <div class="auth-modal-header text-center">
+          <div class="google-g-badge">
+            <svg width="26" height="26" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+          </div>
+          <h3 class="auth-title">Sign in with Google</h3>
+          <p class="auth-subtitle" id="authModalNotice">Choose your account to instantly sign in and sync calculations with database.json.</p>
+        </div>
+
+        <!-- Official Google GIS Container (Renders if OAuth Key configured) -->
+        <div id="googleOfficialBtn" class="google-official-wrapper"></div>
+
+        <!-- 1-Click Direct Google Popup / Account Selector -->
+        <div class="google-one-click-box">
+          <button type="button" class="btn-google-one-click" id="btnGooglePopupAuth">
+            <svg width="20" height="20" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span>Continue with Google Account</span>
+          </button>
+        </div>
+
+        <!-- Recent / Saved Active Google Profiles (1-Click Restore) -->
+        <div id="savedGoogleAccountsList" class="saved-accounts-list hidden"></div>
+
+        <!-- Google OAuth Client ID (Auth Key) Config Toggle -->
+        <div class="auth-key-config-box">
+          <button type="button" class="btn-toggle-key-settings" id="btnToggleKeySettings">
+            <i class="fa-solid fa-key"></i> <span>Google Client ID (Auth Key) Settings</span>
+            <i class="fa-solid fa-chevron-down key-arrow"></i>
+          </button>
+          <div id="keySettingsDrawer" class="key-settings-drawer hidden">
+            <p class="key-help-text">Google Cloud Console se mila hua <strong>Client ID (Auth Key)</strong> yahan paste karein:</p>
+            <input type="text" id="inputGoogleClientId" class="prop-input text-left" placeholder="xxxx-xxxx.apps.googleusercontent.com">
+            <button type="button" class="btn-calculate w-full" id="btnSaveClientId" style="margin-top: 8px; padding: 7px;">Save Auth Key</button>
+          </div>
+        </div>
+
+        <div class="auth-divider"><span>OR CONTINUE WITH EMAIL</span></div>
+        <button type="button" class="btn-toggle-auth-mode" id="btnShowEmailAuth">Use Email / Password</button>
+      </div>
+
+      <!-- Standard Email View -->
+      <div id="emailAuthSection" class="hidden">
+        <button class="btn-back-to-blogs" id="btnBackToGoogleAuth" style="margin-bottom: 12px; padding: 4px 10px; font-size: 12px;">
+          <i class="fa-solid fa-arrow-left"></i> Back to Google Sign-In
+        </button>
+
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin">Login</button>
+          <button class="auth-tab" id="tabRegister">Register</button>
+        </div>
+
+        <form class="auth-form" id="authForm">
+          <div class="form-group" id="groupName" style="display: none;">
+            <label class="input-label">Full Name</label>
+            <input type="text" class="prop-input text-left" id="authInputName" placeholder="e.g. Aliza">
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Email Address</label>
+            <input type="email" class="prop-input text-left" id="authInputEmail" placeholder="yourname@domain.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="input-label">Password</label>
+            <input type="password" class="prop-input text-left" id="authInputPassword" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="btn-calculate w-full auth-submit-btn" id="btnAuthSubmit">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
