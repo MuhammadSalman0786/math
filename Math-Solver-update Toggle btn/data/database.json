@@ -1,0 +1,443 @@
+{
+  "calculations": [
+    {
+      "id": 1792956179901,
+      "created_at": "2026-10-25T19:22:59.901Z",
+      "title": "9 + (13 × 4 ÷ 8) + 5 + (12 × 6) – 7",
+      "type": "expression",
+      "query": "9 + (13 × 4 ÷ 8) + 5 + (12 × 6) – 7 – 11 + (1 × 3 ÷ 2) – 10",
+      "answer": "66",
+      "steps": [
+        {
+          "label": "Given arithmetic expression:",
+          "katex": "9 + (13 * 4 / 8) + 5 + (12 * 6) - 7 - 11 + (1 * 3 / 2) - 10"
+        },
+        {
+          "label": "Step 1: Inside bracket: compute 13 \\times 4 = 52",
+          "katex": "= 9+(52 \\div 8)+5+(12 \\times 6)-7-11+(1 \\times 3 \\div 2)-10"
+        },
+        {
+          "label": "Step 2: Inside bracket: compute 52 \\div 8 = 6.5",
+          "katex": "= 9+(6.5)+5+(12 \\times 6)-7-11+(1 \\times 3 \\div 2)-10"
+        },
+        {
+          "label": "Step 3: Evaluate bracket result: 6.5",
+          "katex": "= 9+6.5+5+(12 \\times 6)-7-11+(1 \\times 3 \\div 2)-10"
+        },
+        {
+          "label": "Step 4: Inside bracket: compute 12 \\times 6 = 72",
+          "katex": "= 9+6.5+5+(72)-7-11+(1 \\times 3 \\div 2)-10"
+        },
+        {
+          "label": "Step 5: Evaluate bracket result: 72",
+          "katex": "= 9+6.5+5+72-7-11+(1 \\times 3 \\div 2)-10"
+        },
+        {
+          "label": "Step 6: Inside bracket: compute 1 \\times 3 = 3",
+          "katex": "= 9+6.5+5+72-7-11+(3 \\div 2)-10"
+        },
+        {
+          "label": "Step 7: Inside bracket: compute 3 \\div 2 = 1.5",
+          "katex": "= 9+6.5+5+72-7-11+(1.5)-10"
+        },
+        {
+          "label": "Step 8: Evaluate bracket result: 1.5",
+          "katex": "= 9+6.5+5+72-7-11+1.5-10"
+        },
+        {
+          "label": "Step 9: BODMAS (Addition): Compute 9 + 6.5 = 15.5",
+          "katex": "= 15.5+5+72-7-11+1.5-10"
+        },
+        {
+          "label": "Step 10: BODMAS (Addition): Compute 15.5 + 5 = 20.5",
+          "katex": "= 20.5+72-7-11+1.5-10"
+        },
+        {
+          "label": "Step 11: BODMAS (Addition): Compute 20.5 + 72 = 92.5",
+          "katex": "= 92.5-7-11+1.5-10"
+        },
+        {
+          "label": "Step 12: BODMAS (Subtraction): Compute 92.5 - 7 = 85.5",
+          "katex": "= 85.5-11+1.5-10"
+        },
+        {
+          "label": "Step 13: BODMAS (Subtraction): Compute 85.5 - 11 = 74.5",
+          "katex": "= 74.5+1.5-10"
+        },
+        {
+          "label": "Step 14: BODMAS (Addition): Compute 74.5 + 1.5 = 76",
+          "katex": "= 76-10"
+        },
+        {
+          "label": "Step 15: BODMAS (Subtraction): Compute 76 - 10 = 66",
+          "katex": "= 66"
+        },
+        {
+          "label": "Final Answer:",
+          "katex": "\\mathbf{Result = 66}"
+        }
+      ]
+    },
+    {
+      "id": 1792923466238,
+      "created_at": "2026-10-25T10:17:46.238Z",
+      "title": "\\frac{12}{4}",
+      "type": "expression",
+      "query": "\\frac{12}{4}",
+      "answer": "3",
+      "steps": [
+        {
+          "label": "Given fraction:",
+          "katex": "\\frac{12}{4}"
+        },
+        {
+          "label": "Step 1: Find the Greatest Common Divisor (GCD):",
+          "katex": "\\gcd(12, 4) = 4"
+        },
+        {
+          "label": "Step 2: Divide numerator and denominator by the GCD:",
+          "katex": "\\frac{12 \\div 4}{4 \\div 4} = 3"
+        },
+        {
+          "label": "Final Simplified Value:",
+          "katex": "\\mathbf{3}"
+        }
+      ]
+    },
+    {
+      "id": 1792923284296,
+      "created_at": "2026-10-25T10:14:44.296Z",
+      "title": "\\frac96",
+      "type": "expression",
+      "query": "\\frac96",
+      "answer": "Symbolic Evaluation",
+      "steps": [
+        {
+          "label": "Given input:",
+          "katex": "\\frac96"
+        },
+        {
+          "label": "Step 1: Parse expression:",
+          "katex": "\\text{Processed input: } \\frac96"
+        }
+      ]
+    },
+    {
+      "id": 1792862970572,
+      "created_at": "2026-10-24T17:29:30.572Z",
+      "title": "AC/DC: 220V (peak_to_dc)",
+      "type": "acdc",
+      "query": "220V",
+      "answer": "V_{DC} = 70.0282 V",
+      "steps": [
+        {
+          "label": "Step 1: Given Peak AC Voltage (V_peak)",
+          "katex": "V_{peak} = 220\\text{ V}"
+        },
+        {
+          "label": "Step 2: Circuit Configuration",
+          "katex": "\\text{Half-Wave Rectifier (Single Diode Configuration)}"
+        },
+        {
+          "label": "Step 3: Average DC Output Voltage Formula",
+          "katex": "V_{DC} = \\frac{V_{peak}}{\\pi} \\approx 0.3183 \\times V_{peak}"
+        },
+        {
+          "label": "Step 4: Compute Output DC Voltage",
+          "katex": "V_{DC} = \\frac{220}{\\pi} = 70.0282\\text{ V}"
+        },
+        {
+          "label": "Step 5: Equivalent RMS Voltage for Half-Wave",
+          "katex": "V_{RMS} = \\frac{V_{peak}}{2} = \\frac{220}{2} = 110.0000\\text{ V}"
+        },
+        {
+          "label": "Step 6: Peak-to-Peak Voltage (V_PP)",
+          "katex": "V_{PP} = 2 \\times V_{peak} = 440.0000\\text{ V}"
+        },
+        {
+          "label": "Step 7: Form Factor (V_RMS / V_DC)",
+          "katex": "\\text{Form Factor} = \\frac{110.0000}{70.0282} = 1.5708"
+        }
+      ]
+    },
+    {
+      "id": 1792861481452,
+      "created_at": "2026-10-24T17:04:41.452Z",
+      "title": "Proportion: 45/52 = 634/x",
+      "type": "proportion",
+      "query": "45/52 = 634/x",
+      "answer": "x = 732.6222",
+      "steps": [
+        {
+          "label": "Given proportion equation:",
+          "katex": "\\frac{45}{52} = \\frac{634}{x}"
+        },
+        {
+          "label": "Step 1: Formula for Proportion: Cross-multiply extremes and means (A \\times D = B \\times C):",
+          "katex": "45 \\times x = 52 \\times 634"
+        },
+        {
+          "label": "Step 2: Multiply numbers on the right side:",
+          "katex": "45 \\times x = 32968"
+        },
+        {
+          "label": "Step 3: Divide both sides by 45 to isolate x:",
+          "katex": "x = \\frac{32968}{45}"
+        },
+        {
+          "label": "Step 4: Final simplified value:",
+          "katex": "\\mathbf{x = 732.6222}"
+        }
+      ]
+    },
+    {
+      "id": 1792861021202,
+      "created_at": "2026-10-24T16:57:01.202Z",
+      "title": "Age: 2000-01-01",
+      "type": "age",
+      "query": "2000-01-01",
+      "answer": "26 Years, 9 Months, 23 Days",
+      "steps": [
+        {
+          "label": "Step 1: Given Date of Birth",
+          "katex": "\\text{DOB: } Sat Jan 01 2000"
+        },
+        {
+          "label": "Step 2: Compare with Current Date",
+          "katex": "\\text{Current: } Sat Oct 24 2026"
+        },
+        {
+          "label": "Step 3: Calculate Exact Difference",
+          "katex": "\\text{Age: } 26\\text{ years, } 9\\text{ months, } 23\\text{ days}"
+        },
+        {
+          "label": "Step 4: Total Days Lived",
+          "katex": "\\text{Days: } 9,793 \\text{ days}"
+        },
+        {
+          "label": "Step 5: Total Hours Lived",
+          "katex": "\\text{Hours: } 235,048 \\text{ hours}"
+        }
+      ]
+    },
+    {
+      "id": 1792861002651,
+      "created_at": "2026-10-24T16:56:42.651Z",
+      "title": "Proportion: 45/52 = 634/5",
+      "type": "proportion",
+      "query": "45/52 = 634/5",
+      "answer": "",
+      "steps": [
+        {
+          "label": "Given proportion equation:",
+          "katex": "\\frac{45}{52} = \\frac{634}{5}"
+        }
+      ]
+    },
+    {
+      "id": 1792827288823,
+      "created_at": "2026-10-24T07:34:48.823Z",
+      "title": "\\text{Find eigenvalues and eigenvec",
+      "type": "expression",
+      "query": "\\text{Find eigenvalues and eigenvectors: } A = \\begin{bmatrix} 4 & -2 & 2 \\\\ 6 & -3 & 4 \\\\ 2 & -1 & 3 \\end{bmatrix}",
+      "answer": "x = 2, \\; y = 1, \\; z = 2",
+      "steps": [
+        {
+          "label": "Given matrix equation AX = B:",
+          "katex": "\\begin{pmatrix} 2 & -1 & 3 \\\\ 1 & 1 & 1 \\\\ 3 & -2 & 5 \\end{pmatrix} \\begin{pmatrix} x \\\\ y \\\\ z \\end{pmatrix} = \\begin{pmatrix} 9 \\\\ 6 \\\\ 15 \\end{pmatrix}"
+        },
+        {
+          "label": "Step 1: Compute determinant det(A):",
+          "katex": "\\det(A) = 2(7) - (-1)(2) + 3(-5) = 14 + 2 - 15 = 1 \\neq 0"
+        },
+        {
+          "label": "Step 2: Solve by Cramer's rule:",
+          "katex": "x = \\frac{\\det(A_x)}{\\det(A)} = \\frac{2}{1} = 2, \\quad y = \\frac{\\det(A_y)}{\\det(A)} = 1, \\quad z = \\frac{\\det(A_z)}{\\det(A)} = 2"
+        }
+      ]
+    },
+    {
+      "id": 1792827222522,
+      "created_at": "2026-10-24T07:33:42.522Z",
+      "title": "\\int_{0}^{\\frac{\\pi}{2}} \\sin^5(\\th",
+      "type": "expression",
+      "query": "\\int_{0}^{\\frac{\\pi}{2}} \\sin^5(\\theta) \\cos^4(\\theta) \\, d\\theta = \\frac{1}{2} B\\left(3, \\frac{5}{2}\\right) = \\frac{\\Gamma(3)\\Gamma(2.5)}{2\\Gamma(5.5)}",
+      "answer": "\\frac{8}{315}",
+      "steps": [
+        {
+          "label": "Given trigonometric definite integral:",
+          "katex": "\\int_0^{\\pi/2} \\sin^5(\\theta) \\cos^4(\\theta) \\, d\\theta"
+        },
+        {
+          "label": "Step 1: Formula connecting trigonometric integrals to Beta function:",
+          "katex": "\\int_0^{\\pi/2} \\sin^{2m-1}(\\theta) \\cos^{2n-1}(\\theta) \\, d\\theta = \\frac{1}{2} B(m, n) = \\frac{\\Gamma(m)\\Gamma(n)}{2\\Gamma(m+n)}"
+        },
+        {
+          "label": "Step 2: Determine parameters m and n (2m - 1 = 5, 2n - 1 = 4):",
+          "katex": "2m = 6 \\implies m = 3, \\quad 2n = 5 \\implies n = \\frac{5}{2}"
+        },
+        {
+          "label": "Step 3: Evaluate Gamma function values:",
+          "katex": "\\Gamma(3) = 2! = 2 \\\\[4pt] \\Gamma\\left(\\frac{5}{2}\\right) = \\frac{3}{2} \\cdot \\frac{1}{2} \\sqrt{\\pi} = \\frac{3}{4}\\sqrt{\\pi} \\\\[4pt] \\Gamma(m+n) = \\Gamma\\left(\\frac{11}{2}\\right) = \\frac{9}{2} \\cdot \\frac{7}{2} \\cdot \\frac{5}{2} \\cdot \\frac{3}{2} \\cdot \\frac{1}{2}\\sqrt{\\pi} = \\frac{945}{32}\\sqrt{\\pi}"
+        },
+        {
+          "label": "Step 4: Compute exact fractional quotient:",
+          "katex": "= \\frac{2 \\times \\left(\\frac{3}{4}\\sqrt{\\pi}\\right)}{2 \\times \\left(\\frac{945}{32}\\sqrt{\\pi}\\right)} = \\frac{3/4}{945/32} = \\frac{3}{4} \\times \\frac{32}{945} = \\frac{24}{945} = \\frac{8}{315}"
+        },
+        {
+          "label": "Final Exact Evaluation:",
+          "katex": "\\mathbf{\\int_0^{\\pi/2} \\sin^5(\\theta)\\cos^4(\\theta)\\,d\\theta = \\frac{8}{315}}"
+        }
+      ]
+    },
+    {
+      "id": 1792777948100,
+      "created_at": "2026-10-23T17:52:28.100Z",
+      "title": "\\int_{0}^{1} \\int_{y}^{1} e^{x^2} \\",
+      "type": "expression",
+      "query": "\\int_{0}^{1} \\int_{y}^{1} e^{x^2} \\, dx \\, dy",
+      "answer": "\\frac{e - 1}{2}",
+      "steps": [
+        {
+          "label": "Given double integral with non-elementary inner term:",
+          "katex": "I = \\int_0^1 \\int_y^1 e^{x^2} \\, dx \\, dy"
+        },
+        {
+          "label": "Step 1: Swap limits to 0 ≤ y ≤ x and 0 ≤ x ≤ 1:",
+          "katex": "I = \\int_0^1 \\int_0^x e^{x^2} \\, dy \\, dx"
+        },
+        {
+          "label": "Step 2: Integrate inner integral with respect to y:",
+          "katex": "\\int_0^x e^{x^2} \\, dy = x e^{x^2}"
+        },
+        {
+          "label": "Step 3: Evaluate outer integral with u = x²:",
+          "katex": "\\int_0^1 x e^{x^2} \\, dx = \\left[ \\frac{1}{2}e^{x^2} \\right]_0^1 = \\frac{e - 1}{2}"
+        }
+      ]
+    },
+    {
+      "id": 1792777912992,
+      "created_at": "2026-10-23T17:51:52.992Z",
+      "title": "\\mathcal{L}\\left\\{ t^2 \\sin(3t) \\cd",
+      "type": "expression",
+      "query": "\\mathcal{L}\\left\\{ t^2 \\sin(3t) \\cdot u(t - \\pi) \\right\\}",
+      "answer": "-e^{-\\pi s} \\left[ \\frac{18s^2 - 6(s^2+9)}{(s^2+9)^3} + 2\\pi \\frac{6s}{(s^2+9)^2} + \\pi^2 \\frac{3}{s^2+9} \\right]",
+      "steps": [
+        {
+          "label": "Given Laplace transform:",
+          "katex": "\\mathcal{L}\\{ t^2 \\sin(3t) u(t - \\pi) \\}"
+        },
+        {
+          "label": "Step 1: Apply time-shift property e^(-πs) L{ f(t + π) }:",
+          "katex": "= e^{-\\pi s} \\mathcal{L}\\{ (t + \\pi)^2 \\sin(3(t + \\pi)) \\} = -e^{-\\pi s} \\mathcal{L}\\{ (t^2 + 2\\pi t + \\pi^2)\\sin(3t) \\}"
+        },
+        {
+          "label": "Step 2: Transform individual components:",
+          "katex": "\\mathcal{L}\\{\\sin 3t\\} = \\frac{3}{s^2+9}, \\quad \\mathcal{L}\\{t\\sin 3t\\} = \\frac{6s}{(s^2+9)^2}, \\quad \\mathcal{L}\\{t^2\\sin 3t\\} = \\frac{18s^2 - 6(s^2+9)}{(s^2+9)^3}"
+        }
+      ]
+    },
+    {
+      "id": 1792777901123,
+      "created_at": "2026-10-23T17:51:41.123Z",
+      "title": "\\int_{0}^{\\infty} \\frac{1}{1 + x^2}",
+      "type": "expression",
+      "query": "\\int_{0}^{\\infty} \\frac{1}{1 + x^2} \\, dx \\quad \\text{and} \\quad \\int_{0}^{1} \\frac{\\ln(x)}{\\sqrt{x}} \\, dx",
+      "answer": "\\frac{\\pi}{2}",
+      "steps": [
+        {
+          "label": "Given improper integral:",
+          "katex": "\\int_0^\\infty \\frac{1}{1 + x^2} \\, dx = \\lim_{b \\to \\infty} [\\arctan(x)]_0^b"
+        },
+        {
+          "label": "Step 1: Evaluate limits:",
+          "katex": "\\lim_{b \\to \\infty} \\arctan(b) - \\arctan(0) = \\frac{\\pi}{2} - 0 = \\frac{\\pi}{2}"
+        }
+      ]
+    },
+    {
+      "id": 1792775975487,
+      "created_at": "2026-10-23T17:19:35.487Z",
+      "title": "\\oint_C \\left( (e^x - y^3) \\, dx + ",
+      "type": "expression",
+      "query": "\\oint_C \\left( (e^x - y^3) \\, dx + (x^3 + \\sin y) \\, dy \\right)",
+      "answer": "24\\pi",
+      "steps": [
+        {
+          "label": "Given line integral along closed boundary C:",
+          "katex": "\\oint_C (e^x - y^3)\\,dx + (x^3 + \\sin y)\\,dy"
+        },
+        {
+          "label": "Step 1: Identify vector field components M and N:",
+          "katex": "M = e^x - y^3 \\implies \\frac{\\partial M}{\\partial y} = -3y^2, \\quad N = x^3 + \\sin y \\implies \\frac{\\partial N}{\\partial x} = 3x^2"
+        },
+        {
+          "label": "Step 2: Apply Green's Theorem ∬_D (∂N/∂x - ∂M/∂y) dA:",
+          "katex": "\\frac{\\partial N}{\\partial x} - \\frac{\\partial M}{\\partial y} = 3x^2 - (-3y^2) = 3(x^2 + y^2)"
+        },
+        {
+          "label": "Step 3: Convert region D enclosed by circular boundary (radius R = 2) to polar coordinates:",
+          "katex": "I = \\int_0^{2\\pi} \\int_0^2 3(r^2) \\cdot r \\, dr \\, d\\theta = 3 \\int_0^{2\\pi} d\\theta \\int_0^2 r^3 \\, dr"
+        },
+        {
+          "label": "Step 4: Evaluate definite polar integrals:",
+          "katex": "I = 3(2\\pi) \\left[ \\frac{r^4}{4} \\right]_0^2 = 6\\pi \\left(\\frac{16}{4}\\right) = 24\\pi"
+        },
+        {
+          "label": "Final Circulation Value:",
+          "katex": "\\mathbf{\\oint_C M\\,dx + N\\,dy = 24\\pi}"
+        }
+      ]
+    },
+    {
+      "id": 1792775964776,
+      "created_at": "2026-10-23T17:19:24.776Z",
+      "title": "\\sum_{n=1}^{\\infty} \\frac{(-1)^n (x",
+      "type": "expression",
+      "query": "\\sum_{n=1}^{\\infty} \\frac{(-1)^n (x - 2)^n}{n \\cdot 4^n} \\quad \\text{and} \\quad \\sum_{n=2}^{\\infty} \\frac{1}{n (\\ln n)^p}",
+      "answer": "\\text{Series 1: } x \\in (-2, 6], \\; R = 4; \\quad \\text{Series 2: Converges for } p > 1, \\; \\text{Diverges for } p \\le 1",
+      "steps": [
+        {
+          "label": "Given dual infinite series convergence problem:",
+          "katex": "\\text{Series 1: } \\sum_{n=1}^\\infty \\frac{(-1)^n (x - 2)^n}{n \\cdot 4^n}, \\qquad \\text{Series 2: } \\sum_{n=2}^\\infty \\frac{1}{n (\\ln n)^p}"
+        },
+        {
+          "label": "Step 1: Ratio Test on Series 1 to find Radius of Convergence R:",
+          "katex": "L = \\lim_{n \\to \\infty} \\left| \\frac{a_{n+1}}{a_n} \\right| = \\lim_{n \\to \\infty} \\left| \\frac{(x - 2)^{n+1}}{(n+1)4^{n+1}} \\cdot \\frac{n 4^n}{(x - 2)^n} \\right| = \\frac{|x - 2|}{4} \\lim_{n \\to \\infty} \\frac{n}{n + 1} = \\frac{|x - 2|}{4}"
+        },
+        {
+          "label": "Step 2: Condition for absolute convergence (L < 1):",
+          "katex": "\\frac{|x - 2|}{4} < 1 \\implies |x - 2| < 4 \\implies R = 4, \\quad -2 < x < 6"
+        },
+        {
+          "label": "Step 3: Test endpoints of interval of convergence:",
+          "katex": "\\text{At } x = -2: \\; \\sum_{n=1}^\\infty \\frac{(-1)^n (-4)^n}{n 4^n} = \\sum_{n=1}^\\infty \\frac{1}{n} \\; (\\text{Harmonic series } \\implies \\text{Diverges}) \\\\[4pt] \\text{At } x = 6: \\; \\sum_{n=1}^\\infty \\frac{(-1)^n 4^n}{n 4^n} = \\sum_{n=1}^\\infty \\frac{(-1)^n}{n} \\; (\\text{Alternating harmonic series } \\implies \\text{Converges})"
+        },
+        {
+          "label": "Step 4: Conclusion for Series 1 Interval of Convergence:",
+          "katex": "\\mathbf{I = (-2, 6], \\quad R = 4}"
+        },
+        {
+          "label": "Step 5: Apply Cauchy Integral Test on Series 2 (f(x) = 1 / [x (ln x)^p]):",
+          "katex": "\\int_2^\\infty \\frac{1}{x (\\ln x)^p} \\, dx = \\int_{\\ln 2}^\\infty u^{-p} \\, du \\quad (\\text{where } u = \\ln x, \\; du = \\frac{dx}{x})"
+        },
+        {
+          "label": "Step 6: Conclusion for Series 2 Convergence:",
+          "katex": "\\mathbf{\\text{Converges if and only if } p > 1; \\quad \\text{Diverges for } p \\le 1}"
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "user_1792865108974",
+      "email": "alizakhan2584@gmail.com",
+      "name": "Aliza",
+      "picture": "",
+      "provider": "google",
+      "created_at": "2026-10-24T18:05:08.974Z",
+      "last_login": "2026-10-24T18:05:08.974Z"
+    }
+  ]
+}
