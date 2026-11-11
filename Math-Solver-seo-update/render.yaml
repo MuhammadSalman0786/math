@@ -1,0 +1,16 @@
+# Render blueprint (optional). Health check keeps deploys safe; set SITE_URL once the
+# custom domain works, e.g. https://allmathsolver.com
+services:
+  - type: web
+    name: all-math-solver
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: SITE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
