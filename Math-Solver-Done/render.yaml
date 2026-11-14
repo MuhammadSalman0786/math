@@ -1,0 +1,27 @@
+# Render blueprint (optional). Health check keeps deploys safe; set SITE_URL once the
+# custom domain works, e.g. https://allmathsolver.com
+services:
+  - type: web
+    name: all-math-solver
+    runtime: node
+    region: ohio   # US East-Central: closest balance for visitors in the US, Canada, UK and India
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: SITE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: ADMIN_TOKEN          # password for /admin/messages (contact form inbox)
+        sync: false
+      - key: WEB3FORMS_ACCESS_KEY # free key from web3forms.com: contact messages are e-mailed to you
+        sync: false
+      - key: CONTACT_WEBHOOK_URL  # optional Discord/Slack webhook for instant alerts
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL   # recommended on Render free plan: keeps accounts, history and messages after restarts
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
