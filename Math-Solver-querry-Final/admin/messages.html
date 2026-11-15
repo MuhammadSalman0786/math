@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Messages | All Math Solver admin</title>
+<link rel="icon" href="/favicon.ico">
+<style>
+  :root { --brand: #4c5bab; --line: #e5e7eb; --muted: #6b7280; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f5f6fb; color: #111827; }
+  header { background: var(--brand); color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 1.15rem; margin: 0; }
+  header a { color: #fff; opacity: .85; font-size: .9rem; }
+  main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+  form.login { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  input[type=password] { flex: 1; min-width: 220px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 1rem; }
+  button { background: var(--brand); color: #fff; border: 0; border-radius: 10px; padding: 10px 16px; font-size: .95rem; cursor: pointer; }
+  button.ghost { background: transparent; color: #b91c1c; border: 1px solid #fecaca; padding: 6px 12px; font-size: .85rem; }
+  .meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-bottom: 8px; }
+  .from { font-weight: 600; color: #111827; font-size: .98rem; }
+  .from a { color: var(--brand); font-weight: 500; }
+  .subject { display: inline-block; background: #eef1fb; color: var(--brand); border-radius: 999px; padding: 2px 10px; font-size: .8rem; font-weight: 600; margin-bottom: 8px; }
+  .msg { white-space: pre-wrap; line-height: 1.55; margin: 0 0 12px; overflow-wrap: anywhere; }
+  .status { color: var(--muted); }
+  .error { color: #b91c1c; }
+  .actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .actions a { font-size: .85rem; color: var(--brand); align-self: center; margin-right: auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>All Math Solver: contact messages</h1>
+  <a href="/">← Back to the website</a>
+</header>
+<main>
+  <div class="card">
+    <form class="login" id="loginForm">
+      <input type="password" id="token" placeholder="Admin password (ADMIN_TOKEN)" autocomplete="current-password" required>
+      <button type="submit">Show messages</button>
+    </form>
+    <p class="status" id="status">Enter the admin password you set in ADMIN_TOKEN on your server.</p>
+  </div>
+  <div id="list"></div>
+</main>
+<script>
+(function () {
+  var tokenInput = document.getElementById('token');
+  var statusEl = document.getElementById('status');
+  var list = document.getElementById('list');
+  try { tokenInput.value = sessionStorage.getItem('ams_admin') || ''; } catch (e) {}
+
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+  function setStatus(text, isError) { statusEl.textContent = text; statusEl.className = isError ? 'error' : 'status'; }
+
+  function render(messages) {
+    if (!messages.length) { list.innerHTML = '<div class="card status">No messages yet.</div>'; return; }
+    list.innerHTML = messages.map(function (m) {
+      var when = new Date(m.created_at).toLocaleString();
+      var reply = 'mailto:' + encodeURIComponent(m.email) + '?subject=' + encodeURIComponent('Re: ' + (m.subject || 'your message to All Math Solver'));
+      return '<div class="card" data-id="' + esc(m.id) + '">' +
+        '<div class="meta"><span class="from">' + esc(m.name) + ' · <a href="' + esc(reply) + '">' + esc(m.email) + '</a></span><span>' + esc(when) + '</span></div>' +
+        '<span class="subject">' + esc(m.subject) + '</span>' +
+        '<p class="msg">' + esc(m.message) + '</p>' +
+        '<div class="actions">' + (m.page && /^\/[^/\\]/.test(m.page + 'x') && m.page.charAt(1) !== '/' ? '<a href="' + esc(m.page) + '" target="_blank" rel="noopener">Sent from ' + esc(m.page) + '</a>' : '<span></span>') +
+        '<a href="' + esc(reply) + '">Reply by email</a><button class="ghost" data-del="' + esc(m.id) + '">Delete</button></div></div>';
+    }).join('');
+  }
+
+  function load() {
+    var token = tokenInput.value.trim();
+    if (!token) return;
+    setStatus('Loading…');
+    fetch('/api/contact/messages', { headers: { Authorization: 'Bearer ' + token } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.success) { setStatus(d.error || 'Could not load messages.', true); list.innerHTML = ''; return; }
+        try { sessionStorage.setItem('ams_admin', token); } catch (e) {}
+        setStatus(d.messages.length + ' message' + (d.messages.length === 1 ? '' : 's') + '.');
+        render(d.messages);
+      })
+      .catch(function () { setStatus('Could not reach the server.', true); });
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', function (e) { e.preventDefault(); load(); });
+  list.addEventListener('click', function (e) {
+    var id = e.target.getAttribute('data-del');
+    if (!id || !confirm('Delete this message?')) return;
+    fetch('/api/contact/messages/' + encodeURIComponent(id), { method: 'DELETE', headers: { Authorization: 'Bearer ' + tokenInput.value.trim() } })
+      .then(function (r) { return r.json(); }).then(load);
+  });
+  if (tokenInput.value) load();
+})();
+</script>
+</body>
+</html>
