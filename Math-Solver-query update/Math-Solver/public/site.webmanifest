@@ -1,0 +1,34 @@
+{
+  "id": "/",
+  "name": "All Math Solver: Step-by-Step Math & Maths",
+  "short_name": "All Math Solver",
+  "description": "Free step-by-step math and maths solver: algebra, calculus, proofs, quadratic equations, LCM, GCF, percentages and more.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "theme_color": "#7a8dd3",
+  "background_color": "#ffffff",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Math Solver", "short_name": "Solver", "description": "Solve any math problem step by step", "url": "/?source=shortcut", "icons": [{ "src": "/icons/shortcut-solver.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Quadratic Equation Calculator", "short_name": "Quadratic", "url": "/quadratic-equation-calculator?source=shortcut", "icons": [{ "src": "/icons/shortcut-quadratic.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Percentage Calculator", "short_name": "Percent", "url": "/percentage-calculator?source=shortcut", "icons": [{ "src": "/icons/shortcut-percent.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "LCM Calculator", "short_name": "LCM", "url": "/lcm-calculator?source=shortcut", "icons": [{ "src": "/icons/shortcut-lcm.png", "sizes": "96x96", "type": "image/png" }] }
+  ],
+  "screenshots": [
+    { "src": "/icons/screenshot-phone-1.png", "sizes": "1080x2340", "type": "image/png", "form_factor": "narrow", "label": "Type any math question" },
+    { "src": "/icons/screenshot-phone-2.png", "sizes": "1080x2340", "type": "image/png", "form_factor": "narrow", "label": "Clear step-by-step solutions" },
+    { "src": "/icons/screenshot-wide-1.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "All Math Solver on a computer" }
+  ],
+  "prefer_related_applications": false
+}
