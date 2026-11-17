@@ -21,6 +21,7 @@ function solveCalculus(inputStr) {
 
   // Differentiation: d/dx(x^3 + 5x^2 - 7), \frac{d}{dx}(...), dy/dx ..., diff(...), derivative of ...
   const diffMatch = raw.match(/^(?:d\/dx|\\frac\{d\}\{dx\}|dy\/dx|diff|derivative)\s*(?:of\s+)?(.+)$/i);
+  if (diffMatch && /^\s*of\s*$/i.test(diffMatch[1])) return null; // 'derivative of' with no function
   if (diffMatch) {
     const body = stripWrapping(diffMatch[1]);
     if (body) return solveDifferentiation(body);

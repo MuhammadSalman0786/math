@@ -39,7 +39,8 @@ function strToFrac(str) {
   if (!str) return null;
   str = str.trim();
   // Match LaTeX fraction rac{a}{b} with balanced braces or simple digits
-  let m = str.match(/^(?:\\frac\{([^{}]+)\}\{([^{}]+)\}|(-?\d+)\s*\/\s*(-?\d+))$/);
+  // numbers only: \frac{1}{x} is algebra, not a numeric fraction
+  let m = str.match(/^(?:\\frac\{\s*(-?\d+)\s*\}\{\s*(-?\d+)\s*\}|(-?\d+)\s*\/\s*(-?\d+))$/);
   if (m) {
     return new Frac(parseInt(m[1] || m[3], 10), parseInt(m[2] || m[4], 10));
   }
@@ -232,6 +233,8 @@ function solveFractions(inputStr) {
   let opMatch = cleaned.match(/^(.+?)\s*([\+\-\*\/])\s*(.+)$/);
   if (!opMatch) return null;
 
+  // a / b / c and a * b / c must be read left to right, not as a / (b/c)
+  if (opMatch[2] === '/' && /\//.test(opMatch[3])) return null;
   let f1 = strToFrac(opMatch[1]), op = opMatch[2], f2 = strToFrac(opMatch[3]);
   if (!f1 || !f2 || (f1.d === 1 && f2.d === 1 && op !== '/')) return null;
 

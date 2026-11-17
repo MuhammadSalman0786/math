@@ -126,6 +126,13 @@ function solveExponentialEquation(raw) {
       for (let k = -20; k <= 20; k++) {
         if (new Q(Bn).pow(new Q(BigInt(k))).equals(r.exact)) { xTex = String(k); break; }
       }
+      // rational power: 4^x = 8 -> x = 3/2  (r^d = B^k)
+      for (let d = 2n; !xTex && d <= 6n; d++) {
+        for (let k = -24n; k <= 24n; k++) {
+          if (k % d === 0n) continue;
+          if (r.exact.pow(new Q(d)).equals(new Q(Bn).pow(new Q(k)))) { xTex = new Q(k, d).toTex(); break; }
+        }
+      }
     }
     if (isE && r.exact && r.exact.equals(1)) xTex = '0';
     if (!xTex) {
@@ -149,6 +156,9 @@ function extractDerivativeTarget(raw) {
   const isDerivQ = /dy\/dx|fracdydx|derivative|differentiate|fracddx|d\/dx|f'\(x\)|fprime/.test(k);
   if (!isDerivQ) return null;
   if (/=.*=/.test(k) && /y/.test(s.split('=').slice(1).join('='))) return null; // implicit equations not handled here
+  // a differential equation such as dy/dx + 2y = e^x is not a 'find the derivative' question
+  const lhs0 = s.split('=')[0];
+  if (s.includes('=') && /dy\s*\/\s*dx|\\frac\{dy\}\{dx\}|y\s*'/.test(lhs0) && /(?:^|[^a-zA-Z])\d*\s*\*?\s*y(?![a-zA-Z'])/.test(lhs0.replace(/dy\s*\/\s*dx|\\frac\{dy\}\{dx\}|y\s*'+/g, ''))) return null;
   let m;
   if ((m = s.match(/(?:^|[^a-zA-Z])y\s*=\s*(.+)$/))) return { expr: m[1], name: 'y' };
   // text without spaces, e.g. "Finddy/dxify=x^2\sin(3x)"
@@ -164,6 +174,7 @@ function extractDerivativeTarget(raw) {
 function solveDerivativeQuestion(raw) {
   const target = extractDerivativeTarget(raw);
   if (!target) return null;
+  if (!target.expr || /^\s*(?:of)?\s*$/i.test(target.expr)) return null; // 'derivative of' with nothing after it
   let body = target.expr.replace(/\\left|\\right/g, '').replace(/withrespectto.*$|with respect to.*$/i, '').trim();
   body = body.replace(/^\((.*)\)$/, '$1');
   const f = parseMath(body);
@@ -350,6 +361,10 @@ function solveIntegralQuestion(raw) {
       if (!lim.inf) return { node: simplify(S.substitute(F, x, lim.node)), v: S.evaluate(F, { [x]: lim.value }) };
       const v1 = S.evaluate(F, { [x]: lim.inf * 1e6 }), v2 = S.evaluate(F, { [x]: lim.inf * 1e7 });
       if (!Number.isFinite(v2) || Math.abs(v2 - v1) > 1e-4 * Math.max(1, Math.abs(v2))) return null;
+      // remove the 1/x-type error: Richardson extrapolation from three large points
+      const X = lim.inf * 1e4, g1 = S.evaluate(F, { [x]: X }), g2 = S.evaluate(F, { [x]: 2 * X }), g4 = S.evaluate(F, { [x]: 4 * X });
+      const refined = (4 * (2 * g4 - g2) - (2 * g2 - g1)) / 3;
+      if (Number.isFinite(refined) && Math.abs(refined - v2) < 1e-5 * Math.max(1, Math.abs(v2))) return { v: refined };
       return { v: v2 };
     };
     const Fa = at(a), Fb = at(b);
@@ -453,7 +468,7 @@ function solveLimitQuestion(raw) {
     steps.push({ label: 'Step 1: The form is $1^\\infty$ (or similar). Take logarithms: $\\ln L = \\lim v\\ln u$.', katex: `\\ln L = ${limTex} ${tex(inner)}` });
     const r = limitQuotient(inner, x, a, aNode, isInf, infSign, side, steps, 2);
     if (!r) return null;
-    const ans = r.exact ? (r.exact.isZero() ? '1' : `e^{${r.exact.toTex()}}`) : r.tex === '\\infty' ? '\\infty' : r.tex === '-\\infty' ? '0' : `e^{${r.tex}}`;
+    const ans = r.exact ? (r.exact.isZero() ? '1' : r.exact.equals(1) ? 'e' : `e^{${r.exact.toTex()}}`) : r.tex === '\\infty' ? '\\infty' : r.tex === '-\\infty' ? '0' : `e^{${r.tex}}`;
     steps.push({ label: 'Exponentiate:', katex: `L = ${ans}` });
     steps.push({ label: 'Final Answer:', katex: `\\mathbf{${ans}}` });
     return { answer: ans, steps };
@@ -540,14 +555,26 @@ function limitQuotient(expr, x, a, aNode, isInf, infSign, side, steps, stepNo) {
     let value = nv / dv;
     if (!Number.isFinite(nv) && Number.isFinite(dv)) value = nv * Math.sign(dv || 1);
     if (Number.isFinite(nv) && !Number.isFinite(dv)) value = 0;
-    const out = !Number.isFinite(value) ? (value > 0 ? '\\infty' : '-\\infty') : (recogniseConstant(value) || formatDecimal(+value.toFixed(8)));
+    let out = !Number.isFinite(value) ? (value > 0 ? '\\infty' : '-\\infty') : (recogniseConstant(value) || formatDecimal(+value.toFixed(8)));
+    let exactInf = null;
+    if (Number.isFinite(value) && !recogniseConstant(value)) {
+      // sharpen the numerical value (errors like c/x): Richardson extrapolation from three large x
+      const f = (v) => evalAt(N, v) / evalAt(D, v);
+      const X = infSign * 1e4, f1 = f(X), f2 = f(2 * X), f4 = f(4 * X);
+      const r1 = 2 * f2 - f1, r2 = 2 * f4 - f2, refined = (4 * r2 - r1) / 3;
+      const rec = Number.isFinite(refined) && Math.abs(refined - value) < 1e-5 * Math.max(1, Math.abs(value)) ? recogniseConstant(refined) : null;
+      if (rec) {
+        out = rec;
+        for (let d = 1; d <= 64; d++) { const n = Math.round(refined * d); if (Math.abs(refined * d - n) < 1e-7) { exactInf = new Q(BigInt(n), BigInt(d)); break; } }
+      }
+    }
     if (S.freeOf(N, x) && S.freeOf(D, x)) {
       const e = simplify(prod(N, pow(D, -1)));
       steps.push({ label: `Step ${stepNo++}: The expression no longer depends on $${x}$:`, katex: tex(e) });
       return { tex: tex(e), exact: e.t === 'num' ? e.v : null };
     }
     steps.push({ label: `Step ${stepNo++}: Evaluate the behaviour as $${x} \\to ${infSign < 0 ? '-' : ''}\\infty$:`, katex: `\\frac{${tex(N)}}{${tex(D)}} \\to ${out}` });
-    return { tex: out, exact: null };
+    return { tex: out, exact: exactInf };
   }
   return null;
 }

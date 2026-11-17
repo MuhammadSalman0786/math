@@ -227,6 +227,8 @@ function solveProportion(a, b, c, d) {
 
 function solveMathematicalInduction(rawText) {
   const norm = rawText.replace(/\s+/g, '').toLowerCase();
+  // an induction statement always mentions n (or k); plain arithmetic such as 5 - 3/1 + 1^2 is not one
+  if (!/(?:^|[^a-z])[nk](?:[^a-z]|$)/.test(norm.replace(/\\[a-z]+/g, ' ')) && !/induction/.test(norm)) return null;
 
   if (norm.includes('1^3') || norm.includes('13+23') || (norm.includes('n^3') && norm.includes('n+1')) || (norm.includes('13') && norm.includes('23') && norm.includes('n3'))) {
     return {
@@ -314,6 +316,8 @@ function normalizeMathLiveInput(raw) {
     .replace(/\\imaginaryI|\\(?:mathrm|operatorname)\{i\}/g, 'i')
     .replace(/\\placeholder(?:\[[^\]]*\])?\{[^{}]*\}/g, '')
     .replace(/\\operatorname\{([a-zA-Z]+)\}/g, '\\$1')
+    // \begin{cases} a \\ b \end{cases} (a system typed in the maths keyboard) -> "a, b"
+    .replace(/\\begin\{(?:cases|aligned|array)\}(?:\{[^{}]*\})?([\s\S]*?)\\end\{(?:cases|aligned|array)\}/g, (m, body) => body.split(/\\\\/).map(r => r.replace(/&/g, '').trim()).filter(Boolean).join(', '))
     .replace(/\\[,;:!]|\\quad|\\qquad|\\ /g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
@@ -331,6 +335,7 @@ function matchVariable(q, r) {
 }
 function stripInstructions(q) {
   let t = String(q || '').trim();
+  t = t.replace(/^(?:please\s+)?(?:solve|find)\s+for\s+[a-z]\s*[:,]?\s*/i, '');
   t = t.replace(/^(?:please\s+)?(?:solve|find|evaluate|calculate|compute|work\s+out|simplify|determine|what\s+is|show\s+that)\b\s*(?:the\s+(?:equation|expression|value\s+of)\s*)?:?\s*/i, '');
   t = t.replace(/(?<![\s,.])[\s,.]*(?:using|by|with|via)\s+(?:the\s+)?(?:quadratic\s+formula|factor(?:ing|i[sz]ing|i[sz]ation)|laplace(?:\s+transforms?)?|separation\s+of\s+variables|completing\s+the\s+square|elimination|substitution|algebra|formula|method)\b.*$/i, '');
   t = t.replace(/(?<![\s,.])[\s,.]*for\s+[a-z][\s.]*$/i, '').replace(/[.?][\s]*$/, '');
@@ -346,6 +351,12 @@ const tidyWhitespace = (q) => String(q || '')
   .replace(/\\(?:lvert|rvert|vert)(?![a-zA-Z])\s*(?:\{\})?/g, '|').replace(/\\(?:left|right)\s*\|/g, '|').replace(/\r\n?/g, '\n').replace(/[ \t\f\v\u00a0]+/g, ' ').replace(/ ?\n[\s]*/g, '\n').trim();
 function solveExpression(rawQueryIn) {
   const raw = tidyWhitespace(rawQueryIn);
+  // "integral of ... from 0 to 1", "limit of ... as x approaches 2", ... -> standard notation
+  const rewritten = safe(() => A7.rewritePlain(normalizeMathLiveInput(raw)));
+  if (rewritten) {
+    const r = safe(() => solveExpressionCore(rewritten));
+    if (!failed(r)) return r;
+  }
   const first = matchVariable(raw, solveExpressionCore(raw));
   if (!failed(first)) return first;
   const t = stripInstructions(raw);
@@ -422,8 +433,14 @@ function smartFallback(raw, stripped) {
     }
   }
   // 1. maths written inside a sentence
+  // Only use a fragment when the words around it do not change the question
+  // ("prime factorization of 360" or "0.75 as a fraction" must not be answered with 360 or 0.75).
+  const FILLER = /^(?:what|whats|is|are|the|value|find|calculate|compute|evaluate|solve|simplify|work|out|please|answer|result|equal|equals|tell|me|give|show|steps|step|can|you|i|get|do|does|how|much|determine|expression|equation|following|this|for|here|question|maths?|help|with)$/i;
+  const wordsOf = (t) => (String(t).replace(/\\[a-zA-Z]+/g, ' ').match(/[a-zA-Z]{2,}/g) || []).map(w => w.toLowerCase());
   for (const frag of mathFragments(stripped || raw)) {
     if (tried.has(frag) || !looksMathematical(frag)) continue; tried.add(frag);
+    const fragWords = new Set(wordsOf(frag));
+    if (wordsOf(raw).some(w => !fragWords.has(w) && !FILLER.test(w))) continue;
     const r = safe(() => solveExpressionCore(frag));
     const out = !failed(r) ? r : safe(() => CMP.solveComparisonQuestion(frag));
     if (out && !failed(out)) {
@@ -512,8 +529,18 @@ function guidance(raw) {
     ]
   };
 }
+const A7 = require('../math/advanced7');
 function solveExpressionCore(rawQueryIn) {
   const rawQuery = normalizeMathLiveInput(rawQueryIn);
+  // Question types added in part 7 (each returns null unless it is sure)
+  for (const solver of A7.SOLVERS) {
+    try {
+      const r = solver(rawQuery);
+      if (r) return r;
+    } catch (err) {
+      console.warn(`[solver] ${solver.name} failed:`, err.message);
+    }
+  }
   // Priority A: Advanced Benchmark Suite (only matches its exact problems)
   const benchmarkResult = solveAdvancedBenchmark(rawQuery);
   if (benchmarkResult) return benchmarkResult;
@@ -525,6 +552,9 @@ function solveExpressionCore(rawQueryIn) {
   // Rational algebraic expressions: factor and cancel
   const rationalResult = solveAlgebraicRational(rawQuery);
   if (rationalResult) return rationalResult;
+  let rationalSimple = null;
+  try { rationalSimple = A7.solveRationalSimplify(rawQuery); } catch (e) { rationalSimple = null; }
+  if (rationalSimple) return rationalSimple;
 
   // Single simple fraction (e.g. \frac{9}{3} or 15/5)
   const singleFracMatch = rawQuery.trim().match(/^(?:\\frac\{(\d+)\}\{(\d+)\}|(\d+)\s*\/\s*(\d+))$/);

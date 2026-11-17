@@ -70,7 +70,35 @@ function toPlain(input) {
   s = s.replace(/√\s*\(/g, 'sqrt(').replace(/√\s*([a-z0-9]+)/gi, 'sqrt($1)');
   s = s.replace(/\{/g, '(').replace(/\}/g, ')').replace(/\[/g, '(').replace(/\]/g, ')');
   s = s.replace(/\\/g, ' ');
+  s = rewriteLogBase(s);
   return s.trim();
+}
+
+// log_b(x) -> (ln(x)/ln(b)); log_2(8) with an exact integer power -> 3
+function rewriteLogBase(s) {
+  for (let guard = 0; guard < 20; guard++) {
+    const m = s.match(/log\s*_\s*(\(([^()]+)\)|\d+(?:\.\d+)?|[a-z])\s*/);
+    if (!m) return s;
+    const base = m[2] !== undefined ? m[2] : m[1];
+    let i = m.index + m[0].length, arg, end;
+    if (s[i] === '(') {
+      let dep = 0;
+      for (end = i; end < s.length; end++) { if (s[end] === '(') dep++; else if (s[end] === ')' && --dep === 0) break; }
+      if (end >= s.length) return s;
+      arg = s.slice(i + 1, end); end++;
+    } else {
+      const a = s.slice(i).match(/^(\d+(?:\.\d+)?|[a-z])/);
+      if (!a) return s;
+      arg = a[1]; end = i + a[1].length;
+    }
+    let rep = `(ln(${arg})/ln(${base}))`;
+    if (/^\d+$/.test(base) && /^\d+$/.test(arg.trim())) {
+      const B = BigInt(base), A = BigInt(arg.trim());
+      if (B > 1n && A > 0n) { let v = 1n, k = 0; while (v < A && k < 200) { v *= B; k++; } if (v === A) rep = `(${k})`; }
+    }
+    s = s.slice(0, m.index) + rep + s.slice(end);
+  }
+  return s;
 }
 
 // Heuristic repair for text copied from a PDF, where superscripts are flattened:
@@ -240,6 +268,12 @@ function simplifyFn(f, a) {
     }
     if (f === 'abs') return num(a.v.abs());
   }
+  if (['arcsin', 'arccos', 'arctan'].includes(f) && a.t === 'num') {
+    const piq = (n, d) => (n === 0 ? num(0) : prod(num(new Q(BigInt(n), BigInt(d))), cst('pi')));
+    const v = a.v.toPlain();
+    const T = { arcsin: { '1': [1, 2], '-1': [-1, 2], '1/2': [1, 6], '-1/2': [-1, 6] }, arccos: { '0': [1, 2], '1': [0, 1], '-1': [1, 1], '1/2': [1, 3], '-1/2': [2, 3] }, arctan: { '1': [1, 4], '-1': [-1, 4] } };
+    if (T[f][v]) return piq(...T[f][v]);
+  }
   if (f === 'ln' && a.t === 'const' && a.n === 'e') return num(1);
   if (f === 'ln' && a.t === 'pow' && a.base.t === 'const' && a.base.n === 'e') return a.exp;
   if (f === 'fact' && a.t === 'num' && a.v.isInteger() && !a.v.isNegative() && a.v.n <= 170n) {
@@ -276,6 +310,10 @@ function simplifyFn(f, a) {
 
 function simplifyPow(b, e) {
   if (isNum(e, 0)) return num(1);
+  if (b.t === 'const' && b.n === 'e') { // e^(ln u) = u, e^(c ln u) = u^c
+    if (e.t === 'fn' && e.f === 'ln') return e.arg;
+    if (e.t === 'prod' && e.factors.length === 2 && e.factors[0].t === 'num' && e.factors[1].t === 'fn' && e.factors[1].f === 'ln') return simplifyPow(e.factors[1].arg, e.factors[0]);
+  }
   if (isNum(e, 1)) return b;
   if (isNum(b, 1)) return num(1);
   if (isNum(b, 0) && e.t === 'num' && !e.v.isNegative()) return num(0);
@@ -519,7 +557,18 @@ function evaluate(n, env = {}) {
     case 'const': return n.n === 'e' ? Math.E : n.n === 'pi' ? Math.PI : Infinity;
     case 'sum': return n.terms.reduce((a, t) => a + evaluate(t, env), 0);
     case 'prod': return n.factors.reduce((a, t) => a * evaluate(t, env), 1);
-    case 'pow': return Math.pow(evaluate(n.base, env), evaluate(n.exp, env));
+    case 'pow': {
+      const b = evaluate(n.base, env), e = evaluate(n.exp, env);
+      // real odd roots of negative numbers: (-8)^(2/3) = 4
+      if (b < 0 && !Number.isInteger(e)) {
+        const en = n.exp.t === 'num' ? n.exp : simplify(n.exp);
+        if (en.t === 'num' && en.v.d % 2n === 1n) {
+          const r = Math.pow(-b, e);
+          return en.v.n % 2n === 0n ? r : -r;
+        }
+      }
+      return Math.pow(b, e);
+    }
     case 'fn': {
       const a = evaluate(n.arg, env);
       if (n.f === 'fact') { if (a < 0 || !Number.isInteger(a)) return NaN; let r = 1; for (let i = 2; i <= a; i++) r *= i; return r; }
@@ -674,10 +723,10 @@ function integrate(n0, x) {
   return { result: simplify(res), steps };
 }
 
-function integ(n, x, steps) {
+function integ(n, x, steps, depth = 0) {
   if (freeOf(n, x)) return prod(n, vr(x));
   if (n.t === 'sum') {
-    const parts = n.terms.map(t => integ(t, x, steps));
+    const parts = n.terms.map(t => integ(t, x, steps, depth));
     return parts.every(Boolean) ? sum(...parts) : null;
   }
   // Constant factor out
@@ -685,7 +734,7 @@ function integ(n, x, steps) {
     const consts = n.factors.filter(f => freeOf(f, x));
     const rest = n.factors.filter(f => !freeOf(f, x));
     if (consts.length && rest.length) {
-      const r = integ(simplify(rest.length === 1 ? rest[0] : prod(...rest)), x, steps);
+      const r = integ(simplify(rest.length === 1 ? rest[0] : prod(...rest)), x, steps, depth);
       return r ? prod(...consts, r) : null;
     }
   }
@@ -729,7 +778,8 @@ function integ(n, x, steps) {
     const terms = P.trim(p).map((c, i) => c.isZero() ? null : prod(num(c.div(new Q(BigInt(i + 1)))), pow(vr(x), i + 1))).filter(Boolean);
     return terms.length ? sum(...terms) : num(0);
   }
-  return null;
+  // substitution, partial fractions, trig powers, ... (each result is verified by differentiation)
+  return require('./integrate2').integAdvanced(n, x, steps, (m, v, st, dp) => integ(simplify(m), v, st, dp), depth);
 }
 
 function integBasic(n, x) {
