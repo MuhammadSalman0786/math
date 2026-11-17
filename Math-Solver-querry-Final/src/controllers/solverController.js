@@ -346,13 +346,17 @@ const failed = (r) => !r || /Sorry|could not be solved/.test(r.answer || '');
 const safe = (fn) => { try { return fn(); } catch (e) { return null; } };
 // runs of spaces carry no meaning in a maths question; collapsing them also keeps pattern matching fast on long input
 const tidyWhitespace = (q) => String(q || '')
+  // $$...$$ and $...$ math delimiters pasted from a document ("$15" as money is left alone)
+  .replace(/\$\$([\s\S]+?)\$\$/g, ' $1 ').replace(/\\\[([\s\S]+?)\\\]/g, ' $1 ').replace(/\\\(([\s\S]+?)\\\)/g, ' $1 ')
+  .replace(/(^|[^\\])\$([^$\n]*?[\\^_=(][^$\n]*?)\$/g, '$1 $2 ')
   // \vert{}x\vert{}, \lvert x \rvert, \left| x \right| all mean |x|; \Vert means a norm
   .replace(/\\(?:lVert|rVert|Vert)(?![a-zA-Z])\s*(?:\{\})?/g, '\\|').replace(/\\(?:left|right)\s*\\\|/g, '\\|')
   // the maths box (MathLive) writes a typed space as \: and 2/3 as \frac23
-  .replace(/\\[:;]|\\ /g, ' ')
+  .replace(/\\[:;]|\\ /g, ' ').replace(/\\differentialD\s*/g, 'd')
   .replace(/\\[dt]?frac\s*([0-9a-zA-Z])\s*([0-9a-zA-Z])/g, '\\frac{$1}{$2}')
   .replace(/(?:\\left|\\right)?\\lbrack(?![a-zA-Z])/g, '[').replace(/(?:\\left|\\right)?\\rbrack(?![a-zA-Z])/g, ']')
   .replace(/\\left\s*([(\[])|\\right\s*([)\]])/g, (m, a, b) => a || b)
+  .replace(/\^\{\\prime\s*(\d)\}/g, "'^$1").replace(/\^\{\\doubleprime\s*(\d)\}/g, "''^$1") // y'^2 typed in the box: y^{\prime2}
   .replace(/\^\{\\tripleprime\}/g, "'''").replace(/\^\{\\doubleprime\}|\^\{\\prime\s*\\prime\}/g, "''").replace(/\^\{\\prime\}/g, "'")
   // dy/dx typed in the maths box comes out as d\frac{y}{dx}
   .replace(/(?:\\differentialD|\bd)\s*\\frac\{\s*([a-zA-Z])\s*\}\{\s*(?:\\differentialD|d)\s*([a-zA-Z])\s*\}/g, '\\frac{d$1}{d$2}')

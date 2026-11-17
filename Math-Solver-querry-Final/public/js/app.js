@@ -1324,6 +1324,17 @@ function setupMathFieldTyping(mf) {
         if (k === ' ' && emptyBox(at) && at.parent && at.parent.type === 'genfrac') { e.preventDefault(); e.stopPropagation(); return; } }
       // 6. a closing bracket
       if (k === ')') { climbToOpenBracket(model); return; }
+      // "int_0^(pi/2)", "x_1^2": "^" at the end of a subscript (or "_" at the end of a power) belongs to the
+      // base, not to the last character of the subscript
+      if (k === '^' || k === '_') {
+        const at = model.at(model.position);
+        if (at && !emptyBox(at) && !at.rightSibling && at.parentBranch === (k === '^' ? 'subscript' : 'superscript') && !openBracket(at)) {
+          mf.position = model.offsetOf(at.parent);
+          if (k === '_') return;
+          const base = model.at(model.position);
+          if (!(base && Array.isArray(base.superscript) && base.superscript.some(x => x.type !== 'first'))) return;
+        }
+      }
       // "2^3^2": a "^" at the end of a power starts a power of the power (MathLive would drop the 3)
       if (k === '^') {
         const at = model.at(model.position);
