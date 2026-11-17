@@ -120,6 +120,7 @@ function setupCalculatorUI() {
       if (e.key === 'Enter') { e.preventDefault(); handleCalculate(); }
     });
     mf.addEventListener('touchstart', () => { if (typeof mf.focus === 'function') mf.focus(); }, { passive: true });
+    setupMathFieldTyping(mf);
   }
   ['propA', 'propB', 'propC', 'propD', 'dobInput', 'acdcVoltage', 'quadA', 'quadB', 'quadC', 'numbersInput', 'percentX', 'percentY'].forEach(id => {
     document.getElementById(id)?.addEventListener('keydown', (e) => {
@@ -1217,6 +1218,139 @@ function insertSymbol(sym) {
     target.setSelectionRange(newPos, newPos);
     target.focus();
   }
+}
+
+// Make the math box behave the way people type questions (MathLive):
+//  - the space bar inserts a visible space, so "convert 180 degrees to radians" keeps its words apart
+//  - shortcuts such as sin, tan, int, frac, pi only turn into symbols when the WHOLE word is typed
+//    (so "standard", "integral", "fraction", "the" stay words instead of s\tan dard, \int egral, ...)
+//  - English words such as "of", "in", "and" are never turned into symbols (∘, ∈, ∧)
+//  - at the end of a fraction's denominator, a space, + - = or , steps out of the fraction:
+//    "2/3 of 27" and "2/3+5/7" mean (2/3) of 27 and 2/3 + 5/7
+//  - "144/12/3" means (144/12)/3: a "/" typed at the end of a denominator wraps the fraction
+//    instead of nesting a new fraction inside it (which would mean 144/(12/3))
+const MF_WORDS_KEEP = new Set(['of', 'in', 'and', 'or', 'not', 'mod', 'mean', 'median', 'divide', 'square', 'diamond', 'union', 'iff', 'approaches', 'inch', 'mi', 'ft', 'mm', 'cm', 'km', 'kg', 'sub', 'sup', 'sube', 'supe', 'prop', 'lt', 'gt', 'xin', 'sint', 'th', 'sh', 'ch', 'tg', 'lg', 'lb', 'oo', 'ii', 'jj', 'ee', 'xx', 'vv', 'nn', 'uu', 'vvv', 'nnn', 'uuu', 'del', 'grad', 'asterisk', 'defint']);
+function setupMathFieldTyping(mf) {
+  try { mf.mathModeSpace = '\\:'; } catch (e) { /* older MathLive */ }
+  const wordShortcuts = {};
+  try {
+    const sc = Object.assign({}, mf.inlineShortcuts || {});
+    for (const k of Object.keys(sc)) {
+      if (!/^[a-zA-Z]+$/.test(k)) continue;
+      const v = sc[k];
+      const latex = typeof v === 'string' ? v : (v && (v.value || v.latex));
+      // \log_{#?}, \lim_{#?\to#?}, \int_{#?}^{#?} -> \log, \lim, \int: the cursor stays on the line
+      // (so "log(100)" and "lim (sin x)/x as x->0" are typed naturally; "_" still opens a subscript)
+      if (latex && !MF_WORDS_KEEP.has(k)) wordShortcuts[k] = latex.replace(/[_^]\{[^{}]*#\?[^{}]*\}/g, '');
+      delete sc[k];
+    }
+    mf.inlineShortcuts = sc;
+  } catch (e) { /* keep defaults */ }
+
+  const modelOf = () => { const m = mf._mathfield && mf._mathfield.model; return m && typeof m.at === 'function' ? m : null; };
+  const isLetter = (a) => a && a.type === 'mord' && typeof a.value === 'string' && /^[a-zA-Z]$/.test(a.value);
+  // the atom before the cursor, when the cursor sits at the end of a non-empty denominator
+  const endOfDenominator = (model) => {
+    const atom = model.at(model.position);
+    if (!atom || atom.type === 'first' || !atom.parent || atom.parent.type !== 'genfrac' || atom.parentBranch !== 'below') return null;
+    return atom.rightSibling ? null : atom;
+  };
+  // the letters typed just before the cursor (a whole word, not part of a longer one)
+  const wordBefore = (model) => {
+    let atom = model.at(model.position), w = '';
+    while (isLetter(atom)) { w = atom.value + w; atom = atom.leftSibling; }
+    return w;
+  };
+
+  const emptyBox = (a) => a && (a.type === 'first' || a.type === 'placeholder');
+  // a bracket opened in this box and not closed yet: keep typing inside it (2^(-3), 2^(1-3))
+  const openBracket = (a) => { let d = 0; for (; a && a.type !== 'first'; a = a.leftSibling) { if (a.type === 'mopen') d++; else if (a.type === 'mclose') d--; } return d > 0; };
+  // ")" closes the bracket that was opened outside this denominator / power: x^{(2/3)}
+  const climbToOpenBracket = (model) => {
+    for (let guard = 0; guard < 8; guard++) {
+      const at = model.at(model.position);
+      if (!at || at.rightSibling || !at.parent || openBracket(at)) break;
+      const inBox = (at.parent.type === 'genfrac' && at.parentBranch === 'below') || at.parentBranch === 'superscript' || at.parentBranch === 'subscript';
+      if (!inBox) break;
+      mf.position = model.offsetOf(at.parent);
+    }
+  };
+
+  // listen on the document (capture) so this runs before MathLive's own key handling
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+    if (!(e.composedPath ? e.composedPath() : [e.target]).includes(mf)) return;
+    const k = e.key;
+    if (typeof k !== 'string' || k.length !== 1 || /[a-zA-Z]/.test(k)) return;
+    try {
+      const model = modelOf();
+      if (!model || mf.mode === 'text') return;
+      // 1. a word just ended: "sin" -> \sin, "pi" -> \pi, "deg" -> \degree ...
+      const w = wordBefore(model);
+      if (w && Object.prototype.hasOwnProperty.call(wordShortcuts, w)) {
+        const end = model.position;
+        mf.selection = { ranges: [[end - w.length, end]] };
+        mf.insert(wordShortcuts[w], { format: 'latex', selectionMode: /#[0?@]/.test(wordShortcuts[w]) ? 'placeholder' : 'after' });
+        // after a programmatic insert MathLive would apply "_" / "^" twice (log_2 -> \log_{_2})
+        if (k === '_' || k === '^') {
+          e.preventDefault(); e.stopPropagation();
+          mf.executeCommand(k === '_' ? 'moveToSubscript' : 'moveToSuperscript');
+          return;
+        }
+      }
+      // 2. "{" and "}" typed in the box mean brackets (2^{-3}, x^{2/3}), not literal braces
+      if (k === '{' || k === '}') {
+        e.preventDefault(); e.stopPropagation();
+        if (k === '}') climbToOpenBracket(model);
+        mf.executeCommand(['typedText', k === '{' ? '(' : ')']);
+        return;
+      }
+      // 3. "7! / 5!": a space before "/" would leave the fraction without a numerator
+      if (k === '/') {
+        const prev = model.at(model.position);
+        if (prev && (prev.type === 'space' || prev.type === 'spacing' || prev.command === '\\:')) mf.executeCommand('deleteBackward');
+      }
+      // 4. "144/12/3" = (144/12)/3: "/" at the end of a denominator wraps the whole fraction
+      const den = endOfDenominator(model);
+      if (den && k === '/') {
+        const frac = den.parent, after = model.offsetOf(frac);
+        e.preventDefault(); e.stopPropagation();
+        mf.selection = { ranges: [[model.offsetOf(frac.leftSibling), after]] };
+        mf.insert('\\frac{#@}{#?}', { format: 'latex', selectionMode: 'placeholder' });
+        return;
+      }
+      // 5. "7! / 5!": the space right after "/" is not needed in an empty denominator
+      { const at = model.at(model.position);
+        if (k === ' ' && emptyBox(at) && at.parent && at.parent.type === 'genfrac') { e.preventDefault(); e.stopPropagation(); return; } }
+      // 6. a closing bracket
+      if (k === ')') { climbToOpenBracket(model); return; }
+      // "2^3^2": a "^" at the end of a power starts a power of the power (MathLive would drop the 3)
+      if (k === '^') {
+        const at = model.at(model.position);
+        const hasPower = (a) => a && Array.isArray(a.superscript) && a.superscript.some(x => x.type !== 'first');
+        if (at && !emptyBox(at) && ((!at.rightSibling && at.parentBranch === 'superscript') || hasPower(at))) {
+          e.preventDefault(); e.stopPropagation();
+          mf.insert('^{#?}', { format: 'latex', selectionMode: 'placeholder' });
+          return;
+        }
+      }
+      // 7. step out of denominators, powers, subscripts and roots, the way the question reads as text:
+      //    "6/2*(1+2)", "e^x+1", "log_2(32)", "sqrt(2)*sqrt(8)", "1/2^n from ..." (a space leaves every level)
+      for (let guard = 0; guard < 8; guard++) {
+        const at = model.at(model.position);
+        if (!at || emptyBox(at) || at.rightSibling || !at.parent || openBracket(at)) break;
+        const br = at.parentBranch, pt = at.parent.type;
+        const oneBracket = at.type === 'leftright' && at.leftSibling && at.leftSibling.type === 'first';
+        let leave = false;
+        if (pt === 'genfrac' && br === 'below') leave = /[ +\-=,*]/.test(k);
+        else if (br === 'superscript') leave = /[ =,+\-]/.test(k) || (oneBracket && /[*/]/.test(k));
+        else if (br === 'subscript') leave = /[ =,+\-*/(]/.test(k);
+        else if (pt === 'surd' && br === 'body') leave = /[ =,]/.test(k) || (oneBracket && /[+\-*/]/.test(k));
+        if (!leave) break;
+        mf.position = model.offsetOf(at.parent);
+      }
+    } catch (err) { /* fall back to MathLive's own behaviour */ }
+  }, true);
 }
 
 function getMathInputValue() {

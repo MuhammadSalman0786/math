@@ -22,7 +22,7 @@ const plainWords = (raw) => String(raw).replace(/\\(text|mathrm|operatorname)\{(
 // ---------------------------------------------------------------- 1. plain English -> LaTeX forms
 function rewritePlain(raw) {
   let s = plainWords(raw).replace(/[.?]\s*$/, '');
-  const lim = '(-?(?:infinity|inf|∞|\\\\infty|[\\w.^/()*+-]+?))';
+  const lim = '(-?(?:infinity|inf|∞|\\\\infty|[\\w.^/()*+\\\\{}-]+?))'; // \pi, \frac{\pi}{2} as limits too
   let m;
   // area under y = f from a to b / between x=a and x=b
   if ((m = s.match(/^(?:find\s+)?(?:the\s+)?area\s+under\s+(?:the\s+)?(?:curve\s+|graph\s+(?:of\s+)?)?(?:y\s*=\s*|f\(x\)\s*=\s*)?(.+?)\s+(?:from|between)\s+(?:x\s*=\s*)?(\S+)\s+(?:to|and)\s+(?:x\s*=\s*)?(\S+)$/i)))

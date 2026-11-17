@@ -348,9 +348,28 @@ const safe = (fn) => { try { return fn(); } catch (e) { return null; } };
 const tidyWhitespace = (q) => String(q || '')
   // \vert{}x\vert{}, \lvert x \rvert, \left| x \right| all mean |x|; \Vert means a norm
   .replace(/\\(?:lVert|rVert|Vert)(?![a-zA-Z])\s*(?:\{\})?/g, '\\|').replace(/\\(?:left|right)\s*\\\|/g, '\\|')
+  // the maths box (MathLive) writes a typed space as \: and 2/3 as \frac23
+  .replace(/\\[:;]|\\ /g, ' ')
+  .replace(/\\[dt]?frac\s*([0-9a-zA-Z])\s*([0-9a-zA-Z])/g, '\\frac{$1}{$2}')
+  .replace(/(?:\\left|\\right)?\\lbrack(?![a-zA-Z])/g, '[').replace(/(?:\\left|\\right)?\\rbrack(?![a-zA-Z])/g, ']')
+  .replace(/\\left\s*([(\[])|\\right\s*([)\]])/g, (m, a, b) => a || b)
+  .replace(/\^\{\\tripleprime\}/g, "'''").replace(/\^\{\\doubleprime\}|\^\{\\prime\s*\\prime\}/g, "''").replace(/\^\{\\prime\}/g, "'")
+  // dy/dx typed in the maths box comes out as d\frac{y}{dx}
+  .replace(/(?:\\differentialD|\bd)\s*\\frac\{\s*([a-zA-Z])\s*\}\{\s*(?:\\differentialD|d)\s*([a-zA-Z])\s*\}/g, '\\frac{d$1}{d$2}')
+  .replace(/\\operatorname\{(gcd|lcm|mod)\}/g, '$1').replace(/\\(gcd|lcm)(?![a-zA-Z])/g, '$1')
+  .replace(/\\%/g, '%').replace(/\\\$/g, '$')
+  // braces typed as text in the maths box: 2^{\left\lbrace-3\right\rbrace} -> 2^{(-3)}
+  .replace(/(?:\\left|\\right)?\\lbrace(?![a-zA-Z])/g, '(').replace(/(?:\\left|\\right)?\\rbrace(?![a-zA-Z])/g, ')')
+  .replace(/\\sqrt\{\(([^(){}]*)\)\}/g, '\\sqrt{$1}').replace(/\^\{\(([^(){}]*)\)\}/g, '^{$1}') // \sqrt{(50)}, e^{(-x^2)}
+  // mixed numbers: 1\:\frac12 -> "1 1/2"
+  .replace(/(^|[^\w^.}])(\d+) \\frac\{(\d+)\}\{(\d+)\}/g, '$1$2 $3/$4')
+  // "\lim (sin x)/x as x\to0", "\sum of 1/n^2 from ..." typed as words in the maths box
+  .replace(/\\lim(?=\s+[^_\s][\s\S]*\sas\s)/g, 'lim').replace(/\\(sum|int|prod)(?=\s+(?:of|from)\b)/g, '$1')
   .replace(/\\(?:lvert|rvert|vert)(?![a-zA-Z])\s*(?:\{\})?/g, '|').replace(/\\(?:left|right)\s*\|/g, '|').replace(/\r\n?/g, '\n').replace(/[ \t\f\v\u00a0]+/g, ' ').replace(/ ?\n[\s]*/g, '\n').trim();
+// drop a ")" that closes nothing (left over from braces typed in the maths box)
+const dropUnmatchedClose = (q) => { if (!/\)/.test(q)) return q; let d = 0, out = ''; for (const c of q) { if (c === '(') d++; else if (c === ')') { if (d === 0) continue; d--; } out += c; } return out; };
 function solveExpression(rawQueryIn) {
-  const raw = tidyWhitespace(rawQueryIn);
+  const raw = dropUnmatchedClose(tidyWhitespace(rawQueryIn));
   // "integral of ... from 0 to 1", "limit of ... as x approaches 2", ... -> standard notation
   const rewritten = safe(() => A7.rewritePlain(normalizeMathLiveInput(raw)));
   if (rewritten) {

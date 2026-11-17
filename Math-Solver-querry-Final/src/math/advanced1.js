@@ -277,9 +277,13 @@ function combineRational(n, x) {
 }
 
 // ---------- 3. Integrals (indefinite and definite) ----------
+// "{\\frac{\\pi}{2}}" -> "\\frac{\\pi}{2}" (only the outer group, so \\frac keeps its braces)
+const stripOuterBraces = (str) => { let t = String(str).trim(); while (/^\{[\s\S]*\}$/.test(t) && balancedInside(t.slice(1, -1))) t = t.slice(1, -1).trim(); return t; };
+function balancedInside(t) { let d = 0; for (const c of t) { if (c === '{') d++; else if (c === '}' && --d < 0) return false; } return d === 0; }
+
 function parseLimit(str) {
   if (str === undefined || str === null) return null;
-  const s = String(str).replace(/[{}]/g, '').trim();
+  const s = stripOuterBraces(str);
   if (/^[+]?(\\infty|∞|inf(inity)?)$/i.test(s)) return { inf: 1 };
   if (/^-(\\infty|∞|inf(inity)?)$/i.test(s)) return { inf: -1 };
   const n = parseMath(s);
@@ -292,7 +296,7 @@ function parseLimit(str) {
 function extractIntegral(raw) {
   let s = String(raw).trim();
   // \int_{a}^{b} f dx   |  ∫_a^b f dx   |  int f dx   |  "Evaluate: ∫ x·ex dx"
-  const m = s.match(/(?:\\int|∫|\bint(?:egrate)?\b)\s*(?:_\s*(\{[^}]*\}|-?\\infty|-?∞|-?[\w.]+)\s*\^\s*(\{[^}]*\}|\\infty|∞|[\w.]+))?\s*(.*)$/i);
+  const m = s.match(/(?:\\int|∫|\bint(?:egrate)?\b)\s*(?:_\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}|-?\\infty|-?∞|-?[\w.]+)\s*\^\s*(\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\}|\\infty|∞|[\w.]+))?\s*(.*)$/i);
   if (!m) return null;
   let body = m[3].trim();
   let dv = 'x';
@@ -338,7 +342,7 @@ function solveIntegralQuestion(raw) {
   }
 
   const F = res.result;
-  const steps = [{ label: hasLimits ? 'Given definite integral:' : 'Given integral:', katex: hasLimits ? `\\int_{${ex.lower.replace(/[{}]/g, '')}}^{${ex.upper.replace(/[{}]/g, '')}} ${tex(fs)} \\, d${x}` : `\\int ${tex(fs)} \\, d${x}` }];
+  const steps = [{ label: hasLimits ? 'Given definite integral:' : 'Given integral:', katex: hasLimits ? `\\int_{${stripOuterBraces(ex.lower)}}^{${stripOuterBraces(ex.upper)}} ${tex(fs)} \\, d${x}` : `\\int ${tex(fs)} \\, d${x}` }];
   res.steps.forEach((st, i) => steps.push({ label: `Step ${i + 1}: ${st.label}`, katex: st.katex }));
   if (fs.t === 'sum' && !res.steps.length) {
     steps.push({ label: 'Step 1: Integrate term by term (sum rule) using the standard formulas:', katex: `\\begin{aligned} ${fs.terms.map(t => { const r = S.integrate(t, x); return `\\int ${tex(t)}\\,d${x} &= ${r ? tex(r.result) : '?'}`; }).join(' \\\\ ')} \\end{aligned}` });
@@ -372,7 +376,7 @@ function solveIntegralQuestion(raw) {
     const val = Fb.v - Fa.v;
     const nice = recogniseConstant(val);
     steps.push({ label: 'Antiderivative:', katex: `F(${x}) = ${tex(F)}` });
-    steps.push({ label: 'Improper integral: take the limit of the antiderivative at the infinite end(s):', katex: `\\lim F(${x}) \\Big|_{${ex.lower.replace(/[{}]/g, '')}}^{${ex.upper.replace(/[{}]/g, '')}} = ${nice || formatDecimal(+val.toFixed(8))}` });
+    steps.push({ label: 'Improper integral: take the limit of the antiderivative at the infinite end(s):', katex: `\\lim F(${x}) \\Big|_{${stripOuterBraces(ex.lower)}}^{${stripOuterBraces(ex.upper)}} = ${nice || formatDecimal(+val.toFixed(8))}` });
     return { answer: nice || `\\approx ${formatDecimal(+val.toFixed(8))}`, steps };
   }
 
