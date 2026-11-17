@@ -349,6 +349,26 @@ const tidyWhitespace = (q) => String(q || '')
   // $$...$$ and $...$ math delimiters pasted from a document ("$15" as money is left alone)
   .replace(/\$\$([\s\S]+?)\$\$/g, ' $1 ').replace(/\\\[([\s\S]+?)\\\]/g, ' $1 ').replace(/\\\(([\s\S]+?)\\\)/g, ' $1 ')
   .replace(/(^|[^\\])\$([^$\n]*?[\\^_=(][^$\n]*?)\$/g, '$1 $2 ')
+  // LaTeX: an unbraced script is ONE token, so \int_0^2x^5 has upper limit 2 and \int_1^ex\ln x has upper limit e
+  .replace(/(\\int\s*_\s*(?:\{[^{}]*\}|-?\d+(?:\.\d+)?|\\[a-zA-Z]+|[a-zA-Z])\s*\^)\s*([0-9a-zA-Z])(?=[a-zA-Z(\\])/g, '$1{$2}')
+  .replace(/(\\int\s*_)\s*(\d)(?=[a-zA-Z(\\])/g, '$1{$2}')
+  // \log_2128 is log base 2 of 128 (how LaTeX draws it); \log_10 keeps base 10
+  .replace(/\\log_(?!10(?!\d))(\d)(\d+)(?![\d.])/g, '\\log_{$1}($2)')
+  // Laplace notation: L\{f\}, \mathcal{L}\left\{f\right\}, \mathcal{L}^{-1}\{F\}
+  .replace(/(?:\\mathcal\{L\}|\\mathscr\{L\}|\\mathfrak\{L\}|(?<![a-zA-Z\\])L)\s*\^\s*\{\s*-\s*1\s*\}\s*(?:\\left\s*)?\\\{([\s\S]+?)(?:\\right\s*)?\\\}/g, ' inverse Laplace transform of $1 ')
+  .replace(/(?:\\mathcal\{L\}|\\mathscr\{L\}|\\mathfrak\{L\}|(?<![a-zA-Z\\])L)\s*(?:\\left\s*)?\\\{([\s\S]+?)(?:\\right\s*)?\\\}/g, ' Laplace transform of $1 ')
+  .replace(/\\mathcal\{L\}\s*\^\s*\{\s*-\s*1\s*\}\s*(?:\\left\s*)?\(([\s\S]+?)(?:\\right\s*)?\)\s*$/g, ' inverse Laplace transform of $1 ')
+  .replace(/\\mathcal\{L\}\s*(?:\\left\s*)?\(([\s\S]+?)(?:\\right\s*)?\)\s*$/g, ' Laplace transform of $1 ')
+  // Laplace of sin^2 / cos^2: use sin^2 u = 1/2 - cos(2u)/2, cos^2 u = 1/2 + cos(2u)/2
+  .replace(/^(?=[\s\S]*Laplace transform of)[\s\S]*$/, (m) => m.replace(/\\(sin|cos)\s*\^\s*\{?2\}?\s*(?:\(\s*(\d*)\s*t\s*\)|(\d*)\s*t\b)/g, (mm, f, a1, a2) => { const a = a1 || a2 || ''; const two = a ? String(2 * Number(a)) : '2'; return `\\left(\\frac{1}{2}${f === 'sin' ? '-' : '+'}\\frac{1}{2}\\cos(${two}t)\\right)`; }))
+  // \nabla(f) on its own is the gradient (\nabla\cdot, \nabla\times and \nabla^2 are left alone)
+  .replace(/^\s*\\nabla\s*(?:\\left\s*)?\(([\s\S]+?)(?:\\right\s*)?\)\s*$/, 'gradient of $1')
+  // \lim_{x\to\frac{\pi}{3}} -> \lim_{x\to \pi/3}
+  .replace(/(\\to\s*)(?:\{\s*\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}\s*\}|\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\})/g, (m, to, a, b, c, d) => `${to}(${a || c})/(${b || d})`)
+  // induction: "n^2 + n is even" is the divisibility statement "n^2 + n is divisible by 2"
+  .replace(/(\binduction\b[\s\S]*?)\bis\s+(?:always\s+)?even\b/i, '$1is divisible by 2')
+  // \int_0^{2\pi} \frac{d\theta}{...\theta...}: integrate in x
+  .replace(/^(?=[\s\S]*d\s*\\theta)(?![\s\S]*(?<![a-z\\])x(?![a-z]))[\s\S]*$/, (m) => m.replace(/\\theta/g, 'x'))
   // \vert{}x\vert{}, \lvert x \rvert, \left| x \right| all mean |x|; \Vert means a norm
   .replace(/\\(?:lVert|rVert|Vert)(?![a-zA-Z])\s*(?:\{\})?/g, '\\|').replace(/\\(?:left|right)\s*\\\|/g, '\\|')
   // the maths box (MathLive) writes a typed space as \: and 2/3 as \frac23
@@ -388,6 +408,10 @@ function solveExpression(rawQueryIn) {
     if (!failed(second)) return second;
   }
   // comparisons, inequalities, true/false and "is it ..." questions
+  // last-resort solvers (Gamma/Beta, n x n determinants, Green's theorem, telescoping sums, limit comparison)
+  for (const q of [normalizeMathLiveInput(raw), t && normalizeMathLiveInput(t)].filter(Boolean)) {
+    for (const solver of A8.FALLBACK) { const r = safe(() => solver(q)); if (r) return r; }
+  }
   const cmp = safe(() => CMP.solveComparisonQuestion(raw)) || (t && t !== raw.trim() ? safe(() => CMP.solveComparisonQuestion(t)) : null);
   if (cmp) return cmp;
   try { return smartFallback(raw, t) || first; } catch (e) {
@@ -553,10 +577,11 @@ function guidance(raw) {
   };
 }
 const A7 = require('../math/advanced7');
+const A8 = require('../math/advanced8');
 function solveExpressionCore(rawQueryIn) {
   const rawQuery = normalizeMathLiveInput(rawQueryIn);
-  // Question types added in part 7 (each returns null unless it is sure)
-  for (const solver of A7.SOLVERS) {
+  // Question types added in parts 7 and 8 (each returns null unless it is sure)
+  for (const solver of [...A8.SOLVERS, ...A7.SOLVERS]) {
     try {
       const r = solver(rawQuery);
       if (r) return r;

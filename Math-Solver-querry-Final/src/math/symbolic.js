@@ -92,9 +92,12 @@ function rewriteLogBase(s) {
       arg = a[1]; end = i + a[1].length;
     }
     let rep = `(ln(${arg})/ln(${base}))`;
-    if (/^\d+$/.test(base) && /^\d+$/.test(arg.trim())) {
-      const B = BigInt(base), A = BigInt(arg.trim());
-      if (B > 1n && A > 0n) { let v = 1n, k = 0; while (v < A && k < 200) { v *= B; k++; } if (v === A) rep = `(${k})`; }
+    // exact values: log_2 32 = 5, log_3 (1/243) = -5
+    const plainArg = arg.replace(/[\s()]/g, '');
+    const recip = plainArg.match(/^1\/(\d+)$/);
+    if (/^\d+$/.test(base) && (/^\d+$/.test(plainArg) || recip)) {
+      const B = BigInt(base), A = BigInt(recip ? recip[1] : plainArg);
+      if (B > 1n && A > 0n) { let v = 1n, k = 0; while (v < A && k < 200) { v *= B; k++; } if (v === A) rep = `(${recip ? -k : k})`; }
     }
     s = s.slice(0, m.index) + rep + s.slice(end);
   }
@@ -276,6 +279,8 @@ function simplifyFn(f, a) {
   }
   if (f === 'ln' && a.t === 'const' && a.n === 'e') return num(1);
   if (f === 'ln' && a.t === 'pow' && a.base.t === 'const' && a.base.n === 'e') return a.exp;
+  // ln|e^u| = u (e^u > 0 for real u)
+  if (f === 'ln' && a.t === 'fn' && a.f === 'abs' && a.arg.t === 'pow' && a.arg.base.t === 'const' && a.arg.base.n === 'e') return a.arg.exp;
   if (f === 'fact' && a.t === 'num' && a.v.isInteger() && !a.v.isNegative() && a.v.n <= 170n) {
     let r = 1n; for (let i = 2n; i <= a.v.n; i++) r *= i; return num(new Q(r));
   }

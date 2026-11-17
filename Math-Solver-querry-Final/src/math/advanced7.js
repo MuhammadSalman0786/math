@@ -131,8 +131,10 @@ function exactValue(v) {
   if (!Number.isFinite(v)) return null;
   const n = niceNumber(v) || A1.recogniseConstant(v);
   if (n) return n;
-  const cands = [[Math.E, 'e'], [Math.E ** 2, 'e^{2}'], [Math.E ** 3, 'e^{3}'], [Math.sqrt(Math.E), '\\sqrt{e}'], [Math.LN2, '\\ln 2'], [1 / Math.E, '\\frac{1}{e}'], [Math.E - 1, 'e - 1'], [Math.PI ** 4, '\\pi^{4}'], [Math.sqrt(Math.PI), '\\sqrt{\\pi}']];
+  const cands = [[Math.E, 'e'], [Math.E ** 2, 'e^{2}'], [Math.E ** 3, 'e^{3}'], [Math.sqrt(Math.E), '\\sqrt{e}'], [Math.LN2, '\\ln 2'], [1 / Math.E, '\\frac{1}{e}'], [Math.E - 1, 'e - 1'], [Math.PI ** 4, '\\pi^{4}'], [Math.sqrt(Math.PI), '\\sqrt{\\pi}'], [Math.cosh(1), '\\cosh 1'], [Math.sinh(1), '\\sinh 1'], [Math.cos(1), '\\cos 1'], [Math.sin(1), '\\sin 1']];
   for (const [c, name] of cands) { const f = toFrac(v / c, 1000, 1e-10); if (f) return f.equals(q(1)) ? name : `${f.toTex()}${name.length > 2 ? '\\,' : ''}${name}`; }
+  // e^k for a whole number k (e.g. the sum of 5^n/n! is e^5)
+  if (v > 0) { const k = Math.round(Math.log(v)); if (k >= 4 && k <= 12 && Math.abs(v / Math.exp(k) - 1) < 1e-11) return `e^{${k}}`; }
   return null;
 }
 function solveSum(raw) {

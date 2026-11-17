@@ -332,13 +332,18 @@ function solveIntegralQuestion(raw) {
     if (!a || !b || a.inf || b.inf) return null;
     const val = simpson(v => S.evaluate(fs, { [x]: v }), a.value, b.value);
     if (!Number.isFinite(val)) return null;
-    return {
-      answer: `\\approx ${formatDecimal(+val.toFixed(8))}`,
-      steps: [
-        { label: 'Given definite integral:', katex: `\\int_{${tex(a.node)}}^{${tex(b.node)}} ${tex(fs)} \\, d${x}` },
-        { label: 'No elementary antiderivative was found, so the integral is evaluated numerically (Simpson\'s rule, 2000 intervals):', katex: `\\approx ${formatDecimal(+val.toFixed(8))}` }
-      ]
-    };
+    // the adaptive rule is accurate to ~1e-13, so a simple closed form (like 2π/√3 or π²/12) can be recognised
+    const nice = recogniseConstant(val);
+    const approx = formatDecimal(+val.toFixed(8));
+    const steps = [
+      { label: 'Given definite integral:', katex: `\\int_{${tex(a.node)}}^{${tex(b.node)}} ${tex(fs)} \\, d${x}` },
+      { label: 'No elementary antiderivative was found, so the integral is evaluated numerically (adaptive Gauss-Kronrod rule, accurate to about 13 digits):', katex: `\\approx ${formatDecimal(+val.toPrecision(13))}` }
+    ];
+    if (nice && nice !== approx && !/^-?\d+$/.test(nice) || (nice && /^-?\d+$/.test(nice) && Math.abs(val - Number(nice)) < 1e-11)) {
+      steps.push({ label: 'This value matches a simple closed form:', katex: `${nice} \\approx ${approx}` });
+      return { answer: `${nice} \\approx ${approx}`, steps };
+    }
+    return { answer: `\\approx ${approx}`, steps };
   }
 
   const F = res.result;
@@ -392,11 +397,40 @@ function solveIntegralQuestion(raw) {
   return { answer: exactTex + approx, steps };
 }
 
-function simpson(f, a, b, n = 2000) {
+function simpsonPlain(f, a, b, n = 2000) {
   const h = (b - a) / n;
   let s = f(a) + f(b);
   for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
   return (s * h) / 3;
+}
+// adaptive Gauss-Kronrod (7/15 points): about 1e-13 accuracy on smooth integrands, so exact values
+// such as 2π/√3 can be recognised; falls back to Simpson when it cannot converge
+const GK_X = [0.991455371120813, 0.949107912342759, 0.864864423359769, 0.741531185599394, 0.586087235467691, 0.405845151377397, 0.207784955007898, 0];
+const GK_WK = [0.022935322010529, 0.063092092629979, 0.104790010322250, 0.140653259715525, 0.169004726639267, 0.190350578064785, 0.204432940075298, 0.209482141084728];
+const GK_WG = [0, 0.129484966168870, 0, 0.279705391489277, 0, 0.381830050505119, 0, 0.417959183673469];
+function gk15(f, a, b) {
+  const c = (a + b) / 2, h = (b - a) / 2;
+  let K = 0, G = 0;
+  for (let i = 0; i < 8; i++) {
+    const vals = i === 7 ? [f(c)] : [f(c - h * GK_X[i]), f(c + h * GK_X[i])];
+    const s = vals.reduce((x, y) => x + y, 0);
+    K += GK_WK[i] * s; G += GK_WG[i] * s;
+  }
+  return { K: K * h, err: Math.abs((K - G) * h) };
+}
+function simpson(f, a, b, n = 2000) {
+  let total = 0, budget = 4000;
+  const stack = [[a, b, 0]];
+  while (stack.length) {
+    const [x0, x1, d] = stack.pop();
+    const r = gk15(f, x0, x1);
+    if (!Number.isFinite(r.K)) return simpsonPlain(f, a, b, n);
+    if (r.err <= 1e-14 * Math.max(1, Math.abs(r.K)) || d > 40 || x1 - x0 < 1e-12) { total += r.K; continue; }
+    if (--budget < 0) return simpsonPlain(f, a, b, n);
+    const m = (x0 + x1) / 2;
+    stack.push([x0, m, d + 1], [m, x1, d + 1]);
+  }
+  return total;
 }
 
 function checkEqual(a, b, x) {

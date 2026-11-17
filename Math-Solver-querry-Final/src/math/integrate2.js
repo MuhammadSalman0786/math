@@ -12,7 +12,8 @@ function checkAnti(F, f, x) {
   try {
     const dF = S.derivative(F, x);
     let good = 0;
-    for (const v of [0.31, 0.77, 1.43, 2.19, -0.57, 3.7]) {
+    // extra small points for functions defined only near 0 (e.g. 1/sqrt(1 - 4x^2))
+    for (const v of [0.31, 0.77, 1.43, 2.19, -0.57, 3.7, 0.13, -0.21, 0.07, 0.42, -0.37]) {
       const A = S.evaluate(dF, { [x]: v }), B = S.evaluate(f, { [x]: v });
       if (!Number.isFinite(A) || !Number.isFinite(B)) continue;
       if (Math.abs(A - B) > 1e-7 * Math.max(1, Math.abs(B))) return false;
@@ -335,9 +336,153 @@ function byPythagorean(n, x, steps) {
   return r.result;
 }
 
+// sqrt(c - b x^2), sqrt(b x^2 + c), 1/sqrt(c - b x^2)   (b, c > 0)
+function bySqrtQuadratic(n, x, steps) {
+  if (n.t !== 'pow' || n.exp.t !== 'num') return null;
+  const half = n.exp.v.equals(q(1, 2)), mhalf = n.exp.v.equals(q(-1, 2));
+  if (!half && !mhalf) return null;
+  const p = S.toPoly(n.base, x);
+  if (!p || P.degree(p) !== 2 || !p[1].isZero() || p[0].isZero()) return null;
+  const c = p[0], b2 = p[2];
+  const root = (v) => S.simplify(S.pow(S.num(v), S.num(q(1, 2))));
+  const X = S.vr(x), R = n.base;
+  let F, label;
+  if (b2.isNegative() && !c.isNegative()) {
+    const b = b2.neg(), sb = root(b), sc = root(c);
+    const arc = S.fn('arcsin', S.simplify(S.prod(sb, X, S.pow(sc, -1))));
+    if (mhalf) { F = S.prod(S.pow(sb, -1), arc); label = 'Standard result $\\int \\frac{dx}{\\sqrt{a^2 - u^2}} = \\arcsin\\frac{u}{a} + C$:'; }
+    else {
+      F = S.sum(S.prod(S.num(q(1, 2)), X, S.pow(R, S.num(q(1, 2)))), S.prod(S.num(c.div(q(2))), S.pow(sb, -1), arc));
+      label = 'Trigonometric substitution $x = a\\sin\\theta$ gives the standard result $\\int \\sqrt{a^2 - x^2}\\,dx = \\frac{x}{2}\\sqrt{a^2 - x^2} + \\frac{a^2}{2}\\arcsin\\frac{x}{a} + C$:';
+    }
+  } else if (!b2.isNegative() && !c.isNegative() && half) {
+    const sb = root(b2);
+    F = S.sum(S.prod(S.num(q(1, 2)), X, S.pow(R, S.num(q(1, 2)))), S.prod(S.num(c.div(q(2))), S.pow(sb, -1), S.fn('ln', S.sum(S.prod(sb, X), S.pow(R, S.num(q(1, 2)))))));
+    label = 'Hyperbolic substitution gives the standard result $\\int \\sqrt{x^2 + a^2}\\,dx = \\frac{x}{2}\\sqrt{x^2 + a^2} + \\frac{a^2}{2}\\ln\\left(x + \\sqrt{x^2 + a^2}\\right) + C$:';
+  } else return null;
+  F = S.simplify(F);
+  if (!checkAnti(F, n, x)) return null;
+  steps.push({ label, katex: `\\int ${S.tex(n)}\\,d${x} = ${S.tex(F)} + C` });
+  return F;
+}
+
+// one radical sqrt(a x + b): substitute u = sqrt(a x + b), x = (u^2 - b)/a, dx = (2u/a) du -> rational in u
+function byRootSubstitution(n, x, steps, integ, depth) {
+  if (depth > 1) return null;
+  let base = null;
+  const find = (m) => {
+    if (!m || base === false) return;
+    if (m.t === 'pow' && m.exp.t === 'num' && !m.exp.v.isInteger() && m.exp.v.mul(q(2)).isInteger() && !S.freeOf(m.base, x)) {
+      const L = S.linearIn(m.base, x);
+      if (!L || L.a.isZero()) { base = false; return; }
+      if (base && S.key(base) !== S.key(m.base)) { base = false; return; }
+      base = m.base; return;
+    }
+    (m.terms || m.factors || []).forEach(find);
+    if (m.t === 'pow') { find(m.base); find(m.exp); }
+    if (m.t === 'fn') find(m.arg);
+  };
+  find(n);
+  if (!base) return null;
+  const L = S.linearIn(base, x), a = L.a, b = L.b;
+  const U = S.vr('u');
+  const xOfU = S.simplify(S.prod(S.sum(S.pow(U, 2), S.num(b.neg())), S.num(q(1).div(a))));
+  const rec = (m) => {
+    if (m.t === 'pow' && S.key(m.base) === S.key(base) && m.exp.t === 'num') return S.pow(U, S.num(m.exp.v.mul(q(2))));
+    if (m.t === 'var' && m.n === x) return xOfU;
+    if (m.t === 'sum') return S.sum(...m.terms.map(rec));
+    if (m.t === 'prod') return S.prod(...m.factors.map(rec));
+    if (m.t === 'pow') return S.pow(rec(m.base), rec(m.exp));
+    if (m.t === 'fn') return S.fn(m.f, rec(m.arg));
+    return m;
+  };
+  const inU = S.simplify(S.prod(rec(n), S.num(q(2).div(a)), U));
+  if (!S.freeOf(inU, x) || !toRat(inU, 'u')) return null;
+  const sub = [];
+  const Fu = integ(inU, 'u', sub, depth + 1);
+  if (!Fu) return null;
+  const F = S.simplify(S.substitute(S.simplify(Fu), 'u', S.pow(base, S.num(q(1, 2)))));
+  if (!checkAnti(F, n, x)) return null;
+  steps.push({ label: `Substitution: let $u = \\sqrt{${S.tex(base)}}$, so $${x} = ${S.tex(xOfU)}$ and $d${x} = ${S.tex(S.simplify(S.prod(S.num(q(2).div(a)), U)))}\\,du$. The integral becomes a rational one:`, katex: `\\int ${S.tex(inU)}\\,du = ${S.tex(S.simplify(Fu))} + C` });
+  steps.push({ label: 'Substitute back $u$:', katex: `${S.tex(F)} + C` });
+  return F;
+}
+
+// x appears only inside e^{kx}: substitute u = e^{gx}, dx = du/(g u) -> rational in u
+function byExpSubstitution(n, x, steps, integ, depth) {
+  if (depth > 1) return null;
+  const E = S.key(S.cst('e'));
+  const ks = []; let bad = false;
+  const scan = (m) => {
+    if (bad || S.freeOf(m, x)) return;
+    if (m.t === 'pow' && m.base.t === 'const' && S.key(m.base) === E) {
+      const L = S.linearIn(m.exp, x);
+      if (!L || !L.b.isZero() || L.a.isZero()) { bad = true; return; }
+      ks.push(L.a); return;
+    }
+    if (m.t === 'var') { bad = true; return; }
+    if (m.t === 'fn') { bad = true; return; }
+    (m.terms || m.factors || []).forEach(scan);
+    if (m.t === 'pow') { scan(m.base); if (!S.freeOf(m.exp, x)) bad = true; }
+  };
+  scan(n);
+  if (bad || !ks.length) return null;
+  // g = gcd of the coefficients (rationals): use the smallest |k| that divides all of them
+  let g = ks.reduce((acc, k) => (k.abs().lt ? (k.abs().lt(acc) ? k.abs() : acc) : acc), ks[0].abs());
+  if (!ks.every(k => k.div(g).isInteger())) return null;
+  const U = S.vr('u');
+  const rec = (m) => {
+    if (m.t === 'pow' && m.base.t === 'const' && S.key(m.base) === E && !S.freeOf(m.exp, x)) return S.pow(U, S.num(S.linearIn(m.exp, x).a.div(g)));
+    if (m.t === 'sum') return S.sum(...m.terms.map(rec));
+    if (m.t === 'prod') return S.prod(...m.factors.map(rec));
+    if (m.t === 'pow') return S.pow(rec(m.base), m.exp);
+    return m;
+  };
+  const inU = S.simplify(S.prod(rec(n), S.pow(S.prod(S.num(g), U), -1)));
+  if (!S.freeOf(inU, x) || !toRat(inU, 'u')) return null;
+  const sub = [];
+  const Fu = integ(inU, 'u', sub, depth + 1);
+  if (!Fu) return null;
+  const eg = S.pow(S.cst('e'), S.simplify(S.prod(S.num(g), S.vr(x))));
+  const F = S.simplify(S.substitute(S.simplify(Fu), 'u', eg));
+  if (!checkAnti(F, n, x)) return null;
+  steps.push({ label: `Substitution: let $u = ${S.tex(eg)}$, so $d${x} = \\frac{du}{${S.tex(S.simplify(S.prod(S.num(g), U)))}}$. The integral becomes a rational one:`, katex: `\\int ${S.tex(inU)}\\,du = ${S.tex(S.simplify(Fu))} + C` });
+  steps.push({ label: 'Substitute back $u$:', katex: `${S.tex(F)} + C` });
+  return F;
+}
+
+// polynomial times arctan / arcsin / arccos / ln: by parts with u = the function, dv = polynomial
+function byPolyTimesFunction(n, x, steps, integ, depth) {
+  if (depth > 1 || n.t !== 'prod') return null;
+  const fnIdx = n.factors.findIndex(f => f.t === 'fn' && ['arctan', 'arcsin', 'arccos', 'ln'].includes(f.f) && !S.freeOf(f, x));
+  if (fnIdx < 0) return null;
+  const f = n.factors[fnIdx];
+  const rest = S.simplify(S.prod(...n.factors.filter((_, i) => i !== fnIdx)));
+  const p = S.toPoly(rest, x);
+  if (!p || P.degree(p) < 1) return null;
+  const vPoly = [q(0)].concat(p.map((c, i) => c.div(q(i + 1))));
+  const v = polyNode(vPoly, x);
+  const du = S.derivative(f, x);
+  const second = S.simplify(S.prod(v, du));
+  const sub = [];
+  const G = integ(second, x, sub, depth + 1);
+  if (!G) return null;
+  const F = S.simplify(S.sum(S.prod(v, f), S.neg(G)));
+  if (!checkAnti(F, n, x)) return null;
+  steps.push({ label: `Integration by parts with $u = ${S.tex(f)}$ and $dv = ${S.tex(rest)}\\,d${x}$, so $v = ${S.tex(v)}$: $\\int u\\,dv = uv - \\int v\\,du$.`, katex: `= ${S.tex(S.prod(v, f))} - \\int ${S.tex(second)}\\,d${x}` });
+  steps.push({ label: 'Integrate the remaining part and combine:', katex: `${S.tex(F)} + C` });
+  return F;
+}
+
 function integAdvanced(n, x, steps, integ, depth = 0) {
   if (!S) S = require('./symbolic');
-  const tries = [byPythagorean, byTrigPowers, byProductToSum, byInverseTrigParts, byInverseHyperbolic, byPartialFractions];
+  for (const t of [byRootSubstitution, byExpSubstitution, byPolyTimesFunction]) {
+    const sub = [];
+    let r = null;
+    try { r = t(n, x, sub, integ, depth); } catch (e) { r = null; }
+    if (r) { steps.push(...sub); return r; }
+  }
+  const tries = [bySqrtQuadratic, byPythagorean, byTrigPowers, byProductToSum, byInverseTrigParts, byInverseHyperbolic, byPartialFractions];
   for (const t of tries) {
     const sub = [];
     let r = null;
