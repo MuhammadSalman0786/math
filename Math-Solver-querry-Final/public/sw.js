@@ -15,7 +15,7 @@ const CORE_FILES = [
   '/offline.html',
   '/css/style.css',
   '/js/app.js',
-  '/js/photo-solve.js',
+  '/js/photo-tool.js',
   '/js/lang.js',
   '/js/site-routes.js',
   '/images/AMS_Solver.png',
@@ -77,6 +77,17 @@ async function networkFirstPage(event) {
   }
 }
 
+async function networkFirstAsset(req) {
+  const cache = await caches.open(CORE);
+  try {
+    const res = await fetch(req, { cache: 'no-cache' });
+    if (res && res.ok) { cache.put(req, res.clone()); return res; }
+    throw new Error('bad response');
+  } catch (e) {
+    return (await cache.match(req, { ignoreSearch: true })) || (await caches.match(req, { ignoreSearch: true })) || new Response('', { status: 504 });
+  }
+}
+
 async function staleWhileRevalidate(req, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(req, { ignoreSearch: true });
@@ -108,6 +119,9 @@ self.addEventListener('fetch', (event) => {
     if (url.pathname.startsWith('/admin') || url.pathname === '/sw.js') return; // never cache these
     if (url.pathname === '/blog' || url.pathname.startsWith('/blog/')) return; // WordPress blog: always straight to the network
     if (isHtml(req)) { event.respondWith(networkFirstPage(event)); return; }
+    // the site's own scripts and styles: newest first, so they always match the page
+    // (stale copies after an update made new buttons do nothing); saved copy when offline
+    if (/\.(?:js|css)$/.test(url.pathname)) { event.respondWith(networkFirstAsset(req)); return; }
     event.respondWith(staleWhileRevalidate(req, CORE));
     return;
   }

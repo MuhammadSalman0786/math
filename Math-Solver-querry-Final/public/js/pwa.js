@@ -9,8 +9,25 @@
 
   // ---- service worker
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+    // A new version took over this open page: reload once so page, scripts and styles all match
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController || reloaded) return;
+      reloaded = true;
+      // never interrupt the user: only when nothing is typed, solved or being photographed
+      var modal = document.getElementById('photoModal');
+      if (modal && !modal.classList.contains('hidden')) return;
+      var mf = document.getElementById('mainExprInput');
+      if (mf && String(mf.value || '').trim()) return;
+      var result = document.getElementById('resultCard');
+      if (result && !result.classList.contains('hidden')) return;
+      var active = document.activeElement;
+      if (active && /^(INPUT|TEXTAREA|SELECT|MATH-FIELD)$/.test(active.tagName) && String(active.value || '').trim()) return;
+      window.location.reload();
+    });
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function (e) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).catch(function (e) {
         console.warn('[app] service worker not registered:', e && e.message);
       });
     });
