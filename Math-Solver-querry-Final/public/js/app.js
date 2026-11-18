@@ -1538,6 +1538,11 @@ function renderResult(answer, steps, photo) {
   const bigAnswer = document.getElementById('bigAnswerBox');
 
   // Render bottom final answer as vertical fraction
+  // answers with several parts ("\pi_1 = ...;\quad H_0 = ...") go on separate lines instead of running off the box
+  if (typeof answer === 'string' && answer.includes(';\\quad')) {
+    answer = '\\begin{gathered}' + answer.split(/;\\quad\s*/).join(' \\\\ ') + '\\end{gathered}';
+  }
+  bigAnswer.classList.toggle('long-answer', typeof answer === 'string' && answer.length > 90);
   try {
     if (window.katex && (answer.indexOf('\\') !== -1 || answer.indexOf('/') !== -1 || answer.indexOf('^') !== -1 || answer.indexOf('=') !== -1)) {
       katex.render(answer, bigAnswer, { throwOnError: false, displayMode: true });

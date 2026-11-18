@@ -198,7 +198,7 @@ const PROOFS = [
   // ---------------- Topology ----------------
   {
     title: 'The fundamental group of the circle is ℤ',
-    match: (k) => /fundamentalgroup|π_?1|pi_?1|pi_\{?1\}?/.test(k) && /(circle|s\^?\{?1\}?(?![\d]))/.test(k) && !/genus|torus|sphere|klein|projective|figure|wedge|(?<![a-z])s\^?\{?[02-9]/.test(k),
+    match: (k) => /fundamentalgroup|π_?1|pi_?1|pi_\{?1\}?/.test(k) && /(circle|s\^?\{?1\}?(?![\d]))/.test(k) && !/genus|torus|sphere|klein|projective|figure|wedge|vee|∨|attach|glu|disk|disc|cell|degree|minus|punctur|lens|times|×|m(?:ö|o|oe)bius|cylinder|annulus|homology|(?<![a-z])s\^?\{?[02-9]/.test(k),
     steps: [
       { label: R`Use the covering map $p: \mathbb{R} \to S^1$, $p(t) = (\cos 2\pi t, \sin 2\pi t)$. Every loop $\gamma$ at $1 \in S^1$ lifts uniquely to a path $\tilde\gamma$ in $\mathbb{R}$ starting at $0$ (path lifting), and $\tilde\gamma(1)$ is an integer: the degree (winding number) of $\gamma$.`, katex: '' },
       { label: R`Homotopic loops have lifts with the same end point (homotopy lifting), so $\deg: \pi_1(S^1, 1) \to \mathbb{Z}$, $[\gamma] \mapsto \tilde\gamma(1)$ is well defined.`, katex: '' },

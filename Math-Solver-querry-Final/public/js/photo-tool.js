@@ -15,7 +15,7 @@
 
   // The styles live here (not in style.css) so the photo tool always looks right, even when
   // the browser still has an older cached style.css right after an update
-  const CSS = ".logo { height: 60px; } .logo img.custom-logo { pointer-events: none; } .btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; } .btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); } .solver-card.flash-new { animation: amsFlashNew 0.7s ease; } @keyframes amsFlashNew { 0% { box-shadow: 0 0 0 0 rgba(122, 141, 211, 0.55); } 100% { box-shadow: 0 0 0 14px rgba(122, 141, 211, 0); } } .bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .photo-btn-open { font-weight: 600; } .photo-btn-open i { color: var(--brand-green); } body.dark-theme .photo-btn-open i { color: #a5b4fc; } .photo-preview { display: flex; align-items: center; gap: 12px; position: relative; padding: 10px 36px 10px 10px; margin-bottom: 10px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); } .photo-preview.hidden { display: none; } .photo-preview img { width: 96px; height: 64px; object-fit: contain; border-radius: 6px; flex-shrink: 0; background: #fff; border: 1px solid var(--border-color); cursor: zoom-in; } .photo-preview-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .photo-preview-title { font-weight: 600; font-size: 13.5px; color: var(--text-main); } .photo-preview-title i { color: var(--brand-green); } .photo-preview-sub { font-size: 12px; color: var(--text-muted); } .photo-preview-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; } .photo-preview-btns button, .photo-preview-x { border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer; } .photo-preview-btns button:hover { border-color: var(--brand-green); } .photo-preview-x { position: absolute; top: 6px; right: 6px; padding: 2px 7px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; } .result-photo { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 0 0 14px; padding: 8px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-main); font-size: 13px; cursor: zoom-in; font-family: inherit; } .result-photo.hidden { display: none; } .result-photo img { max-width: 160px; max-height: 90px; border-radius: 6px; background: #fff; border: 1px solid var(--border-color); } .result-photo i { color: var(--brand-green); } .result-photo small { color: var(--text-muted); } body.photo-open { overflow: hidden; } .photo-modal { position: fixed; inset: 0; z-index: 5000; background: rgba(15, 23, 42, 0.72); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); } .photo-modal.hidden { display: none; } .photo-dialog { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--bg-card); color: var(--text-main); border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); padding: 16px; display: flex; flex-direction: column; } .photo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; } .photo-head h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; } .photo-head h3 i { color: var(--brand-green); } .photo-x { border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; } .photo-stage.hidden { display: none; } .photo-hint { margin: 0 0 12px; color: var(--text-muted); font-size: 13.5px; } .photo-tip { margin: 14px 0 0; font-size: 12.5px; color: var(--text-muted); } .photo-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .photo-big-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 26px 10px; border-radius: 12px; border: 2px solid var(--brand-green); background: var(--brand-green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; } .photo-big-btn i { font-size: 30px; } .photo-big-btn.alt { background: transparent; color: var(--text-main); } .photo-big-btn.alt i { color: var(--brand-green); } .photo-video-wrap { background: #000; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; } .photo-video-wrap video { width: 100%; max-height: 60vh; object-fit: contain; } .photo-crop-wrap { height: min(58vh, 460px); background: #111; border-radius: 10px; overflow: hidden; } .photo-crop-wrap img { display: block; max-width: 100%; } .photo-tools { display: flex; justify-content: center; gap: 8px; margin-top: 10px; } .photo-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; } .photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-main); } .photo-btn.primary { background: var(--brand-green); border-color: var(--brand-green); color: #fff; margin-left: auto; } .photo-shutter { width: 64px; height: 64px; border-radius: 50%; border: 4px solid var(--brand-green); background: #fff; box-shadow: inset 0 0 0 4px var(--bg-card); cursor: pointer; } .photo-shutter:active { transform: scale(0.94); } .photo-work-img, .photo-view-img { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto; border-radius: 8px; background: #fff; border: 1px solid var(--border-color); } .photo-progress { height: 8px; border-radius: 4px; background: var(--bg-tertiary); overflow: hidden; margin-top: 14px; } .photo-progress-bar { height: 100%; width: 0; background: var(--brand-green); transition: width 0.3s ease; } .photo-status { text-align: center; margin: 10px 0 0; color: var(--text-muted); font-size: 13.5px; } @media (max-width: 480px) { .photo-choose { grid-template-columns: 1fr; } .photo-big-btn { flex-direction: row; padding: 18px; } .photo-big-btn i { font-size: 24px; } .photo-preview img { width: 72px; height: 54px; } }";
+  const CSS = ".logo { height: 60px; } .logo img.custom-logo { pointer-events: none; } .btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; } .btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); } .solver-card.flash-new { animation: amsFlashNew 0.7s ease; } @keyframes amsFlashNew { 0% { box-shadow: 0 0 0 0 rgba(122, 141, 211, 0.55); } 100% { box-shadow: 0 0 0 14px rgba(122, 141, 211, 0); } } .bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .photo-btn-open { font-weight: 600; } .photo-btn-open i { color: var(--brand-green); } body.dark-theme .photo-btn-open i { color: #a5b4fc; } .photo-preview { display: flex; align-items: center; gap: 12px; position: relative; padding: 10px 36px 10px 10px; margin-bottom: 10px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); } .photo-preview.hidden { display: none; } .photo-preview img { width: 96px; height: 64px; object-fit: contain; border-radius: 6px; flex-shrink: 0; background: #fff; border: 1px solid var(--border-color); cursor: zoom-in; } .photo-preview-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .photo-preview-title { font-weight: 600; font-size: 13.5px; color: var(--text-main); } .photo-preview-title i { color: var(--brand-green); } .photo-preview-sub { font-size: 12px; color: var(--text-muted); } .photo-preview-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; } .photo-preview-btns button, .photo-preview-x { border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer; } .photo-preview-btns button:hover { border-color: var(--brand-green); } .photo-preview-x { position: absolute; top: 6px; right: 6px; padding: 2px 7px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; } .result-photo { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 0 0 14px; padding: 8px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-main); font-size: 13px; cursor: zoom-in; font-family: inherit; } .result-photo.hidden { display: none; } .result-photo img { max-width: 160px; max-height: 90px; border-radius: 6px; background: #fff; border: 1px solid var(--border-color); } .result-photo i { color: var(--brand-green); } .result-photo small { color: var(--text-muted); } body.photo-open { overflow: hidden; } .photo-modal { position: fixed; inset: 0; z-index: 5000; background: rgba(15, 23, 42, 0.72); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); } .photo-modal.hidden { display: none; } .photo-dialog { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--bg-card); color: var(--text-main); border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); padding: 16px; display: flex; flex-direction: column; } .photo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; } .photo-head h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; } .photo-head h3 i { color: var(--brand-green); } .photo-x { border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; } .photo-stage.hidden { display: none; } .photo-hint { margin: 0 0 12px; color: var(--text-muted); font-size: 13.5px; } .photo-tip { margin: 14px 0 0; font-size: 12.5px; color: var(--text-muted); } .photo-center { text-align: center; } .photo-crop-wrap .cropper-point { width: 22px; height: 22px; border-radius: 50%; background: #3399ff; opacity: 0.95; border: 2px solid #fff; box-sizing: border-box; } .photo-crop-wrap .cropper-point.point-e { right: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-w { left: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-n { top: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-s { bottom: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-ne { right: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-nw { left: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-sw { left: -11px; bottom: -11px; } .photo-crop-wrap .cropper-point.point-se { right: -11px; bottom: -11px; width: 22px; height: 22px; } .photo-crop-wrap .cropper-line.line-e, .photo-crop-wrap .cropper-line.line-w { width: 18px; } .photo-crop-wrap .cropper-line.line-e { right: -9px; } .photo-crop-wrap .cropper-line.line-w { left: -9px; } .photo-crop-wrap .cropper-line.line-n, .photo-crop-wrap .cropper-line.line-s { height: 18px; } .photo-crop-wrap .cropper-line.line-n { top: -9px; } .photo-crop-wrap .cropper-line.line-s { bottom: -9px; } .photo-crop-wrap .cropper-view-box { outline: 2px solid #3399ff; } .photo-link { background: none; border: none; color: var(--brand-green); text-decoration: underline; cursor: pointer; font: inherit; padding: 4px; } .photo-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .photo-big-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 26px 10px; border-radius: 12px; border: 2px solid var(--brand-green); background: var(--brand-green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; } .photo-big-btn i { font-size: 30px; } .photo-big-btn.alt { background: transparent; color: var(--text-main); } .photo-big-btn.alt i { color: var(--brand-green); } .photo-video-wrap { background: #000; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; } .photo-video-wrap video { width: 100%; max-height: 60vh; object-fit: contain; } .photo-crop-wrap { height: min(58vh, 460px); background: #111; border-radius: 10px; overflow: visible; margin: 0 4px; } .photo-crop-wrap img { display: block; max-width: 100%; } .photo-tools { display: flex; justify-content: center; gap: 8px; margin-top: 10px; } .photo-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; } .photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-main); } .photo-btn.primary { background: var(--brand-green); border-color: var(--brand-green); color: #fff; margin-left: auto; } .photo-shutter { width: 64px; height: 64px; border-radius: 50%; border: 4px solid var(--brand-green); background: #fff; box-shadow: inset 0 0 0 4px var(--bg-card); cursor: pointer; } .photo-shutter:active { transform: scale(0.94); } .photo-work-img, .photo-view-img { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto; border-radius: 8px; background: #fff; border: 1px solid var(--border-color); } .photo-progress { height: 8px; border-radius: 4px; background: var(--bg-tertiary); overflow: hidden; margin-top: 14px; } .photo-progress-bar { height: 100%; width: 0; background: var(--brand-green); transition: width 0.3s ease; } .photo-status { text-align: center; margin: 10px 0 0; color: var(--text-muted); font-size: 13.5px; } @media (max-width: 480px) { .photo-choose { grid-template-columns: 1fr; } .photo-big-btn { flex-direction: row; padding: 18px; } .photo-big-btn i { font-size: 24px; } .photo-preview img { width: 72px; height: 54px; } }";
   (function addStyles() {
     if (document.getElementById('photoSolveCss')) return;
     const st = document.createElement('style');
@@ -338,10 +338,11 @@
             <button type="button" class="photo-shutter" data-act="snap" aria-label="Capture photo"></button>
             <button type="button" class="photo-btn ghost" data-act="flip"><i class="fa-solid fa-camera-rotate"></i> Flip</button>
           </div>
+          <p class="photo-tip photo-center"><button type="button" class="photo-link" data-act="nativecam">Use the phone's camera app instead</button></p>
         </div>
 
         <div class="photo-stage hidden" data-stage="crop">
-          <p class="photo-hint">Drag the box around your question.</p>
+          <p class="photo-hint">Drag the corners so only your question is inside the box. Drag inside the box to move it.</p>
           <div class="photo-crop-wrap"><img alt="Photo to crop"></div>
           <div class="photo-tools">
             <button type="button" class="photo-btn ghost" data-act="rotl" title="Rotate left"><i class="fa-solid fa-rotate-left"></i></button>
@@ -390,7 +391,8 @@
       else if (act === 'camera') openCamera();
       else if (act === 'gallery') els.inGal.click();
       else if (act === 'back') { stopCamera(); show('choose'); }
-      else if (act === 'flip') { facing = facing === 'environment' ? 'user' : 'environment'; openCamera(true); }
+      else if (act === 'flip') { facing = facing === 'environment' ? 'user' : 'environment'; openCamera(); }
+      else if (act === 'nativecam') { stopCamera(); show('choose'); els.inCam.click(); }
       else if (act === 'snap') snap();
       else if (act === 'retake') { destroyCropper(); show('choose'); }
       else if (act === 'rotl') cropper && cropper.rotate(-90);
@@ -432,23 +434,28 @@
     document.body.classList.remove('photo-open');
   }
 
-  async function openCamera(again) {
-    // Phones: the built-in camera app gives the sharpest photo (focus, flash)
-    if (!again && (isTouch() || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia)) {
+  // The camera runs inside the page on phones too. Opening the phone's camera app leaves the
+  // page, and on many Android phones the browser then closes the tab to save memory: when
+  // the user comes back the page has reloaded and the photo (and the crop step) is lost.
+  async function openCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) {
       els.inCam.click();
       return;
     }
     stopCamera();
+    els.status.textContent = '';
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: facing }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false
+        video: { facingMode: { ideal: facing }, width: { ideal: 2560 }, height: { ideal: 1440 } }, audio: false
       });
       els.video.srcObject = stream;
       show('camera');
+      try { await els.video.play(); } catch (e) { /* autoplay attribute covers it */ }
     } catch (err) {
       console.warn('camera', err);
-      toast('Camera not available', 'Allow camera access in your browser, or choose "Upload Image".', 'warning');
-      els.inCam.click(); // falls back to the device's own picker / camera
+      toast('Camera not available', 'Allow camera access for this site, or use "Upload Image".', 'warning');
+      show('choose');
+      els.inCam.click(); // the device's own camera / picker
     }
   }
 
@@ -457,9 +464,17 @@
     if (els.video) els.video.srcObject = null;
   }
 
-  function snap() {
+  async function snap() {
     const v = els.video;
     if (!v || !v.videoWidth) return;
+    // full-resolution still photo where the browser supports it (sharper text), else the video frame
+    const track = stream && stream.getVideoTracks()[0];
+    if (track && 'ImageCapture' in window) {
+      try {
+        const blob = await new ImageCapture(track).takePhoto();
+        if (blob && blob.size) { stopCamera(); loadFile(blob); return; }
+      } catch (e) { /* fall back to the frame */ }
+    }
     const c = document.createElement('canvas');
     c.width = v.videoWidth; c.height = v.videoHeight;
     c.getContext('2d').drawImage(v, 0, 0);
@@ -468,7 +483,7 @@
   }
 
   function loadFile(file) {
-    if (!/^image\//.test(file.type || 'image/')) { toast('Not an image', 'Please choose a photo (JPG, PNG…).', 'warning'); return; }
+    if (file.type && !/^image\//.test(file.type)) { toast('Not an image', 'Please choose a photo (JPG, PNG…).', 'warning'); return; }
     // Large phone photos are scaled down first so cropping stays smooth
     const url = URL.createObjectURL(file);
     const img = new Image();

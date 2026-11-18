@@ -11,10 +11,12 @@ const TOOLS = require('../math/tools');
 const A4 = require('../math/advanced4');
 const A5 = require('../math/advanced5');
 const A6 = require('../math/advanced6');
+const A9 = require('../math/advanced9');
 
 // Question-type solvers, tried in this order (each returns null if the question isn't its type)
 const ADVANCED_SOLVERS = [
   A6.solveLaplaceIVP,
+  A9.solveTopology,
   A6.solveTopologyQuestion,
   A6.solveEpsilonDelta,
   A6.solveLimitOfIntegral,

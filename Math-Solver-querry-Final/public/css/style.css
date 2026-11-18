@@ -2986,3 +2986,7 @@ body.dark-theme .mobile-install-app .fa-download { color: #a5b4fc; }
 @media (max-width: 350px) {
   .logo-title { display: none; }
 }
+
+/* long multi-part answers (e.g. a fundamental group and all homology groups) */
+.big-answer-box.long-answer { font-size: 18px !important; }
+@media (max-width: 600px) { .big-answer-box.long-answer { font-size: 15px !important; padding: 12px 10px !important; } }
