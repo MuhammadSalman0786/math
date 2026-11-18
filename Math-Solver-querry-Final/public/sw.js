@@ -15,7 +15,7 @@ const CORE_FILES = [
   '/offline.html',
   '/css/style.css',
   '/js/app.js',
-  '/js/photo-tool.js',
+  // '/js/photo-tool.js', (photo / camera feature paused)
   '/js/lang.js',
   '/js/site-routes.js',
   '/images/AMS_Solver.png',

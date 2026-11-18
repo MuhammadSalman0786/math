@@ -2990,3 +2990,15 @@ body.dark-theme .mobile-install-app .fa-download { color: #a5b4fc; }
 /* long multi-part answers (e.g. a fundamental group and all homology groups) */
 .big-answer-box.long-answer { font-size: 18px !important; }
 @media (max-width: 600px) { .big-answer-box.long-answer { font-size: 15px !important; padding: 12px 10px !important; } }
+
+/* ===================================================
+   NEW QUERY BUTTON: the oversized logo image used to sit on top of it,
+   swallowing half the taps (it needed 3-4 presses). Kept here (not in the
+   photo tool) so it works whether or not the photo feature is switched on.
+   =================================================== */
+.logo { height: 60px; }
+.logo img.custom-logo { pointer-events: none; }
+.btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); }
+.solver-card.flash-new { animation: amsFlashNew 0.7s ease; }
+@keyframes amsFlashNew { 0% { box-shadow: 0 0 0 0 rgba(122, 141, 211, 0.55); } 100% { box-shadow: 0 0 0 14px rgba(122, 141, 211, 0); } }
