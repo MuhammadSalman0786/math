@@ -15,6 +15,7 @@ const CORE_FILES = [
   '/offline.html',
   '/css/style.css',
   '/js/app.js',
+  '/js/photo-solve.js',
   '/js/lang.js',
   '/js/site-routes.js',
   '/images/AMS_Solver.png',

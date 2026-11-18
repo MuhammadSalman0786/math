@@ -91,12 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
   safe(loadHistory);
   safe(renderPageMath);
   document.getElementById('btnClearHistory')?.addEventListener('click', clearAllHistory);
-  document.getElementById('btnNewChat')?.addEventListener('click', () => {
+  document.getElementById('btnNewChat')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeMobileSidebar();
     if (!document.getElementById('sectionHome')) { navigateTo('/'); return; }
     document.getElementById('resultCard')?.classList.add('hidden');
+    document.getElementById('symbolsDrawer')?.classList.add('hidden');
+    if (window.PhotoSolve) window.PhotoSolve.clearPhoto();
     const mfield = document.getElementById('mainExprInput');
     if (mfield) mfield.value = '';
-    closeMobileSidebar();
+    // go back up to the input so the user sees the fresh, empty box straight away
+    const anchor = document.getElementById('solverCardAnchor');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (mfield && EXPRESSION_MODES.includes(currentMode) && !window.matchMedia('(pointer: coarse)').matches) {
+      setTimeout(() => { try { mfield.focus({ preventScroll: true }); } catch (err) {} }, 50);
+    }
+    if (anchor) anchor.classList.add('flash-new');
+    setTimeout(() => anchor && anchor.classList.remove('flash-new'), 700);
   });
 
   // Everything below belongs to the calculator, which only exists on calculator pages
@@ -146,7 +158,7 @@ function applyPendingActions() {
   let pending = null;
   try { pending = JSON.parse(sessionStorage.getItem('allmath_pending') || 'null'); sessionStorage.removeItem('allmath_pending'); } catch (e) {}
   if (!pending || !document.getElementById('sectionHome')) return;
-  if (pending.result && Array.isArray(pending.result.steps)) renderResult(pending.result.answer || '', pending.result.steps);
+  if (pending.result && Array.isArray(pending.result.steps)) renderResult(pending.result.answer || '', pending.result.steps, pending.result.image ? { thumb: pending.result.image } : null);
   if (pending.prefill) {
     applyPrefill(pending.prefill.mode, pending.prefill.query);
     document.getElementById('solverCardAnchor')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -837,6 +849,11 @@ function switchCalculatorMode(mode) {
   const fx = document.getElementById('btnToggleFx');
   if (fx) fx.style.visibility = (EXPRESSION_MODES.includes(mode) || mode === 'proportion') ? '' : 'hidden';
   if (fx && fx.style.visibility === 'hidden') document.getElementById('symbolsDrawer')?.classList.add('hidden');
+  // the photo tool reads a question into the math box, so it only shows where that box is
+  const photoBtn = document.getElementById('btnPhotoSolve');
+  if (photoBtn) photoBtn.classList.toggle('hidden', !EXPRESSION_MODES.includes(mode));
+  if (!EXPRESSION_MODES.includes(mode)) document.getElementById('photoPreview')?.classList.add('hidden');
+  else if (window.PhotoSolve && window.PhotoSolve.current()) document.getElementById('photoPreview')?.classList.remove('hidden');
   const numLabel = document.getElementById('numbersLabelText');
   if (numLabel) numLabel.textContent = mode === 'gcf' ? 'Numbers to find the GCF (HCF) of:' : 'Numbers to find the LCM of:';
   updatePercentLabels();
@@ -1443,8 +1460,11 @@ async function handleCalculate() {
     const data = await res.json();
     
     if (res.ok && data.success && data.steps) {
-      renderResult(data.answer, data.steps);
+      // a question read from a photo keeps its photo (shown with the solution and in Recents)
+      const photo = (EXPRESSION_MODES.includes(currentMode) && window.PhotoSolve) ? window.PhotoSolve.current() : null;
+      renderResult(data.answer, data.steps, photo);
       saveLocalRecent({
+        image: photo ? photo.thumb : undefined,
         id: data.id || Date.now(),
         type: currentMode,
         title: data.title || '',
@@ -1510,8 +1530,9 @@ function renderLabel(el, text) {
   addText(text);
 }
 
-function renderResult(answer, steps) {
+function renderResult(answer, steps, photo) {
   window.__lastResult = { answer, steps }; // used by Copy
+  if (window.PhotoSolve) window.PhotoSolve.showInResult(photo || null);
   const card = document.getElementById('resultCard');
   card.classList.remove('hidden');
   const bigAnswer = document.getElementById('bigAnswerBox');
@@ -1589,6 +1610,9 @@ function saveLocalRecent(entry) {
   let list = readLocalRecents(key).filter(x => String(x.query || x.title || '').trim().toLowerCase() !== q);
   list.unshift(entry);
   list = list.slice(0, MAX_LOCAL_RECENTS);
+  // photos take space: only the newest few entries keep theirs
+  let photos = 0;
+  list = list.map(x => (x.image && ++photos > 15) ? { ...x, image: undefined } : x);
   try {
     localStorage.setItem(key, JSON.stringify(list));
   } catch (e) {
@@ -1604,6 +1628,13 @@ function clearLocalRecents(key = recentsKey()) {
 // Merge server + local lists: newest first, no duplicate questions
 function mergeRecents(serverList, localList) {
   const seen = new Set();
+  // photos are kept only in this browser: give them to the matching server entry
+  const photoOf = new Map();
+  localList.forEach(x => { if (x.image) photoOf.set(String(x.query || x.title || '').trim().toLowerCase(), x.image); });
+  serverList = serverList.map(x => {
+    const img = !x.image && photoOf.get(String(x.query || x.title || '').trim().toLowerCase());
+    return img ? { ...x, image: img } : x;
+  });
   return [...serverList, ...localList]
     .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')))
     .filter(item => {
@@ -1675,12 +1706,12 @@ function renderHistoryList(items) {
       const calcPaths = routesApi().CALC_PATHS;
       const mode = (item.type && item.type !== 'math') ? item.type : 'expression';
       if (!document.getElementById('sectionHome')) {
-        setPending({ result: { answer: item.answer, steps: item.steps } });
+        setPending({ result: { answer: item.answer, steps: item.steps, image: item.image } });
         window.location.href = calcPaths[mode] || '/';
         return;
       }
       await navigateTo(calcPaths[mode] || '/', { scroll: false });
-      if (Array.isArray(item.steps)) renderResult(item.answer || '', item.steps);
+      if (Array.isArray(item.steps)) renderResult(item.answer || '', item.steps, item.image ? { thumb: item.image } : null);
       closeMobileSidebar();
     };
 

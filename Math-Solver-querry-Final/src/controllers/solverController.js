@@ -346,6 +346,8 @@ const failed = (r) => !r || /Sorry|could not be solved/.test(r.answer || '');
 const safe = (fn) => { try { return fn(); } catch (e) { return null; } };
 // runs of spaces carry no meaning in a maths question; collapsing them also keeps pattern matching fast on long input
 const tidyWhitespace = (q) => String(q || '')
+  // words typed in the maths box / read from a photo arrive as \text{...}: plain words
+  .replace(/\\(?:text|textrm|textit|textbf|textnormal)\{([^{}]*)\}/g, ' $1 ')
   // $$...$$ and $...$ math delimiters pasted from a document ("$15" as money is left alone)
   .replace(/\$\$([\s\S]+?)\$\$/g, ' $1 ').replace(/\\\[([\s\S]+?)\\\]/g, ' $1 ').replace(/\\\(([\s\S]+?)\\\)/g, ' $1 ')
   .replace(/(^|[^\\])\$([^$\n]*?[\\^_=(][^$\n]*?)\$/g, '$1 $2 ')
@@ -389,7 +391,10 @@ const tidyWhitespace = (q) => String(q || '')
   .replace(/(^|[^\w^.}])(\d+) \\frac\{(\d+)\}\{(\d+)\}/g, '$1$2 $3/$4')
   // "\lim (sin x)/x as x\to0", "\sum of 1/n^2 from ..." typed as words in the maths box
   .replace(/\\lim(?=\s+[^_\s][\s\S]*\sas\s)/g, 'lim').replace(/\\(sum|int|prod)(?=\s+(?:of|from)\b)/g, '$1')
-  .replace(/\\(?:lvert|rvert|vert)(?![a-zA-Z])\s*(?:\{\})?/g, '|').replace(/\\(?:left|right)\s*\|/g, '|').replace(/\r\n?/g, '\n').replace(/[ \t\f\v\u00a0]+/g, ' ').replace(/ ?\n[\s]*/g, '\n').trim();
+  .replace(/\\(?:lvert|rvert|vert)(?![a-zA-Z])\s*(?:\{\})?/g, '|').replace(/\\(?:left|right)\s*\|/g, '|').replace(/\r\n?/g, '\n').replace(/[ \t\f\v\u00a0]+/g, ' ').replace(/ ?\n[\s]*/g, '\n').trim()
+  // worded LCM / HCF questions (typed, or read from a photo): "Find the LCM of 12, 18 and 30"
+  .replace(/^(?:(?:find|calculate|compute|determine|evaluate|work\s+out|what\s+is|what's)\s+)?(?:the\s+)?(l\.?c\.?m\.?|(?:lowest|least)\s+common\s+multiple|h\.?c\.?f\.?|g\.?c\.?[df]\.?|(?:highest|greatest)\s+common\s+(?:factor|divisor))\s*(?:\(\s*\w+\s*\))?\s+of\s+((?:\d+\s*(?:,|and|&|\s)\s*)+\d+)\s*[?.]?$/i,
+    (m, kind, nums) => `${/^l|multiple/i.test(kind) ? 'lcm' : 'gcd'}(${nums.match(/\d+/g).join(',')})`);
 // drop a ")" that closes nothing (left over from braces typed in the maths box)
 const dropUnmatchedClose = (q) => { if (!/\)/.test(q)) return q; let d = 0, out = ''; for (const c of q) { if (c === '(') d++; else if (c === ')') { if (d === 0) continue; d--; } out += c; } return out; };
 function solveExpression(rawQueryIn) {

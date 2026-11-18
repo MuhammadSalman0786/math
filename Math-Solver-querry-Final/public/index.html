@@ -198,6 +198,19 @@
           </div>
 
           <div id="expressionInputs" class="input-view">
+            <div class="photo-preview hidden" id="photoPreview">
+              <img alt="Photo of your question" title="View photo">
+              <div class="photo-preview-info">
+                <span class="photo-preview-title"><i class="fa-solid fa-image"></i> Question from your photo</span>
+                <span class="photo-preview-sub">Check the text below and fix anything that was misread.</span>
+                <div class="photo-preview-btns">
+                  <button type="button" data-pp="view"><i class="fa-regular fa-eye"></i> View</button>
+                  <button type="button" data-pp="save"><i class="fa-solid fa-download"></i> Save</button>
+                  <button type="button" data-pp="retake"><i class="fa-solid fa-camera"></i> New photo</button>
+                </div>
+              </div>
+              <button type="button" class="photo-preview-x" data-pp="remove" aria-label="Remove photo" title="Remove photo"><i class="fa-solid fa-xmark"></i></button>
+            </div>
             <math-field id="mainExprInput" class="main-mathfield" placeholder="Enter problem e.g. L{t2sin(3t)u(t−π)}"></math-field>
           </div>
 
@@ -294,6 +307,9 @@
               <button class="icon-tool-btn fx-btn" id="btnToggleFx" title="Open Symbols">
                 <i class="fa-solid fa-function"></i> <em>f(x)</em> <span class="fx-text"></span>
               </button>
+              <button type="button" class="icon-tool-btn photo-btn-open" id="btnPhotoSolve" title="Solve from a photo (camera or image)">
+                <i class="fa-solid fa-camera"></i> <span>Photo</span>
+              </button>
               <!-- <button type="button" class="icon-tool-btn paste-btn" id="btnPasteMath" title="Paste from Clipboard">
                 <i class="fa-solid fa-paste"></i> <span>Paste</span>
               </button> -->
@@ -338,6 +354,10 @@
             </div>
           </div>
           <div class="result-body solution-layout">
+            <button type="button" class="result-photo hidden" id="resultPhoto" title="View your question photo">
+              <img alt="Your question photo">
+              <span><i class="fa-solid fa-image"></i> Question from your photo <small>(tap to view)</small></span>
+            </button>
             <p class="solution-intro-text">Let's solve the expression step-by-step:</p>
             <div id="katexStepsList" class="steps-flow"></div>
             <div class="final-answer-wrapper" id="finalAnswerWrap">
@@ -1013,6 +1033,7 @@
 
   <script src="/js/site-routes.js"></script>
   <script src="/js/app.js"></script>
+  <script src="/js/photo-solve.js" defer></script>
   <script src="/js/lang.js" defer></script>
   <script src="/js/pwa.js" defer></script>
 </body>
