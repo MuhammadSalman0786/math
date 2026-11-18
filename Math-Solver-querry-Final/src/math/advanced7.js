@@ -69,8 +69,13 @@ function solveHigherDerivative(raw) {
   const steps = [{ label: 'Given function:', katex: `f(x) = ${T(f)}` }];
   const names = ["f'(x)", "f''(x)", "f'''(x)"];
   for (let k = 1; k <= n; k++) {
+    const prevName = k === 1 ? 'f(x)' : (names[k - 2] || `f^{(${k - 1})}(x)`);
+    steps.push({ label: k === 1 ? 'Differentiate $f(x)$ once (derivative number 1):' : `Now differentiate the result, $${prevName}$, again (derivative number ${k}):`, katex: '' });
+    let sub = [];
+    try { sub = S.explainDerivative(d, 'x'); } catch (e) { sub = []; }
+    sub.slice(0, 14).forEach(st => steps.push({ label: `• ${st.label}`, katex: st.katex }));
     d = S.derivative(d, 'x');
-    steps.push({ label: `Differentiate ${k === 1 ? 'once' : 'again'} (derivative number ${k}):`, katex: `${names[k - 1] || `f^{(${k})}(x)`} = ${S.tex(d)}` });
+    steps.push({ label: `Result (derivative number ${k}):`, katex: `${names[k - 1] || `f^{(${k})}(x)`} = ${S.tex(d)}` });
   }
   const lhs = names[n - 1] || `f^{(${n})}(x)`;
   return done(`${lhs} = ${S.tex(d)}`, steps);
@@ -183,7 +188,34 @@ function solveSum(raw) {
     if (ok) {
       const terms = [];
       for (let k = lo; k <= Math.min(up, lo + 3); k++) terms.push(T(S.substitute(F, v, S.num(k))));
-      steps.push({ label: 'Add the terms:', katex: `${terms.join(' + ')}${up > lo + 3 ? ' + \\cdots' : ''} = ${exact.toTex()}` });
+      const N = up - lo + 1;
+      const val = (k) => S.simplify(S.substitute(F, v, S.num(k)));
+      const poly = S.toPoly(S.expand(F), v);
+      const deg = poly ? P.degree(poly) : -1;
+      steps.push({ label: `Write out the first few terms (there are $${up} - ${lo} + 1 = ${N}$ terms):`, katex: `${terms.join(' + ')}${up > lo + 3 ? ' + \\cdots + ' + T(val(up)) : ''}` });
+      let explained = false;
+      if (deg === 1 && N > 2) {
+        const a1 = val(lo).v, an = val(up).v, d = val(lo + 1).v.sub(a1);
+        steps.push({ label: `This is an arithmetic series: each term is $${d.toTex()}$ more than the one before. The sum of an arithmetic series is (number of terms) × (first term + last term) ÷ 2:`, katex: `S = \\frac{N\\,(a_1 + a_N)}{2} = \\frac{${N}\\left(${a1.toTex()} + ${an.toTex()}\\right)}{2} = \\frac{${N} \\times ${a1.add(an).toTex()}}{2} = ${exact.toTex()}` });
+        explained = true;
+      } else if (N > 2 && deg < 0) {
+        const t0 = val(lo), t1 = val(lo + 1), t2 = val(lo + 2);
+        if (t0.t === 'num' && t1.t === 'num' && t2.t === 'num' && !t0.v.isZero() && !t1.v.isZero()) {
+          const r = t1.v.div(t0.v);
+          if (r.equals(t2.v.div(t1.v)) && !r.equals(1)) {
+            steps.push({ label: `This is a geometric series: each term is the one before multiplied by $r = ${r.toTex()}$. Its sum is $S = a\\,\\frac{r^{N} - 1}{r - 1}$ with first term $a = ${t0.v.toTex()}$:`, katex: `S = ${t0.v.toTex()} \\cdot \\frac{${r.isNegative() || !r.isInteger() ? `\\left(${r.toTex()}\\right)` : r.toTex()}^{${N}} - 1}{${r.toTex()} - 1} = ${exact.toTex()}` });
+            explained = true;
+          }
+        }
+      } else if (deg >= 2 && deg <= 3 && lo === 1) {
+        const parts = poly.map((c, j) => ({ c, j })).filter(x => !x.c.isZero());
+        const formula = { 0: [`\\sum 1 = n`, (n) => q(n)], 1: [`\\sum k = \\frac{n(n+1)}{2}`, (n) => q(n * (n + 1) / 2)], 2: [`\\sum k^2 = \\frac{n(n+1)(2n+1)}{6}`, (n) => q(n * (n + 1) * (2 * n + 1) / 6)], 3: [`\\sum k^3 = \\left(\\frac{n(n+1)}{2}\\right)^2`, (n) => q((n * (n + 1) / 2) ** 2)] };
+        const subst = { 0: (n) => `${n}`, 1: (n) => `\\frac{${n}\\cdot ${n + 1}}{2}`, 2: (n) => `\\frac{${n}\\cdot ${n + 1}\\cdot ${2 * n + 1}}{6}`, 3: (n) => `\\left(\\frac{${n}\\cdot ${n + 1}}{2}\\right)^2` };
+        steps.push({ label: 'Split the sum into powers of k and use the standard formulas (here $n = ' + up + '$):', katex: `\\begin{aligned} ${parts.map(({ c, j }) => `${formula[j][0]} &= ${subst[j](up)} = ${formula[j][1](up).toTex()}`).join(' \\\\ ')} \\end{aligned}` });
+        if (parts.length > 1 || !parts[0].c.equals(1)) steps.push({ label: 'Combine with the coefficients:', katex: `${parts.map(({ c, j }, i) => `${i === 0 ? (c.isNegative() ? '-' : '') : c.isNegative() ? ' - ' : ' + '}${c.abs().equals(1) && j > 0 ? '' : c.abs().toTex() + '\\cdot '}${formula[j][1](up).toTex()}`).join('')} = ${exact.toTex()}` });
+        explained = true;
+      }
+      if (!explained) steps.push({ label: 'Add all the terms:', katex: `= ${exact.toTex()}` });
       return done(exact.toTex(), steps);
     }
     let tot = 0; for (let k = lo; k <= up; k++) tot += at(k);
@@ -192,6 +224,32 @@ function solveSum(raw) {
     return done(Number.isInteger(tot) ? String(tot) : `\\approx ${fmt(tot)}`, steps);
   }
   // ---- infinite series ----
+  // telescoping: c / ((n + a)(n + b)) with whole numbers a < b
+  try {
+    const rec = S.simplify(S.pow(F, S.num(-1)));
+    const pd = S.toPoly(S.expand(rec), v);
+    if (pd && P.degree(pd) === 2) {
+      const A = pd[2], B = pd[1], Cc = pd[0];
+      const disc = B.mul(B).sub(q(4).mul(A).mul(Cc));
+      const sq = Math.round(Math.sqrt(disc.toNumber()));
+      if (disc.isInteger() && sq * sq === Number(disc.n) && sq > 0) {
+        const r1 = B.neg().sub(q(sq)).div(A.mul(q(2))), r2 = B.neg().add(q(sq)).div(A.mul(q(2)));
+        const a = r2.neg(), b = r1.neg(); // n + a, n + b with a < b
+        if (a.isInteger() && b.isInteger() && Number(b.n) - Number(a.n) <= 12 && lo + Number(a.n) > 0) {
+          const kk = q(1).div(A).div(b.sub(a)); // c/((n+a)(n+b)) = kk [1/(n+a) - 1/(n+b)]
+          const gap = Number(b.n) - Number(a.n);
+          const start = lo + Number(a.n);
+          let H = q(0); const left = [];
+          for (let j = start; j < start + gap; j++) { H = H.add(q(1).div(q(j))); left.push(`\\frac{1}{${j}}`); }
+          const total = kk.mul(H);
+          const nA = (x) => (x.isZero() ? v : `${v} ${x.isNegative() ? '-' : '+'} ${x.abs().toTex()}`);
+          steps.push({ label: 'Split the term with partial fractions:', katex: `${S.tex(F)} = ${kk.equals(1) ? '' : kk.toTex()}\\left(\\frac{1}{${nA(a)}} - \\frac{1}{${nA(b)}}\\right)` });
+          steps.push({ label: `Telescoping: write out the terms; every $-\\frac{1}{m}$ is cancelled by a $+\\frac{1}{m}$ that comes ${gap === 1 ? 'in the next term' : gap + ' terms later'}, so only ${gap === 1 ? 'the very first positive part survives' : `the first ${gap} positive parts survive`} (the leftover negative part tends to 0):`, katex: `\\sum_{${v}=${lo}}^{\\infty} = ${kk.equals(1) ? '' : kk.toTex()}\\left(${left.join(' + ')}\\right) = ${total.toTex()}` });
+          return done(total.toTex(), steps);
+        }
+      }
+    }
+  } catch (e) { /* not a telescoping sum */ }
   const knownTex = knownSeries(F, v, lo, steps);
   if (knownTex) return done(knownTex, steps);
   const val = numericSeries(at, lo);
@@ -542,6 +600,69 @@ function parseComplex(str) {
   if (!vars.includes('i') || vars.some(v => v !== 'i')) return null;
   try { return { node: n, z: cEvalExact(n) }; } catch (e) { return null; }
 }
+// working for complex arithmetic: multiply (FOIL), square, divide by the conjugate, add parts
+function explainComplex(node) {
+  const lines = [];
+  const P = (z) => { const t = C.tex(z); return /[+-]/.test(t.slice(1)) || t.startsWith('-') ? `\\left(${t}\\right)` : t; };
+  // join signed terms: ["3", "-9i", "-4i"] -> "3 - 9i - 4i"
+  const SJ = (arr) => arr.filter(t => t !== '0').map((t, i) => (i === 0 ? t : t.startsWith('-') ? ` - ${t.slice(1)}` : ` + ${t}`)).join('') || '0';
+  const im = (v) => C.tex(C.mk(q(0), v));
+  const mulLine = (z, w) => {
+    const a = z.re, b = z.im, c = w.re, d = w.im;
+    if (b.isZero() || d.isZero()) return C.mul(z, w);
+    const ac = a.mul(c), ad = a.mul(d), bc = b.mul(c), bd = b.mul(d);
+    const r = C.mul(z, w);
+    lines.push({ rule: 'Multiply out the brackets (FOIL: first, outer, inner, last), then use $i^2 = -1$', tex: `${P(z)}${P(w)} = ${SJ([ac.toTex(), im(ad), im(bc), bd.toTex() + 'i^2'])} = ${SJ([ac.toTex(), bd.neg().toTex(), im(ad.add(bc))])} = ${C.tex(r)}` });
+    return r;
+  };
+  const walk = (n) => {
+    if (n.t === 'num' || n.t === 'var') return cEvalExact(n);
+    if (n.t === 'sum') {
+      const vals = n.terms.map(walk);
+      const r = vals.reduce((acc, z) => C.add(acc, z), C.mk(q(0), q(0)));
+      const nRe = vals.filter(z => !z.re.isZero()).length, nIm = vals.filter(z => !z.im.isZero()).length;
+      if (vals.length > 1 && (nRe > 1 || nIm > 1)) lines.push({ rule: 'Add the real parts together and the imaginary parts together', tex: `${SJ(vals.map(z => C.tex(z)))} = ${C.tex(r)}`.replace(/(\d)i - /g, '$1i - ') });
+      return r;
+    }
+    if (n.t === 'pow') {
+      const z = walk(n.base);
+      const k = Number(n.exp.v.n);
+      if (z.re.isZero() && z.im.equals(1) && k > 1) {
+        const r = C.pow(z, k);
+        lines.push({ rule: `Powers of $i$ repeat every 4: $i^1 = i,\\ i^2 = -1,\\ i^3 = -i,\\ i^4 = 1$; ${k} leaves remainder ${k % 4} when divided by 4`, tex: `i^{${k}} = i^{${k % 4}} = ${C.tex(r)}` });
+        return r;
+      }
+      if (k === 2 && !z.im.isZero() && !z.re.isZero()) {
+        const a = z.re, b = z.im, r = C.pow(z, 2);
+        lines.push({ rule: 'Square: $(a + bi)^2 = a^2 + 2abi + b^2 i^2 = (a^2 - b^2) + 2ab\\,i$', tex: `${P(z)}^2 = ${P(C.mk(a, q(0)))}^2 + 2${P(C.mk(a, q(0)))}\\left(${im(b)}\\right) + \\left(${im(b)}\\right)^2 = ${SJ([a.mul(a).toTex(), im(a.mul(b).mul(q(2))), b.mul(b).neg().toTex()])} = ${C.tex(r)}` });
+        return r;
+      }
+      if (k > 2 && k <= 4) { let r = z; for (let i = 1; i < k; i++) r = mulLine(r, z); return r; }
+      if (k === -1) return C.div(C.mk(q(1), q(0)), z);
+      return C.pow(z, k);
+    }
+    if (n.t === 'prod') {
+      const mulF = [], divF = [];
+      n.factors.forEach(f => { if (f.t === 'pow' && f.exp.t === 'num' && f.exp.v.equals(-1)) divF.push(walk(f.base)); else mulF.push(walk(f)); });
+      let top = mulF.reduce((acc, z, i) => (i === 0 ? z : mulLine(acc, z)), C.mk(q(1), q(0)));
+      if (!mulF.length) top = C.mk(q(1), q(0));
+      for (const w of divF) {
+        if (w.im.isZero()) { const r = C.div(top, w); lines.push({ rule: 'Divide each part by the real number', tex: `\\frac{${C.tex(top)}}{${C.tex(w)}} = ${C.tex(r)}` }); top = r; continue; }
+        const conj = C.mk(w.re, w.im.neg());
+        const den = w.re.mul(w.re).add(w.im.mul(w.im));
+        const numr = C.mul(top, conj);
+        const r = C.div(top, w);
+        lines.push({ rule: `Divide: multiply top and bottom by the conjugate of the bottom, $${C.tex(conj)}$ (this makes the bottom real: $(c+di)(c-di) = c^2 + d^2$)`, tex: `\\frac{${C.tex(top)}}{${C.tex(w)}} = \\frac{${P(top)}${P(conj)}}{${P(w)}${P(conj)}} = \\frac{${C.tex(numr)}}{${den.toTex()}} = ${C.tex(r)}` });
+        top = r;
+      }
+      return top;
+    }
+    return cEvalExact(n);
+  };
+  try { walk(node); } catch (e) { return []; }
+  return lines.map((l, i) => ({ label: `Step ${i + 1}: ${l.rule}:`, katex: l.tex }));
+}
+
 function solveComplex(raw) {
   const s = plainWords(raw);
   let m;
@@ -571,10 +692,10 @@ function solveComplex(raw) {
   const vars = S.variables(c.node);
   if (!vars.has('i')) return null;
   const zT = C.tex(c.z);
-  const steps = [
-    { label: 'Expression:', katex: S.tex(c.node) },
-    { label: 'Expand and use $i^2 = -1$ (to divide, multiply top and bottom by the conjugate of the denominator):', katex: `= ${zT}` }
-  ];
+  const worked = explainComplex(c.node);
+  const steps = [{ label: 'Expression:', katex: S.tex(c.node) }];
+  if (worked.length) steps.push(...worked);
+  else steps.push({ label: 'Expand and use $i^2 = -1$ (to divide, multiply top and bottom by the conjugate of the denominator):', katex: `= ${zT}` });
   return done(zT, steps);
 }
 
@@ -595,9 +716,15 @@ function solveCombinatorics(raw) {
   else return null;
   if (n > 1000) return null;
   const val = kind === 'C' ? nCr(n, r) : nPr(n, r);
+  const rr = kind === 'C' ? Math.min(r, n - r) : r;
+  const topF = Array.from({ length: rr }, (_, i) => n - i);
+  const showTop = rr >= 1 && rr <= 8;
+  const topProd = topF.reduce((a, b) => a * BigInt(b), 1n);
   const steps = kind === 'C'
-    ? [{ label: 'Combinations (order does not matter): $\\binom{n}{r} = \\frac{n!}{r!\\,(n-r)!}$', katex: `\\binom{${n}}{${r}} = \\frac{${n}!}{${r}!\\,${n - r}!} = ${val}` }]
-    : [{ label: 'Permutations (order matters): $P(n, r) = \\frac{n!}{(n-r)!}$', katex: `P(${n}, ${r}) = \\frac{${n}!}{${n - r}!} = ${val}` }];
+    ? [{ label: 'Combinations (order does not matter): $\\binom{n}{r} = \\frac{n!}{r!\\,(n-r)!}$', katex: `\\binom{${n}}{${r}} = \\frac{${n}!}{${r}!\\,${n - r}!}` },
+       ...(showTop ? [{ label: `Cancel $${n - rr}!$ from the top and bottom: only the top ${rr} factor${rr > 1 ? 's' : ''} of $${n}!$ remain over $${rr}!$:`, katex: `\\frac{${topF.join(' \\times ')}}{${Array.from({ length: rr }, (_, i) => rr - i).join(' \\times ')}} = \\frac{${topProd}}{${big(rr)}} = ${val}` }] : [{ label: 'Work it out:', katex: `= ${val}` }])]
+    : [{ label: 'Permutations (order matters): $P(n, r) = \\frac{n!}{(n-r)!}$', katex: `P(${n}, ${r}) = \\frac{${n}!}{${n - r}!}` },
+       ...(showTop ? [{ label: `Cancel $${n - r}!$: multiply the top ${r} numbers counting down from ${n}:`, katex: `${topF.join(' \\times ')} = ${val}` }] : [{ label: 'Work it out:', katex: `= ${val}` }])];
   return done(String(val), steps);
 }
 function factorize(n) {

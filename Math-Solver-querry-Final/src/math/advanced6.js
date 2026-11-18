@@ -172,6 +172,7 @@ function solveVectorCalculus(raw) {
     if (!f) return null;
     const vars = ['x', 'y', 'z'].filter(v => S.variables(f).has(v) || (v !== 'z'));
     const g = vars.map(v => D(f, v));
+    steps.push({ label: 'Take each partial derivative: differentiate with respect to one variable, treating the other variables as constants:', katex: `\\begin{aligned} ${vars.map((v, i) => `\\frac{\\partial f}{\\partial ${v}} &= ${S.tex(g[i])}`).join(' \\\\ ')} \\end{aligned}` });
     steps.push({ label: 'Gradient = vector of partial derivatives:', katex: `\\nabla f = \\left(${vars.map(v => `\\frac{\\partial f}{\\partial ${v}}`).join(',\\ ')}\\right) = \\left(${g.map(S.tex).join(',\\ ')}\\right)` });
     const at = s.match(/at\s*\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)(?:\s*,\s*(-?[\d.]+))?\s*\)/);
     let ans = `\\nabla f = \\left(${g.map(S.tex).join(',\\ ')}\\right)`;

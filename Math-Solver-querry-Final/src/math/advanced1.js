@@ -350,7 +350,9 @@ function solveIntegralQuestion(raw) {
   const steps = [{ label: hasLimits ? 'Given definite integral:' : 'Given integral:', katex: hasLimits ? `\\int_{${stripOuterBraces(ex.lower)}}^{${stripOuterBraces(ex.upper)}} ${tex(fs)} \\, d${x}` : `\\int ${tex(fs)} \\, d${x}` }];
   res.steps.forEach((st, i) => steps.push({ label: `Step ${i + 1}: ${st.label}`, katex: st.katex }));
   if (fs.t === 'sum' && !res.steps.length) {
-    steps.push({ label: 'Step 1: Integrate term by term (sum rule) using the standard formulas:', katex: `\\begin{aligned} ${fs.terms.map(t => { const r = S.integrate(t, x); return `\\int ${tex(t)}\\,d${x} &= ${r ? tex(r.result) : '?'}`; }).join(' \\\\ ')} \\end{aligned}` });
+    steps.push({ label: 'Step 1: Integrate term by term (sum rule) using the standard formulas (the formula used is written next to each line):', katex: `\\begin{aligned} ${fs.terms.map(t => { const r = S.integrate(t, x); return `\\int ${tex(t)}\\,d${x} &= ${r ? tex(r.result) : '?'} && ${intRule(t, x)}`; }).join(' \\\\ ')} \\end{aligned}` });
+  } else if (!res.steps.length) {
+    steps.push({ label: 'Step 1: Use the standard formula:', katex: `${intRule(fs, x)} \\quad\\Longrightarrow\\quad \\int ${tex(fs)}\\,d${x} = ${tex(F)}` });
   }
   // check
   const back = S.derivative(F, x);
@@ -390,11 +392,37 @@ function solveIntegralQuestion(raw) {
   let value;
   try { value = S.evaluate(exact); } catch (e) { value = NaN; }
   steps.push({ label: 'Antiderivative:', katex: `F(${x}) = ${tex(F)}` });
-  steps.push({ label: 'Evaluate $F(b) - F(a)$:', katex: `F(${tex(b.node)}) - F(${tex(a.node)}) = ${tex(Fb)} - \\left(${tex(Fa)}\\right)` });
+  // Fundamental theorem of calculus, with each end worked out
+  const subTex = (lim) => { try { return tex(S.substitute(F, x, lim)); } catch (e) { return null; } };
+  const sb = subTex(b.node), sa = subTex(a.node);
+  steps.push({ label: 'Fundamental theorem of calculus: $\\int_a^b f(x)\\,dx = F(b) - F(a)$. Put the upper limit into F:', katex: `F(${tex(b.node)}) = ${sb && sb !== tex(Fb) ? sb + ' = ' : ''}${tex(Fb)}` });
+  steps.push({ label: 'Put the lower limit into F:', katex: `F(${tex(a.node)}) = ${sa && sa !== tex(Fa) ? sa + ' = ' : ''}${tex(Fa)}` });
+  steps.push({ label: 'Subtract: upper value minus lower value:', katex: `F(${tex(b.node)}) - F(${tex(a.node)}) = ${tex(Fb)} - \\left(${tex(Fa)}\\right) = ${tex(exact)}` });
   const exactTex = tex(exact);
   const approx = Number.isFinite(value) && exact.t !== 'num' ? ` \\approx ${formatDecimal(+value.toFixed(6))}` : '';
   steps.push({ label: 'Final Answer:', katex: `\\mathbf{${exactTex}}${approx}` });
   return { answer: exactTex + approx, steps };
+}
+
+// the standard formula that integrates one term (shown so the student sees where the antiderivative comes from)
+function intRule(t, x) {
+  const TX = (w) => `\\text{${w}}`;
+  if (S.freeOf(t, x)) return TX('constant: ') + `\\int c\\,d${x} = c${x}`;
+  const [c, rest] = S.splitCoef(t);
+  const r = rest || t;
+  const k = c && !c.equals(1) ? TX('constant multiple, ') : '';
+  if (r.t === 'var') return k + TX('power rule: ') + `\\int ${x}^n\\,d${x} = \\frac{${x}^{n+1}}{n+1}`;
+  if (r.t === 'pow' && r.base.t === 'var' && r.exp.t === 'num') {
+    if (r.exp.v.equals(-1)) return k + `\\int \\frac{1}{${x}}\\,d${x} = \\ln|${x}|`;
+    return k + TX('power rule: ') + `\\int ${x}^n\\,d${x} = \\frac{${x}^{n+1}}{n+1}\\ (n \\ne -1)`;
+  }
+  if (r.t === 'pow' && r.base.t === 'const' && r.base.n === 'e') return k + (r.exp.t === 'var' ? `\\int e^{${x}}\\,d${x} = e^{${x}}` : `\\int e^{a${x}}\\,d${x} = \\frac{e^{a${x}}}{a}`);
+  if (r.t === 'fn') {
+    const lin = r.arg.t === 'var' ? '' : TX(' (with the inside a·x+b: divide by a)');
+    const std = { sin: `\\int \\sin ${x}\\,d${x} = -\\cos ${x}`, cos: `\\int \\cos ${x}\\,d${x} = \\sin ${x}`, exp: `\\int e^{${x}}\\,d${x} = e^{${x}}`, ln: `\\int \\ln ${x}\\,d${x} = ${x}\\ln ${x} - ${x}` }[r.f];
+    if (std) return k + std + lin;
+  }
+  return TX('standard result');
 }
 
 function simpsonPlain(f, a, b, n = 2000) {
@@ -611,7 +639,37 @@ function limitQuotient(expr, x, a, aNode, isInf, infSign, side, steps, stepNo) {
       steps.push({ label: `Step ${stepNo++}: The expression no longer depends on $${x}$:`, katex: tex(e) });
       return { tex: tex(e), exact: e.t === 'num' ? e.v : null };
     }
-    steps.push({ label: `Step ${stepNo++}: Evaluate the behaviour as $${x} \\to ${infSign < 0 ? '-' : ''}\\infty$:`, katex: `\\frac{${tex(N)}}{${tex(D)}} \\to ${out}` });
+    const toInf = `${x} \\to ${infSign < 0 ? '-' : ''}\\infty`;
+    let why = false;
+    try {
+      const pN = S.toPoly(S.expand(N), x), pD = S.toPoly(S.expand(D), x);
+      const whole = simplify(prod(N, pow(D, -1)));
+      const wtex = tex(whole);
+      if (pN && pD) {
+        const P_ = require('./polynomial');
+        const dN = P_.degree(pN), dD = P_.degree(pD);
+        const lead = (p) => p[P_.degree(p)];
+        steps.push({ label: `Step ${stepNo++}: For a polynomial over a polynomial, divide the top and bottom by the highest power of $${x}$ (here $${x}^{${Math.max(dN, dD)}}$); every term with $${x}$ left in the denominator tends to 0 as $${toInf}$. So only the leading terms matter:`, katex: `\\frac{${tex(N)}}{${tex(D)}} \\approx \\frac{${lead(pN).toTex()}${dN ? x + (dN > 1 ? `^{${dN}}` : '') : ''}}{${lead(pD).toTex()}${dD ? x + (dD > 1 ? `^{${dD}}` : '') : ''}}` });
+        steps.push({ label: dN === dD ? `Step ${stepNo++}: The degrees are equal (${dN}), so the limit is the ratio of the leading coefficients:` : dN < dD ? `Step ${stepNo++}: The bottom has the higher degree, so the fraction shrinks to 0:` : `Step ${stepNo++}: The top has the higher degree, so the fraction grows without bound:`, katex: `\\lim_{${toInf}} \\frac{${tex(N)}}{${tex(D)}} = ${out}` });
+        why = true;
+      } else if (/\\sqrt/.test(wtex) && whole.t === 'sum' && whole.terms.length === 2) {
+        const [u, w] = whole.terms;
+        const sq = [u, w].find(t => /\\sqrt/.test(tex(t)) && !/\\sqrt/.test(tex([u, w].find(z => z !== t))));
+        if (sq) {
+          const other = sq === u ? w : u;
+          const A = simplify(pow(sq, num(2))), B2 = simplify(pow(other, num(2)));
+          const top = simplify(S.expand(sum(A, prod(num(-1), B2))));
+          const conj = simplify(sum(sq, prod(num(-1), other)));
+          steps.push({ label: `Step ${stepNo++}: This is "$\\infty - \\infty$". Multiply and divide by the conjugate $${tex(conj)}$; the top becomes a difference of squares $(a+b)(a-b) = a^2 - b^2$, which removes the root:`, katex: `${wtex} = \\frac{\\left(${tex(sq)}\\right)^2 - \\left(${tex(other)}\\right)^2}{${tex(conj)}} = \\frac{${tex(top)}}{${tex(conj)}}` });
+          steps.push({ label: `Step ${stepNo++}: Divide the top and bottom by $${x}$ (inside the root that means dividing by $${x}^2$); the small terms tend to 0:`, katex: `\\lim_{${toInf}} \\frac{${tex(top)}}{${tex(conj)}} = ${out}` });
+          why = true;
+        }
+      } else if (/e\^/.test(wtex) && Number.isFinite(value) && Math.abs(value) < 1e-12) {
+        steps.push({ label: `Step ${stepNo++}: An exponential grows faster than any power of $${x}$ (applying L'Hôpital's rule repeatedly lowers the power each time, while $e^{${x}}$ stays). So the power is overwhelmed and the fraction tends to 0:`, katex: `\\lim_{${toInf}} ${wtex} = 0` });
+        why = true;
+      }
+    } catch (e) { why = false; }
+    if (!why) steps.push({ label: `Step ${stepNo++}: For very large $${x}$ compare how fast the top and bottom grow (the fastest-growing terms decide the limit):`, katex: `\\frac{${tex(N)}}{${tex(D)}} \\to ${out}` });
     return { tex: out, exact: exactInf };
   }
   return null;

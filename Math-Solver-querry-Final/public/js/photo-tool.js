@@ -15,7 +15,7 @@
 
   // The styles live here (not in style.css) so the photo tool always looks right, even when
   // the browser still has an older cached style.css right after an update
-  const CSS = ".logo { height: 60px; } .logo img.custom-logo { pointer-events: none; } .btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; } .btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); } .solver-card.flash-new { animation: amsFlashNew 0.7s ease; } @keyframes amsFlashNew { 0% { box-shadow: 0 0 0 0 rgba(122, 141, 211, 0.55); } 100% { box-shadow: 0 0 0 14px rgba(122, 141, 211, 0); } } .bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .photo-btn-open { font-weight: 600; } .photo-btn-open i { color: var(--brand-green); } body.dark-theme .photo-btn-open i { color: #a5b4fc; } .photo-preview { display: flex; align-items: center; gap: 12px; position: relative; padding: 10px 36px 10px 10px; margin-bottom: 10px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); } .photo-preview.hidden { display: none; } .photo-preview img { width: 96px; height: 64px; object-fit: contain; border-radius: 6px; flex-shrink: 0; background: #fff; border: 1px solid var(--border-color); cursor: zoom-in; } .photo-preview-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .photo-preview-title { font-weight: 600; font-size: 13.5px; color: var(--text-main); } .photo-preview-title i { color: var(--brand-green); } .photo-preview-sub { font-size: 12px; color: var(--text-muted); } .photo-preview-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; } .photo-preview-btns button, .photo-preview-x { border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer; } .photo-preview-btns button:hover { border-color: var(--brand-green); } .photo-preview-x { position: absolute; top: 6px; right: 6px; padding: 2px 7px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; } .result-photo { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 0 0 14px; padding: 8px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-main); font-size: 13px; cursor: zoom-in; font-family: inherit; } .result-photo.hidden { display: none; } .result-photo img { max-width: 160px; max-height: 90px; border-radius: 6px; background: #fff; border: 1px solid var(--border-color); } .result-photo i { color: var(--brand-green); } .result-photo small { color: var(--text-muted); } body.photo-open { overflow: hidden; } .photo-modal { position: fixed; inset: 0; z-index: 5000; background: rgba(15, 23, 42, 0.72); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); } .photo-modal.hidden { display: none; } .photo-dialog { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--bg-card); color: var(--text-main); border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); padding: 16px; display: flex; flex-direction: column; } .photo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; } .photo-head h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; } .photo-head h3 i { color: var(--brand-green); } .photo-x { border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; } .photo-stage.hidden { display: none; } .photo-hint { margin: 0 0 12px; color: var(--text-muted); font-size: 13.5px; } .photo-tip { margin: 14px 0 0; font-size: 12.5px; color: var(--text-muted); } .photo-center { text-align: center; } .photo-crop-wrap .cropper-point { width: 22px; height: 22px; border-radius: 50%; background: #3399ff; opacity: 0.95; border: 2px solid #fff; box-sizing: border-box; } .photo-crop-wrap .cropper-point.point-e { right: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-w { left: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-n { top: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-s { bottom: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-ne { right: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-nw { left: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-sw { left: -11px; bottom: -11px; } .photo-crop-wrap .cropper-point.point-se { right: -11px; bottom: -11px; width: 22px; height: 22px; } .photo-crop-wrap .cropper-line.line-e, .photo-crop-wrap .cropper-line.line-w { width: 18px; } .photo-crop-wrap .cropper-line.line-e { right: -9px; } .photo-crop-wrap .cropper-line.line-w { left: -9px; } .photo-crop-wrap .cropper-line.line-n, .photo-crop-wrap .cropper-line.line-s { height: 18px; } .photo-crop-wrap .cropper-line.line-n { top: -9px; } .photo-crop-wrap .cropper-line.line-s { bottom: -9px; } .photo-crop-wrap .cropper-view-box { outline: 2px solid #3399ff; } .photo-link { background: none; border: none; color: var(--brand-green); text-decoration: underline; cursor: pointer; font: inherit; padding: 4px; } .photo-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .photo-big-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 26px 10px; border-radius: 12px; border: 2px solid var(--brand-green); background: var(--brand-green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; } .photo-big-btn i { font-size: 30px; } .photo-big-btn.alt { background: transparent; color: var(--text-main); } .photo-big-btn.alt i { color: var(--brand-green); } .photo-video-wrap { background: #000; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; } .photo-video-wrap video { width: 100%; max-height: 60vh; object-fit: contain; } .photo-crop-wrap { height: min(58vh, 460px); background: #111; border-radius: 10px; overflow: visible; margin: 0 4px; } .photo-crop-wrap img { display: block; max-width: 100%; } .photo-tools { display: flex; justify-content: center; gap: 8px; margin-top: 10px; } .photo-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; } .photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-main); } .photo-btn.primary { background: var(--brand-green); border-color: var(--brand-green); color: #fff; margin-left: auto; } .photo-shutter { width: 64px; height: 64px; border-radius: 50%; border: 4px solid var(--brand-green); background: #fff; box-shadow: inset 0 0 0 4px var(--bg-card); cursor: pointer; } .photo-shutter:active { transform: scale(0.94); } .photo-work-img, .photo-view-img { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto; border-radius: 8px; background: #fff; border: 1px solid var(--border-color); } .photo-progress { height: 8px; border-radius: 4px; background: var(--bg-tertiary); overflow: hidden; margin-top: 14px; } .photo-progress-bar { height: 100%; width: 0; background: var(--brand-green); transition: width 0.3s ease; } .photo-status { text-align: center; margin: 10px 0 0; color: var(--text-muted); font-size: 13.5px; } @media (max-width: 480px) { .photo-choose { grid-template-columns: 1fr; } .photo-big-btn { flex-direction: row; padding: 18px; } .photo-big-btn i { font-size: 24px; } .photo-preview img { width: 72px; height: 54px; } }";
+  const CSS = ".logo { height: 60px; } .logo img.custom-logo { pointer-events: none; } .btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; } .btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); } .solver-card.flash-new { animation: amsFlashNew 0.7s ease; } @keyframes amsFlashNew { 0% { box-shadow: 0 0 0 0 rgba(122, 141, 211, 0.55); } 100% { box-shadow: 0 0 0 14px rgba(122, 141, 211, 0); } } .bar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .photo-btn-open { font-weight: 600; } .photo-btn-open i { color: var(--brand-green); } body.dark-theme .photo-btn-open i { color: #a5b4fc; } .photo-preview { display: flex; align-items: center; gap: 12px; position: relative; padding: 10px 36px 10px 10px; margin-bottom: 10px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); } .photo-preview.hidden { display: none; } .photo-preview img { width: 96px; height: 64px; object-fit: contain; border-radius: 6px; flex-shrink: 0; background: #fff; border: 1px solid var(--border-color); cursor: zoom-in; } .photo-preview-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; } .photo-preview-title { font-weight: 600; font-size: 13.5px; color: var(--text-main); } .photo-preview-title i { color: var(--brand-green); } .photo-preview-sub { font-size: 12px; color: var(--text-muted); } .photo-preview-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; } .photo-preview-btns button, .photo-preview-x { border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); border-radius: 6px; padding: 4px 9px; font-size: 12px; cursor: pointer; } .photo-preview-btns button:hover { border-color: var(--brand-green); } .photo-preview-x { position: absolute; top: 6px; right: 6px; padding: 2px 7px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; } .result-photo { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; margin: 0 0 14px; padding: 8px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-secondary); color: var(--text-main); font-size: 13px; cursor: zoom-in; font-family: inherit; } .result-photo.hidden { display: none; } .result-photo img { max-width: 160px; max-height: 90px; border-radius: 6px; background: #fff; border: 1px solid var(--border-color); } .result-photo i { color: var(--brand-green); } .result-photo small { color: var(--text-muted); } body.photo-open { overflow: hidden; } .photo-modal { position: fixed; inset: 0; z-index: 5000; background: rgba(15, 23, 42, 0.72); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); } .photo-modal.hidden { display: none; } .photo-dialog { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--bg-card); color: var(--text-main); border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); padding: 16px; display: flex; flex-direction: column; } .photo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; } .photo-head h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; } .photo-head h3 i { color: var(--brand-green); } .photo-x { border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 4px 8px; } .photo-stage.hidden { display: none; } .photo-hint { margin: 0 0 12px; color: var(--text-muted); font-size: 13.5px; } .photo-tip { margin: 14px 0 0; font-size: 12.5px; color: var(--text-muted); } .photo-center { text-align: center; } .photo-review-img { display: block; max-width: 100%; max-height: 28vh; margin: 0 auto 10px; border-radius: 8px; background: #fff; border: 1px solid var(--border-color); } .photo-review-hint { margin: 0 0 8px; } .photo-review-hint i { color: var(--brand-green); } .photo-review-text { width: 100%; box-sizing: border-box; min-height: 72px; resize: vertical; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--brand-green); background: var(--input-bg, #fff); color: var(--text-main); font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; } .photo-review-preview { margin-top: 8px; padding: 6px 10px; border-radius: 8px; background: var(--bg-secondary); overflow-x: auto; min-height: 20px; } .photo-review-preview[hidden] { display: none; } .photo-crop-wrap .cropper-point { width: 22px; height: 22px; border-radius: 50%; background: #3399ff; opacity: 0.95; border: 2px solid #fff; box-sizing: border-box; } .photo-crop-wrap .cropper-point.point-e { right: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-w { left: -11px; top: 50%; margin-top: -11px; } .photo-crop-wrap .cropper-point.point-n { top: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-s { bottom: -11px; left: 50%; margin-left: -11px; } .photo-crop-wrap .cropper-point.point-ne { right: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-nw { left: -11px; top: -11px; } .photo-crop-wrap .cropper-point.point-sw { left: -11px; bottom: -11px; } .photo-crop-wrap .cropper-point.point-se { right: -11px; bottom: -11px; width: 22px; height: 22px; } .photo-crop-wrap .cropper-line.line-e, .photo-crop-wrap .cropper-line.line-w { width: 18px; } .photo-crop-wrap .cropper-line.line-e { right: -9px; } .photo-crop-wrap .cropper-line.line-w { left: -9px; } .photo-crop-wrap .cropper-line.line-n, .photo-crop-wrap .cropper-line.line-s { height: 18px; } .photo-crop-wrap .cropper-line.line-n { top: -9px; } .photo-crop-wrap .cropper-line.line-s { bottom: -9px; } .photo-crop-wrap .cropper-view-box { outline: 2px solid #3399ff; } .photo-link { background: none; border: none; color: var(--brand-green); text-decoration: underline; cursor: pointer; font: inherit; padding: 4px; } .photo-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .photo-big-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 26px 10px; border-radius: 12px; border: 2px solid var(--brand-green); background: var(--brand-green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; } .photo-big-btn i { font-size: 30px; } .photo-big-btn.alt { background: transparent; color: var(--text-main); } .photo-big-btn.alt i { color: var(--brand-green); } .photo-video-wrap { background: #000; border-radius: 10px; overflow: hidden; display: flex; justify-content: center; } .photo-video-wrap video { width: 100%; max-height: 60vh; object-fit: contain; } .photo-crop-wrap { height: min(58vh, 460px); background: #111; border-radius: 10px; overflow: visible; margin: 0 4px; } .photo-crop-wrap img { display: block; max-width: 100%; } .photo-tools { display: flex; justify-content: center; gap: 8px; margin-top: 10px; } .photo-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; flex-wrap: wrap; } .photo-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; border: 1px solid var(--border-color); background: var(--bg-tertiary); color: var(--text-main); } .photo-btn.primary { background: var(--brand-green); border-color: var(--brand-green); color: #fff; margin-left: auto; } .photo-shutter { width: 64px; height: 64px; border-radius: 50%; border: 4px solid var(--brand-green); background: #fff; box-shadow: inset 0 0 0 4px var(--bg-card); cursor: pointer; } .photo-shutter:active { transform: scale(0.94); } .photo-work-img, .photo-view-img { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto; border-radius: 8px; background: #fff; border: 1px solid var(--border-color); } .photo-progress { height: 8px; border-radius: 4px; background: var(--bg-tertiary); overflow: hidden; margin-top: 14px; } .photo-progress-bar { height: 100%; width: 0; background: var(--brand-green); transition: width 0.3s ease; } .photo-status { text-align: center; margin: 10px 0 0; color: var(--text-muted); font-size: 13.5px; } @media (max-width: 480px) { .photo-choose { grid-template-columns: 1fr; } .photo-big-btn { flex-direction: row; padding: 18px; } .photo-big-btn i { font-size: 24px; } .photo-preview img { width: 72px; height: 54px; } }";
   (function addStyles() {
     if (document.getElementById('photoSolveCss')) return;
     const st = document.createElement('style');
@@ -361,6 +361,17 @@
           <p class="photo-status">Reading the question…</p>
         </div>
 
+        <div class="photo-stage hidden" data-stage="review">
+          <img class="photo-review-img" alt="Your cropped question">
+          <p class="photo-hint photo-review-hint"><i class="fa-solid fa-pen-to-square"></i> <span data-ph="reviewnote">This is what we read. Check it against the photo and fix anything that is wrong, then press Solve.</span></p>
+          <textarea class="photo-review-text" rows="3" spellcheck="false" aria-label="Question read from the photo"></textarea>
+          <div class="photo-review-preview" aria-live="polite"></div>
+          <div class="photo-actions">
+            <button type="button" class="photo-btn ghost" data-act="retake"><i class="fa-solid fa-camera"></i> New photo</button>
+            <button type="button" class="photo-btn primary" data-act="solvereview"><i class="fa-solid fa-paper-plane"></i> Solve</button>
+          </div>
+        </div>
+
         <div class="photo-stage hidden" data-stage="view">
           <img class="photo-view-img" alt="Your question photo">
           <div class="photo-actions">
@@ -379,6 +390,12 @@
     els.bar = modal.querySelector('.photo-progress-bar');
     els.status = modal.querySelector('.photo-status');
     els.title = modal.querySelector('[data-ph="title"]');
+    els.reviewImg = modal.querySelector('.photo-review-img');
+    els.reviewText = modal.querySelector('.photo-review-text');
+    els.reviewPreview = modal.querySelector('.photo-review-preview');
+    els.reviewNote = modal.querySelector('[data-ph="reviewnote"]');
+    els.reviewText.addEventListener('input', renderReviewPreview);
+    els.reviewText.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); solveReviewed(); } });
     els.inCam = modal.querySelector('[data-in="camera"]');
     els.inGal = modal.querySelector('[data-in="gallery"]');
 
@@ -400,6 +417,7 @@
       else if (act === 'reset') cropper && cropper.reset();
       else if (act === 'cropdone') finishCrop();
       else if (act === 'save') savePhoto();
+      else if (act === 'solvereview') solveReviewed();
     });
     [els.inCam, els.inGal].forEach(inp => inp.addEventListener('change', () => {
       const f = inp.files && inp.files[0];
@@ -413,7 +431,7 @@
 
   function show(stage) {
     modal.querySelectorAll('.photo-stage').forEach(s => s.classList.toggle('hidden', s.dataset.stage !== stage));
-    els.title.textContent = stage === 'view' ? 'Your question photo' : stage === 'crop' ? 'Crop your question' : 'Solve from a photo';
+    els.title.textContent = stage === 'view' ? 'Your question photo' : stage === 'crop' ? 'Crop your question' : stage === 'review' ? 'Check the question' : 'Solve from a photo';
   }
 
   function open() {
@@ -535,6 +553,34 @@
     return c.toDataURL('image/jpeg', quality);
   }
 
+  // the server's AI reader (Claude vision) reads printed and handwritten maths far better than
+  // the in-browser reader; it is used when the server has it set up
+  let aiReader = null; // null = not asked yet
+  async function readWithServer(canvas) {
+    if (!navigator.onLine) return null;
+    if (aiReader === null) {
+      try { const r = await fetch('/api/ocr', { cache: 'no-store' }); aiReader = r.ok && (await r.json()).available === true; } catch (e) { aiReader = false; }
+    }
+    if (!aiReader) return null;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 40000);
+    try {
+      const res = await fetch('/api/ocr', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+        body: JSON.stringify({ image: scaled(canvas, 1600, 0.88) })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 503 && data.available === false) { aiReader = false; return null; }
+      if (res.ok && data.success && data.text) return { text: data.text, source: 'ai' };
+      if (res.status === 422) return { text: '', source: 'ai', none: true };
+      return null;
+    } catch (e) {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async function finishCrop() {
     if (!cropper) return;
     const canvas = cropper.getCroppedCanvas({ maxWidth: 2400, maxHeight: 2400, fillColor: '#fff', imageSmoothingQuality: 'high' });
@@ -543,30 +589,56 @@
     currentPhoto = { full: scaled(canvas, 1400, 0.88), thumb: scaled(canvas, 420, 0.72), at: Date.now() };
     showPreview(currentPhoto);
     els.workImg.src = currentPhoto.full;
-    els.bar.style.width = '3%';
+    els.bar.style.width = '8%';
     els.status.textContent = 'Reading the question…';
     show('work');
+    let result = null;
     try {
-      const res = await readText(canvas, (status, p) => {
-        const loading = /load|initializ/i.test(status);
-        els.status.textContent = loading ? 'Getting the text reader ready (first time only)…' : 'Reading the question…';
-        els.bar.style.width = Math.round((loading ? 0.3 * p : 0.3 + 0.7 * p) * 100) + '%';
-      });
-      els.bar.style.width = '100%';
-      close();
-      if (!res.text) {
-        toast('No text found', 'We could not read any text in the photo. Try a clearer, closer photo, or type the question.', 'warning');
-        focusField();
-        return;
+      result = await readWithServer(canvas);
+      if (!result || (!result.text && !result.none)) {
+        const res = await readText(canvas, (status, p) => {
+          const loading = /load|initializ/i.test(status);
+          els.status.textContent = loading ? 'Getting the text reader ready (first time only)…' : 'Reading the question…';
+          els.bar.style.width = Math.round((loading ? 0.3 * p : 0.3 + 0.7 * p) * 100) + '%';
+        });
+        result = { text: res.text, source: 'basic', confidence: res.confidence };
       }
-      putInField(res.text);
-      if (res.confidence < 55) toast('Please check the question', 'The photo was hard to read. Check the text in the box and fix anything wrong, then press Calculate.', 'warning');
-      if (typeof window.handleCalculate === 'function') window.handleCalculate();
     } catch (err) {
       console.error('OCR', err);
-      close();
-      toast('Could not read the photo', navigator.onLine ? 'Something went wrong reading the photo. Please try again.' : 'Reading a photo needs an internet connection the first time.', 'error');
+      result = { text: '', source: 'basic', failed: true };
     }
+    els.bar.style.width = '100%';
+    showReview(result);
+  }
+
+  function showReview(result) {
+    els.reviewImg.src = currentPhoto ? currentPhoto.full : '';
+    els.reviewText.value = (result && result.text) || '';
+    const empty = !els.reviewText.value.trim();
+    els.reviewNote.textContent = empty
+      ? (result && result.failed && !navigator.onLine ? 'Reading a photo needs an internet connection. Type the question here instead:' : 'We could not read the question from this photo. Type it here (or take a clearer, closer photo):')
+      : result.source === 'basic' && (result.confidence || 0) < 60
+        ? 'The photo was hard to read. Check every symbol against the photo and fix anything wrong, then press Solve.'
+        : 'This is what we read. Check it against the photo and fix anything that is wrong, then press Solve.';
+    renderReviewPreview();
+    show('review');
+    setTimeout(() => { try { els.reviewText.focus({ preventScroll: true }); } catch (e) {} }, 50);
+  }
+
+  function renderReviewPreview() {
+    const box = els.reviewPreview;
+    const t = els.reviewText.value.trim();
+    if (!t || !window.katex) { box.textContent = ''; box.hidden = !t; return; }
+    box.hidden = false;
+    try { window.katex.render(toLatex(t), box, { throwOnError: false, displayMode: true }); } catch (e) { box.textContent = t; }
+  }
+
+  function solveReviewed() {
+    const t = els.reviewText.value.trim();
+    if (!t) { toast('Type the question', 'The box is empty: type the question or take a new photo.', 'warning'); return; }
+    close();
+    putInField(t);
+    if (typeof window.handleCalculate === 'function') window.handleCalculate();
   }
 
   function focusField() {
@@ -581,9 +653,9 @@
     const toks = String(text).split(/\s+/).filter(Boolean);
     const isWord = (t) => /^[A-Za-z]{2,}[.,:;?!]*$/.test(t) && !MATH_WORDS.test(t.replace(/[.,:;?!]+$/, ''));
     const mathTok = (t) => t
-      .replace(/%/g, '\\%')
-      .replace(/\b(sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|log|ln|exp|lim|gcd|lcm|max|min)(?![a-zA-Z])/g, '\\$1')
-      .replace(/\bpi\b/g, '\\pi')
+      .replace(/(?<!\\)%/g, '\\%')
+      .replace(/(?<!\\)\b(sinh|cosh|tanh|sin|cos|tan|sec|csc|cot|log|ln|exp|lim|gcd|lcm|max|min)(?![a-zA-Z])/g, '\\$1')
+      .replace(/(?<!\\)\bpi\b/g, '\\pi')
       .replace(/\^(\d{2,})/g, '^{$1}');
     let out = '', words = [];
     const flush = (last) => {

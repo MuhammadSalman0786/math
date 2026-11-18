@@ -679,13 +679,43 @@ function derivative(n, x) {
 }
 
 // Explanation of the main rule used at the top level
+// name of the rule that differentiates one term (shown next to each line of the sum rule)
+function ruleName(t, x) {
+  const TX = (w) => `\\text{${w}}`;
+  if (freeOf(t, x)) return TX('constant: derivative ') + '0';
+  const [c, rest] = splitCoef(t);
+  const r = rest || t;
+  const coef = c && !c.equals(1) ? 'constant multiple, ' : '';
+  if (r.t === 'var') return TX(coef + 'power rule: ') + "(x)' = 1";
+  if (r.t === 'pow' && r.base.t === 'var' && freeOf(r.exp, x)) return TX(coef + 'power rule: ') + "(x^n)' = nx^{n-1}";
+  if (r.t === 'pow' && r.base.t === 'const' && r.base.n === 'e' && r.exp.t === 'var') return TX(coef) + "(e^x)' = e^x";
+  if (r.t === 'pow' && freeOf(r.base, x)) return TX(coef + 'exponential + chain rule');
+  if (r.t === 'pow') return TX(coef + 'chain rule with power rule');
+  if (r.t === 'fn' && r.arg.t === 'var') {
+    const std = { sin: "(\\sin x)' = \\cos x", cos: "(\\cos x)' = -\\sin x", tan: "(\\tan x)' = \\sec^2 x", ln: "(\\ln x)' = \\frac{1}{x}", exp: "(e^x)' = e^x", arcsin: "(\\arcsin x)' = \\frac{1}{\\sqrt{1-x^2}}", arctan: "(\\arctan x)' = \\frac{1}{1+x^2}" }[r.f];
+    return std ? TX(coef) + std : TX(coef + 'standard derivative');
+  }
+  if (r.t === 'fn') return TX(coef + 'chain rule');
+  if (r.t === 'prod') {
+    const fs = r.factors.filter(f => !freeOf(f, x));
+    if (fs.length > 1 && fs.some(f => f.t === 'pow' && f.exp.t === 'num' && f.exp.v.isNegative() && !freeOf(f.base, x))) return TX(coef + 'quotient rule');
+    return TX(coef + (fs.length > 1 ? 'product rule' : 'chain rule'));
+  }
+  return TX('differentiate');
+}
+
 function explainDerivative(n, x, fname = 'f') {
   n = simplify(n);
   const steps = [];
   const D = (e) => tex(derivative(e, x));
   if (n.t === 'sum') {
-    steps.push({ label: `Sum rule: differentiate each term separately.`, katex: n.terms.map(t => `\\frac{d}{d${x}}\\left[${tex(t)}\\right] = ${D(t)}`).join(' \\\\ ') });
-    steps[0].katex = `\\begin{aligned} ${n.terms.map(t => `\\frac{d}{d${x}}\\left[${tex(t)}\\right] &= ${D(t)}`).join(' \\\\ ')} \\end{aligned}`;
+    steps.push({ label: `Sum rule: differentiate each term separately (the rule used is written next to each line).`, katex: '' });
+    steps[0].katex = `\\begin{aligned} ${n.terms.map(t => `\\frac{d}{d${x}}\\left[${tex(t)}\\right] &= ${D(t)} && ${ruleName(t, x)}`).join(' \\\\ ')} \\end{aligned}`;
+    // terms that need the chain / product / quotient rule get their own working
+    n.terms.filter(t => /chain|product|quotient/.test(ruleName(t, x))).slice(0, 3).forEach(t => {
+      const sub = explainDerivative(t, x, fname);
+      if (sub.length) { steps.push({ label: `Working for the term $${tex(t)}$:`, katex: '' }); steps.push(...sub); }
+    });
   } else if (n.t === 'prod') {
     const [c, rest] = splitCoef(n);
     const fs = rest && rest.t === 'prod' ? rest.factors.filter(f => !freeOf(f, x)) : [];
@@ -709,11 +739,18 @@ function explainDerivative(n, x, fname = 'f') {
       steps.push({ label: 'Constant multiple rule: take the constant outside.', katex: `\\frac{d}{d${x}}\\left[${tex(n)}\\right] = ${c.toTex()} \\cdot \\frac{d}{d${x}}\\left[${tex(rest)}\\right]` });
     }
   } else if (n.t === 'fn' && !(n.arg.t === 'var')) {
-    steps.push({ label: `Chain rule: let $u = ${tex(n.arg)}$, then $\\frac{d}{d${x}} f(u) = f'(u) \\cdot u'$`, katex: `u' = ${D(n.arg)}` });
+    steps.push({ label: `Chain rule: let $u = ${tex(n.arg)}$ (the inside), then $\\frac{d}{d${x}} f(u) = f'(u) \\cdot u'$`, katex: `u' = ${D(n.arg)}` });
+    try {
+      const outer = derivative(fn(n.f, vr('u')), 'u');
+      const outerX = simplify(substitute(outer, 'u', n.arg));
+      steps.push({ label: `Derivative of the outside function, with $u$ put back:`, katex: `\\frac{d}{du}\\,${tex(fn(n.f, vr('u')))} = ${tex(outer)} \\;\\Rightarrow\\; ${tex(outerX)}` });
+      steps.push({ label: 'Multiply the two parts: (outside derivative) × (inside derivative):', katex: `\\left(${tex(outerX)}\\right) \\cdot \\left(${D(n.arg)}\\right)` });
+    } catch (e) { /* keep the short form */ }
   } else if (n.t === 'pow' && !freeOf(n.exp, x) && freeOf(n.base, x)) {
     steps.push({ label: 'Exponential rule: $\\frac{d}{dx} a^{u} = a^{u} \\ln a \\cdot u\'$', katex: '' });
   } else if (n.t === 'pow' && n.base.t !== 'var') {
     steps.push({ label: `Chain rule with the power rule: let $u = ${tex(n.base)}$`, katex: `\\frac{d}{d${x}} u^{${tex(n.exp)}} = ${tex(n.exp)}\\,u^{${tex(simplify(sum(n.exp, num(-1))))}} \\cdot u'` });
+    if (freeOf(n.exp, x)) steps.push({ label: 'Differentiate the inside and substitute back:', katex: `u' = ${D(n.base)} \\;\\Rightarrow\\; ${tex(n.exp)}\\left(${tex(n.base)}\\right)^{${tex(simplify(sum(n.exp, num(-1))))}} \\cdot \\left(${D(n.base)}\\right)` });
   }
   return steps;
 }

@@ -303,7 +303,11 @@ function solveNumericExpression(rawQuery) {
   if (/(sin|cos|tan|sec|csc|cot)/.test(rawQuery) && !/pi|π|°|\\circ|deg/.test(rawQuery)) {
     steps.push({ label: 'Note: angles are in radians. For degrees write e.g. sin(30°).', katex: '' });
   }
-  if (!isExactNum && exactTex !== S.tex(node)) steps.push({ label: 'Simplify exactly:', katex: `= ${exactTex}` });
+  // the working, part by part, with the rule used at each step
+  let worked = null;
+  try { worked = require('../math/explain').explainNumeric(node); } catch (e) { worked = null; }
+  if (worked) steps.push(...worked);
+  else if (!isExactNum && exactTex !== S.tex(node)) steps.push({ label: 'Simplify exactly:', katex: `= ${exactTex}` });
   if (isExactNum) steps.push({ label: 'Final Answer:', katex: `\\mathbf{${exactTex}}` });
   else steps.push({ label: 'Final Answer:', katex: `\\mathbf{${exactTex} \\approx ${approxTex}}` });
   return { answer: isExactNum ? exactTex : `${exactTex} \\approx ${approxTex}`, steps };
@@ -350,6 +354,10 @@ const safe = (fn) => { try { return fn(); } catch (e) { return null; } };
 const tidyWhitespace = (q) => String(q || '')
   // words typed in the maths box / read from a photo arrive as \text{...}: plain words
   .replace(/\\(?:text|textrm|textit|textbf|textnormal)\{([^{}]*)\}/g, ' $1 ')
+  // spaces inside a matrix typed or read from a photo: "\begin{pmatrix} 2 & 3 \\ 1 & 4 \end{pmatrix}"
+  .replace(/\\begin\{([pbvBV]?matrix)\}([\s\S]*?)\\end\{\1\}/g, (m, env, body) => `\\begin{${env}}${body.replace(/\s*(&|\\\\)\s*/g, '$1').trim()}\\end{${env}}`)
+  .replace(/\b(?:find|calculate|compute|evaluate|what\s+is)\s+(?:the\s+)?determinant\s+of\s+(?=\\begin)/i, '\\det')
+  .replace(/^\s*(?:find|calculate|compute|evaluate)\s+(?=\\det)/i, '')
   // $$...$$ and $...$ math delimiters pasted from a document ("$15" as money is left alone)
   .replace(/\$\$([\s\S]+?)\$\$/g, ' $1 ').replace(/\\\[([\s\S]+?)\\\]/g, ' $1 ').replace(/\\\(([\s\S]+?)\\\)/g, ' $1 ')
   .replace(/(^|[^\\])\$([^$\n]*?[\\^_=(][^$\n]*?)\$/g, '$1 $2 ')
@@ -401,6 +409,17 @@ const tidyWhitespace = (q) => String(q || '')
 const dropUnmatchedClose = (q) => { if (!/\)/.test(q)) return q; let d = 0, out = ''; for (const c of q) { if (c === '(') d++; else if (c === ')') { if (d === 0) continue; d--; } out += c; } return out; };
 function solveExpression(rawQueryIn) {
   const raw = dropUnmatchedClose(tidyWhitespace(rawQueryIn));
+  // gcd(84, 126) / lcm(12, 18, 30): the full working of the LCM / GCF calculator (prime factors + Euclid)
+  const gl = raw.replace(/\\left|\\right|\\operatorname\{(\w+)\}/g, '$1').match(/^\s*\\?(gcd|lcm|hcf|gcf)\s*\(\s*(\d+(?:\s*,\s*\d+)+)\s*\)\s*$/i);
+  if (gl) {
+    try {
+      const r = TOOLS.solveLcmGcf(gl[2], /lcm/i.test(gl[1]) ? 'lcm' : 'gcf');
+      if (r && r.steps && r.answer) {
+        const value = String(r.answer).replace(/^.*=\s*/, '');
+        return { answer: value, steps: r.steps };
+      }
+    } catch (e) { /* fall through to the normal solver */ }
+  }
   // "integral of ... from 0 to 1", "limit of ... as x approaches 2", ... -> standard notation
   const rewritten = safe(() => A7.rewritePlain(normalizeMathLiveInput(raw)));
   if (rewritten) {

@@ -21,7 +21,9 @@ const pwa = require('./src/app/pwa');
 // Digital Asset Links for the Google Play app (must be reachable on the main domain, no redirect)
 app.get('/.well-known/assetlinks.json', pwa.assetLinks);
 app.use(domain.redirectToMainDomain);
-app.use(express.json({ limit: '20kb' }));
+// small JSON bodies everywhere, except the photo reader, which parses its own (a few MB) body
+const smallJson = express.json({ limit: '20kb' });
+app.use((req, res, next) => (req.path.startsWith('/api/ocr') ? next() : smallJson(req, res, next)));
 
 // Basic security headers
 app.use((req, res, next) => {
@@ -57,6 +59,7 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false, redirect:
 
 // Reads the login token (if any) for every API request
 app.use('/api', attachUser);
+app.use('/api/ocr', require('./src/routes/ocrRoutes'));
 app.use('/api/solve', solverRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/auth', authRoutes);

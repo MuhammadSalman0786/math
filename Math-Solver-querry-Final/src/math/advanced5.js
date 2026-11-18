@@ -91,7 +91,25 @@ function solveFactorCommand(raw) {
     const e = S.simplify(S.expand(S.simplify(node)));
     const poly = S.toPoly(e, v);
     const tex = poly ? P.toTex(P.trim(poly), v) : S.tex(e);
-    steps.push({ label: 'Multiply out every bracket and collect like terms:', katex: `= ${tex}` });
+    const sn = S.simplify(node);
+    try {
+      const fs = sn.t === 'prod' ? sn.factors : null;
+      if (fs && fs.length === 2 && fs.every(f => f.t === 'sum')) {
+        const pieces = [];
+        fs[0].terms.forEach(a => fs[1].terms.forEach(b => pieces.push(`\\left(${S.tex(a)}\\right)\\left(${S.tex(b)}\\right)`)));
+        const prods = [];
+        fs[0].terms.forEach(a => fs[1].terms.forEach(b => prods.push(S.simplify(S.prod(a, b)))));
+        steps.push({ label: 'Multiply every term in the first bracket by every term in the second (FOIL: first, outer, inner, last):', katex: `= ${pieces.join(' + ')}` });
+        steps.push({ label: 'Work out each product:', katex: `= ${S.tex(S.sum(...prods))}` });
+        steps.push({ label: 'Collect like terms:', katex: `= ${tex}` });
+      } else if (sn.t === 'pow' && sn.base.t === 'sum' && sn.base.terms.length === 2 && sn.exp.t === 'num' && sn.exp.v.isInteger() && sn.exp.v.n >= 2n && sn.exp.v.n <= 8n) {
+        const n = Number(sn.exp.v.n), [a, b] = sn.base.terms;
+        const C = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); };
+        steps.push({ label: `Binomial theorem: $(a + b)^n = \\sum_{k=0}^{n} \\binom{n}{k} a^{n-k} b^{k}$ with $a = ${S.tex(a)}$, $b = ${S.tex(b)}$, $n = ${n}$. The coefficients $\\binom{${n}}{k}$ (row ${n} of Pascal's triangle) are:`, katex: Array.from({ length: n + 1 }, (_, k) => C(n, k)).join(',\\ ') });
+        steps.push({ label: 'Write out each term:', katex: '= ' + Array.from({ length: n + 1 }, (_, k) => `${C(n, k)}\\left(${S.tex(a)}\\right)^{${n - k}}\\left(${S.tex(b)}\\right)^{${k}}`).join(' + ') });
+        steps.push({ label: 'Simplify each term and collect like terms:', katex: `= ${tex}` });
+      } else steps.push({ label: 'Multiply out every bracket (distributive law: a(b + c) = ab + ac) and collect like terms:', katex: `= ${tex}` });
+    } catch (e) { steps.push({ label: 'Multiply out every bracket and collect like terms:', katex: `= ${tex}` }); }
     steps.push({ label: 'Final Answer:', katex: `\\mathbf{${tex}}` });
     return { answer: tex, steps };
   }
