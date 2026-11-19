@@ -326,7 +326,7 @@
         <div class="symbols-drawer hidden" id="symbolsDrawer">
           <div class="symbols-header-mobile">
             <span><i class="fa-solid fa-keyboard"></i> Math Symbols</span>
-            <button id="btnCloseFxDrawer" class="btn-close-sm"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" id="btnCloseFxDrawer" class="btn-close-sm" aria-label="Close the math symbols keyboard"><i class="fa-solid fa-xmark"></i></button>
           </div>
           <div class="symbols-tabs-scroll">
             <div class="symbols-tabs">
@@ -518,51 +518,59 @@
       <section id="sectionAbout" class="content-view page-section hidden">
         <div class="page-container">
           <span class="badge-tag">About Us</span>
-          <h2 class="page-title">Making Mathematics Easy and Accessible for Everyone</h2>
-          <p class="lead-text">All Math Solver is a next-generation mathematical engine engineered to provide clear, single-step breakdowns for students, teachers, and engineers worldwide.</p>
+          <h2 class="page-title">Making Maths Easy to Understand for Everyone</h2>
+          <p class="lead-text">All Math Solver is a free website that solves maths problems and shows every step. Type a question, press Calculate, and see how the answer is worked out, one clear line at a time.</p>
+
+          <div class="about-intro">
+            <h3>What we do</h3>
+            <p>Many students can find an answer but get stuck on <em>how</em> to get there. We built All Math Solver to close that gap. Each solution shows the rule used at every step, so you can follow the method, check your own work and learn to solve similar questions on your own.</p>
+            <h3>Who it is for</h3>
+            <ul class="about-list">
+              <li><strong>School students</strong> working on fractions, equations, powers and roots.</li>
+              <li><strong>GCSE, A-level, SAT, AP, CBSE and JEE students</strong> revising algebra, trigonometry and calculus.</li>
+              <li><strong>University students</strong> studying calculus, linear algebra, differential equations and proofs.</li>
+              <li><strong>Teachers and parents</strong> who want a quick, clear worked example.</li>
+            </ul>
+          </div>
+
           <div class="features-grid">
             <div class="feature-card">
-             
-          <!-------- About Card 1 -------->
-
-        <div class="card-icon"><i class="fas fa-bolt"></i></div>
-          <h3>Instant Calculations</h3>
-          <p>Execute arithmetic, advanced algebra, and proofs in milliseconds with local precision. Our lightning-fast engine ensures precise computations for all your daily mathematical demands without any annoying delays.</p>
+              <div class="card-icon"><i class="fas fa-list-ol" aria-hidden="true"></i></div>
+              <h3>Every step explained</h3>
+              <p>We do not just give the answer. Each line names the rule it uses, such as BODMAS, the quadratic formula or the chain rule.</p>
             </div>
-          <!------- About Card 2 -------->
-
             <div class="feature-card">
-              <div class="card-icon"><i class="fas fa-list-ol"></i></div>
-                <h3>Step-by-Step Clarity</h3>
-                <p>Each operation is broken into isolated, digestible single lines following PEMDAS & mathematical induction. This allows learners to carefully inspect every intermediate transformation and grasp fundamental concepts thoroughly.</p>
+              <div class="card-icon"><i class="fas fa-gift" aria-hidden="true"></i></div>
+              <h3>Free, with no sign-up</h3>
+              <p>All solvers and calculators are free. You do not need an account. Signing in only adds history that syncs across your devices.</p>
             </div>
-            <!------- About Card 3 -------->
+            <div class="feature-card">
+              <div class="card-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></div>
+              <h3>From basics to university</h3>
+              <p>Arithmetic, algebra, trigonometry, derivatives, integrals, limits, matrices, series, differential equations and written proofs.</p>
+            </div>
+            <div class="feature-card">
+              <div class="card-icon"><i class="fas fa-check-double" aria-hidden="true"></i></div>
+              <h3>Checked for accuracy</h3>
+              <p>We test the solver on thousands of practice questions. Where it can, it also checks its own answer, for example by differentiating an integral.</p>
+            </div>
+            <div class="feature-card">
+              <div class="card-icon"><i class="fas fa-mobile-alt" aria-hidden="true"></i></div>
+              <h3>Works on any device</h3>
+              <p>Use it on a phone, tablet or computer. You can also install it as an app, and your recent questions are kept in your browser.</p>
+            </div>
+            <div class="feature-card">
+              <div class="card-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
+              <h3>Respect for your privacy</h3>
+              <p>We collect only what the site needs to work. Read our <a href="/privacy-policy">Privacy Policy</a> for the full, plain-English details.</p>
+            </div>
+          </div>
 
-            <div class="feature-card">
-              <div class="card-icon"><i class="fas fa-database"></i></div>
-                <h3>Saved Recent History</h3>
-                <p>Your recent questions are kept in your browser, and when you sign in they are saved securely to your account. Pick up past problems anytime and continue your study sessions on any device.</p>
-            </div>
-                <!-------- About Card 4 -------->
-            <div class="feature-card">
-              <div class="card-icon"><i class="fas fa-graduation-cap"></i></div>
-              <h3>Comprehensive Academic Tool</h3>
-              <p>Designed for every level of math and maths, from high school and A-level to college, university and advanced master's degree research. It acts as an intelligent virtual tutor capable of breaking down complex theorems and calculus seamlessly.</p>
-            </div>
-                <!-------- About Card 5 -------->
-            <div class="feature-card">
-              <div class="card-icon"><i class="fas fa-mobile-alt"></i></div>
-                <h3>Responsive Mobile UI</h3>
-                <p>Built with modern web standards, featuring touch-optimized inputs, custom long-press paste pop-ups, and fluid sidebar navigation. Enjoy a desktop-class computational experience directly from your smartphone or tablet browser.</p>
-            </div>
-
-                <!-------- About Card 6 -------->
-            <div class="feature-card">
-              <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
-                <h3>Secure & Reliable Engine</h3>
-                <p>Enjoy uninterrupted access backed by robust architectural integrity and local calculation reliability. Your data privacy and user sessions are fully protected, ensuring a safe environment for continuous mathematical exploration.</p>
-            </div>
-
+          <div class="about-intro">
+            <h3>A tool for learning</h3>
+            <p>All Math Solver is here to help you learn, not to replace your own thinking. Answers are produced automatically, so please check important results, and follow your school's rules on homework and exams. Read our <a href="/disclaimer">Disclaimer</a> to learn more.</p>
+            <h3>Get in touch</h3>
+            <p>Found a wrong answer, or have an idea? Send us a message on the <a href="/contact">contact page</a>. Reports of wrong answers help us improve the solver for everyone.</p>
           </div>
 
           <div class="about-explore">
@@ -629,47 +637,66 @@
           <p class="policy-date">Last Updated: November 2026</p>
           <div class="policy-body">
 
-    <p>Welcome to <strong>All Math Solver</strong> (accessible via <strong>allmathsolver.com</strong>). Protecting your personal data and ensuring transparency is fundamental to how we operate our educational platform. This comprehensive Privacy Policy document details the specific nature of information we gather, how it gets recorded, and the exact protocols we follow to respect user confidentiality.</p>
+    <div class="notice-banner">
+        <strong>The short version:</strong> You can use All Math Solver without an account. We keep only what the site needs to work: your questions (so your history works), your account details if you sign in, and messages you send us. We do not sell your data.
+    </div>
 
-    <h2> Information We Collect and Store</h2>
-    <p>When interacting with allmathsolver.com, we gather data to deliver smooth arithmetic evaluations, step-by-step breakdowns, and personal account features:</p>
+    <p>This page explains what information <strong>All Math Solver</strong> (allmathsolver.com) collects, why we collect it, and the choices you have. We have written it in plain English. If anything is unclear, please <a href="/contact">contact us</a>.</p>
+
+    <h2>What information do we collect?</h2>
     <ul>
-        <li class="list-condition"><strong>Account Registration & Login Credentials:</strong> When users sign up or log in, your name, email address and sign-in method are stored securely in our database so you can stay signed in. Passwords are never stored in plain text; they are protected with strong one-way hashing.</li>
-        <li class="list-condition"><strong>Calculation Inputs & Query Logs:</strong> To ensure features like persistent recent history work effectively across visits, your mathematical queries and generated solutions are stored securely.</li>
-        <li class="list-condition"><strong>Contact Form Messages:</strong> When you send us a message, we store your name, email address, subject and message so we can read and answer it. We delete messages when they are no longer needed.</li>
-        <li class="list-condition"><strong>Technical Log Files:</strong> Standard analytical indicators such as browser versions, device screen configurations, IP addresses, and session timestamps are logged automatically for maintenance and optimization.</li>
+        <li class="list-condition"><strong>Your questions and answers.</strong> When you solve a problem, your question and its solution are kept in your browser so your recent history works. If you are signed in, they are also saved to your account.</li>
+        <li class="list-condition"><strong>Account details (only if you sign in).</strong> Your name, email address and how you signed in (Google or email). If you use a password, we never store it as plain text. It is protected with strong one-way hashing.</li>
+        <li class="list-condition"><strong>Messages you send us.</strong> If you use the contact form, we keep your name, email address, subject and message so we can reply.</li>
+        <li class="list-condition"><strong>Basic technical data.</strong> Like most websites, our server automatically records things such as your IP address, browser type and the time of your visit. This helps us keep the site secure and working.</li>
     </ul>
 
-    <h2> How We Utilize Your Information</h2>
-    <p>The information we collect serves practical functions aimed entirely at enhancing performance and user experience:</p>
+    <h2>Why do we use it?</h2>
     <ul>
-        <li class="list-condition">Operating and maintaining the computational mechanics of allmathsolver.com efficiently.</li>
-        <li class="list-condition">Safeguarding your recent problem histories and saved calculation sessions.</li>
-        <li class="list-condition">Replying to questions, bug reports and suggestions you send through the contact form.</li>
-        <li class="list-condition">Analyzing traffic trends to improve interface layout, mobile responsiveness, and execution speed.</li>
-        <li class="list-condition">Sending essential security notices, updates regarding account modifications, or system maintenance alerts.</li>
+        <li class="list-condition">To solve your questions and show your recent history.</li>
+        <li class="list-condition">To keep you signed in and sync your history across devices.</li>
+        <li class="list-condition">To answer your messages and fix reported problems.</li>
+        <li class="list-condition">To understand how the site is used, so we can make it faster and easier to use.</li>
+        <li class="list-condition">To protect the site from abuse, spam and attacks.</li>
+    </ul>
+    <p>We do <strong>not</strong> sell your personal information, and we do not use it for advertising.</p>
+
+    <h2>Cookies and browser storage</h2>
+    <p>We use your browser's storage to remember your recent questions, your light or dark theme and, if you sign in, your login session. If you choose another language in the footer, Google Translate saves your choice in a cookie named <code>googtrans</code>. Our pages also load Google Tag Manager, a Google service that can load tools to measure how the site is used. Our <a href="/cookie-policy">Cookie Policy</a> explains this in more detail.</p>
+
+    <h2>Who else is involved?</h2>
+    <p>We use a few trusted services to run the site. They have their own privacy policies:</p>
+    <ul>
+        <li class="list-condition"><strong>Google</strong>: for "Sign in with Google", for page translation if you choose another language, and for Google Tag Manager. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+        <li class="list-condition"><strong>Content delivery networks</strong> (such as jsDelivr, cdnjs and unpkg): these deliver the fonts, icons and maths display tools that the page needs. Like any website, they can see your IP address when your browser downloads a file.</li>
     </ul>
 
-    <h2> Cookies and Tracking Technologies</h2>
-    <p>We deploy standard browser cookies to remember user preferences, interface configurations, and session cookies. These tiny files help us personalize your navigation experience and measure overall platform engagement without tracking individual personal identities outside the platform.</p>
+    <h2>How long do we keep it?</h2>
+    <ul>
+        <li class="list-condition"><strong>History in your browser</strong> stays until you clear it. You can clear it at any time with the bin icon next to "Recents".</li>
+        <li class="list-condition"><strong>Account history</strong> stays until you delete it. Clearing your history while signed in also removes it from your account.</li>
+        <li class="list-condition"><strong>Contact messages</strong> are deleted when we no longer need them.</li>
+    </ul>
 
-    <h2> Third-Party Services and Links</h2>
-    <p>Our platform might occasionally incorporate external educational references, helper scripts, or standard libraries (such as font icons or math rendering packages). These third-party tools operate under their own independent privacy guidelines, and we encourage users to review them when navigating away from our core environment.</p>
+    <h2>Your choices and rights</h2>
+    <ul>
+        <li class="list-condition">Use the site without signing in. All solvers work without an account.</li>
+        <li class="list-condition">Clear your history whenever you like.</li>
+        <li class="list-condition">Ask us for a copy of your data, to correct it, or to delete your account. Just send us a message through the <a href="/contact">contact page</a>.</li>
+    </ul>
+    <p>Depending on where you live (for example under the UK or EU GDPR, or similar laws in other countries), you may have further rights. Contact us and we will help.</p>
 
-    <h2> Translation (Google Translate)</h2>
-    <p>If you choose a language other than English in the footer language menu, the page is translated by Google Translate. Your choice is saved in a cookie named <code>googtrans</code>, and the page text is sent to Google for translation under <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>. Choosing English stops this. See our <a href="/cookie-policy">Cookie Policy</a> for details.</p>
+    <h2>How do we keep your data safe?</h2>
+    <p>We use secure connections (HTTPS), hashed passwords and limited access to our server. No website can promise perfect security, but we work hard to protect your information.</p>
 
-    <h2> Data Security Measures</h2>
-    <p>We implement stringent technical, physical, and administrative protocols to protect your stored account profiles and server logs against unauthorized access, disclosure, or alteration. Despite our dedicated safeguards, no digital data transmission over the internet can claim absolute immunity from vulnerabilities.</p>
+    <h2>Children</h2>
+    <p>All Math Solver is made for students of all ages. Children under 13 can use the solvers without an account. They should only create an account with a parent's or guardian's permission. We do not knowingly collect personal information from children under 13 without that permission.</p>
 
-    <h2> Student's Information</h2>
-    <p>All Math Solver is built to serve students of varying academic tiers, including high school and university levels. We do not knowingly solicit or collect personally identifiable details from children under the age of 13 without appropriate guardian involvement.</p>
+    <h2>Changes to this policy</h2>
+    <p>If we change this policy, we will update this page and the "Last Updated" date at the top.</p>
 
-    <h2> Changes to This Privacy Policy</h2>
-    <p>We reserve the authority to update or modify this Privacy Policy periodically to reflect technological adjustments or regulatory standards. Any modifications will be updated directly on this page with a revised timestamp.</p>
-
-    <h2> Contact Us</h2>
-    <p>If you have any questions, clarifications, or feedback concerning this Privacy Policy or your user data on allmathsolver.com, please send us a message through our <a href="/contact">contact page</a>.</p>
+    <h2>Questions?</h2>
+    <p>If you have any question about your privacy or your data, please send us a message through our <a href="/contact">contact page</a>.</p>
 
           </div>
         </div>
@@ -684,41 +711,46 @@
           <div class="policy-body">
 
     <div class="notice-banner">
-        <strong>Important Notice:</strong> All Math Solver (allmathsolver.com) is completely free for everyone. Users can access all arithmetic engines, advanced algebraic solvers, step-by-step mathematical breakdowns, and comprehensive educational resources without any subscription fees, hidden charges, or premium paywalls.
+        <strong>The short version:</strong> All Math Solver is free for everyone. Use it to learn and to check your work. Please use it fairly, check important answers yourself, and follow your school's rules.
     </div>
 
-    <p>Welcome to <strong>All Math Solver</strong>, which is officially accessible via our web domain at <strong>allmathsolver.com</strong>. By accessing, browsing, registering, or interacting with our digital mathematical platform in any capacity, you explicitly express your full consent to comply with, understand, and remain legally bound by the following comprehensive terms and conditions. Please read these provisions carefully before utilizing any of our automated computational engines, calculators, or interactive study features.</p>
+    <p>These terms explain the rules for using <strong>All Math Solver</strong> (allmathsolver.com). By using the website, you agree to these terms. If you do not agree, please do not use the site.</p>
 
-    <h2> Acceptance and Recognition of Terms</h2>
-    <p>By entering, navigating, or utilizing the computational infrastructure provided by allmathsolver.com, you formally acknowledge and signify your complete agreement to abide by these established terms. If you find yourself in disagreement with any specific clause, rule, or portion of these provisions, you must immediately terminate your session, cease all navigation, and discontinue any future use of this platform and its associated services.</p>
+    <h2>1. The site is free</h2>
+    <p>All our solvers, calculators and guides are free. There are no paid plans, subscriptions or hidden charges.</p>
 
-    <h2> Completely Free Access and Universal Usage Policy</h2>
-    <p>All Math Solver is strictly established and maintained as an entirely free educational platform designed to empower students, educators, academic researchers, engineers, and self-learners across the globe. There are no paid tiers, subscription structures, or hidden financial barriers required to unlock our tools. However, every user agrees to utilize the website solely for lawful academic, personal, or professional calculation purposes.</p>
+    <h2>2. Using the site fairly</h2>
+    <p>You may use All Math Solver for learning, teaching and personal or work calculations. Please do <strong>not</strong>:</p>
+    <ul>
+        <li class="list-condition">try to hack, break or overload the site, for example with automated bots;</li>
+        <li class="list-condition">upload harmful code or try to get into other people's accounts;</li>
+        <li class="list-condition">copy large parts of the site, or resell our tools or content.</li>
+    </ul>
+    <p>If someone breaks these rules, we may block their access.</p>
 
-    <h2> User Accounts, Registration, and Data Confidentiality</h2>
-    <p>While core calculators are universally accessible without logging in, advanced features such as saving persistent calculation histories and personal recent queries require registering an active user profile. You are entirely responsible for safeguarding your personal login credentials, authentication tokens, and account records which are logged safely within our localized server database architecture.</p>
+    <h2>3. Your account</h2>
+    <p>You do not need an account to use the solvers. If you create one, please keep your login details safe. You are responsible for what happens under your account. Our <a href="/privacy-policy">Privacy Policy</a> explains how we handle your data.</p>
 
-    <h2> Intellectual Property and Copyright Protections</h2>
-    <p>All proprietary software source codes, user interface designs, visual layouts, interactive calculation tools, custom math breakdown algorithms, step-by-step logic handlers, and platform graphics published across allmathsolver.com are the exclusive intellectual property of the website creators. Unauthorized duplication, redistribution, or commercial exploitation without prior written authorization is strictly prohibited.</p>
+    <h2>4. Answers may contain mistakes</h2>
+    <p>Our solutions are created automatically. We test the solver carefully, but we cannot promise that every answer or step is correct, especially for unusual questions. Please check important results yourself or with a teacher. Do not rely on the site alone for exams, engineering or safety decisions.</p>
 
-    <h2> Mathematical Precision and Calculation Accuracy</h2>
-    <p>Although our computational engine has been meticulously engineered and optimized to deliver exceptional local precision, clear step-by-step logical transformations adhering to standard PEMDAS rules, and reliable algebraic outputs, All Math Solver cannot guarantee absolute error-free execution under every complex theoretical edge case. Users are strongly advised to cross-verify critical academic proofs or professional engineering calculations independently.</p>
+    <h2>5. Homework and exams</h2>
+    <p>All Math Solver is a learning tool. Use the steps to understand the method, not to copy answers. Always follow your school's or university's rules on homework and exams. See our <a href="/disclaimer">Disclaimer</a> for more.</p>
 
-    <h2> Limitation of Liability and System Availability</h2>
-    <p>Under no circumstances, events, or legal theories shall the creators, developers, administrators, or maintainers of allmathsolver.com be held directly or indirectly responsible for any financial losses, academic setbacks, incidental damages, or technical disruptions arising from the utilization, temporary server downtime, or complete inability to access our computational web tools.</p>
+    <h2>6. Who owns the content</h2>
+    <p>The website's design, software, text and graphics belong to All Math Solver. You are welcome to use the solutions for your own learning. Please do not copy or republish our content without written permission.</p>
 
-    <h2> User Conduct and Prohibited Activities</h2>
-    <p>Users are strictly prohibited from attempting to compromise platform security, inject malicious scripts, overload our server architecture through automated bot requests, or reverse-engineer our computational engines. Any suspicious activity that threatens platform stability or user data integrity will result in immediate termination of access privileges.</p>
+    <h2>7. Other websites and services</h2>
+    <p>The site uses some outside services, such as Google sign-in and Google Translate, and links to other websites. We are not responsible for the content or practices of these services.</p>
 
-    <h2> External Links and Third-Party Integrations</h2>
-    <p>Our platform may occasionally incorporate standard external references, educational libraries, or helper UI packages (such as font icons or math rendering scripts) to enhance presentation quality. These external entities operate under independent operational guidelines, and All Math Solver assumes no responsibility for external content or third-party web behavior outside our direct control.</p>
+    <h2>8. Limits of our responsibility</h2>
+    <p>We provide the site "as it is". As far as the law allows, we are not responsible for any loss or damage that comes from using the site, from mistakes in answers, or from the site being unavailable for a while.</p>
 
-    <h2> Modifications, Revisions, and Policy Updates</h2>
-    <p>The administrative team behind allmathsolver.com maintains full legal authority to modify, update, append, or revise these terms and conditions periodically to reflect technological upgrades or evolving regulatory guidelines. Continued navigation and use of the website following the publication of any modifications shall be deemed as your unconditional acceptance of the newly revised terms.</p>
+    <h2>9. Changes to these terms</h2>
+    <p>We may update these terms from time to time. When we do, we will change the "Last Updated" date at the top. If you keep using the site after a change, it means you accept the new terms.</p>
 
-    <h2> Governing Standards and Dispute Resolution</h2>
-    <p>These comprehensive terms and conditions are structured in strict alignment with recognized global digital operating ethics, fair use policies, and online community standards. Any informal feedback, inquiries, or dispute resolutions regarding platform performance or user accounts should be directed to our support team for prompt investigation and amicable resolution.</p>
-
+    <h2>10. Contact us</h2>
+    <p>Questions about these terms, or a problem with the site? Please send us a message through our <a href="/contact">contact page</a>. We usually reply within 2–3 working days.</p>
 
           </div>
         </div>
@@ -937,7 +969,7 @@
       </a>
     </div>
     <button type="button" class="mobile-install-app hidden" id="btnInstallAppMobile">
-      <span class="mobile-install-icon"><img src="/icons/icon-192.png" alt="" width="36" height="36"></span>
+      <span class="mobile-install-icon"><img src="/icons/icon-192.png" alt="All Math Solver app icon" width="36" height="36"></span>
       <span class="mobile-install-text"><strong>Install the app</strong><small>Free · works offline · no app store needed</small></span>
       <i class="fa-solid fa-download"></i>
     </button>
@@ -950,7 +982,7 @@
 
 <div class="auth-modal-backdrop hidden" id="authModalBackdrop">
     <div class="auth-modal-card">
-      <button class="btn-close-modal" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+      <button type="button" class="btn-close-modal" id="btnCloseModal" aria-label="Close the login window"><i class="fa-solid fa-xmark"></i></button>
       
       <div id="googleAuthSection">
         <div class="auth-modal-header text-center">

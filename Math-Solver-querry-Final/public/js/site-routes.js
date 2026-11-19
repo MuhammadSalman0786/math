@@ -61,7 +61,7 @@
     {
       path: '/about', section: 'about',
       title: 'About Us | All Math Solver: Free Math & Maths Help',
-      description: 'All Math Solver makes math and maths easy with free step-by-step solutions for high school, A-level, college and university students.',
+      description: 'All Math Solver is a free maths solver that shows every step with the rule used, for school, GCSE, A-level, SAT, CBSE, JEE and university students.',
       priority: '0.5', changefreq: 'yearly'
     },
     {
@@ -73,13 +73,13 @@
     {
       path: '/privacy-policy', section: 'privacy',
       title: 'Privacy Policy | All Math Solver',
-      description: 'How All Math Solver collects, uses and protects your information: accounts, recent history, contact messages, cookies and translation.',
+      description: 'Our privacy policy in plain English: what All Math Solver collects (questions, account details, messages), why, who is involved and your choices.',
       priority: '0.3', changefreq: 'yearly'
     },
     {
       path: '/terms-and-conditions', section: 'terms',
       title: 'Terms & Conditions | All Math Solver',
-      description: 'The terms and conditions for using All Math Solver, the free step-by-step math and maths solver: accounts, accuracy, acceptable use and liability.',
+      description: 'The simple rules for using All Math Solver: it is free, use it fairly, check important answers and follow your school rules on homework and exams.',
       priority: '0.3', changefreq: 'yearly'
     },
     {
