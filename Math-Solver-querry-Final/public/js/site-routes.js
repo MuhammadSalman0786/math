@@ -12,49 +12,49 @@
     },
     {
       path: '/mathematical-induction-solver', section: 'home', calc: 'induction',
-      title: 'Mathematical Induction Solver with Steps | Math & Maths Proofs',
+      title: 'Mathematical Induction Solver with Steps | All Math Solver',
       description: 'Free mathematical induction solver: prove sum formulas and divisibility statements step by step, with the base case, hypothesis and inductive step.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/quadratic-equation-calculator', section: 'home', calc: 'quadratic',
-      title: 'Quadratic Equation Calculator with Steps | Math & Maths Solver',
+      title: 'Quadratic Equation Calculator with Steps | All Math Solver',
       description: 'Free quadratic equation calculator: solve ax² + bx + c = 0 with the quadratic formula, discriminant, factorising, exact surd roots and the vertex.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/lcm-calculator', section: 'home', calc: 'lcm',
-      title: 'LCM Calculator: Least Common Multiple with Steps | Math & Maths',
+      title: 'LCM Calculator: Least Common Multiple | All Math Solver',
       description: 'Free LCM calculator: find the least common multiple of 2 to 10 numbers using prime factorisation, checked with Euclid\'s algorithm, step by step.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/gcf-calculator', section: 'home', calc: 'gcf',
-      title: 'GCF Calculator (HCF & GCD) with Steps | Math & Maths Tools',
+      title: 'GCF Calculator (HCF & GCD) with Steps | All Math Solver',
       description: 'Free GCF calculator, also called HCF or GCD: find the greatest common factor of numbers by prime factors and Euclid\'s algorithm, step by step.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/percentage-calculator', section: 'home', calc: 'percentage',
-      title: 'Percentage Calculator: % of, % Change & Increase | Math & Maths',
+      title: 'Percentage Calculator: % of & % Change | All Math Solver',
       description: 'Free percentage calculator: work out X% of Y, what percent X is of Y, and percentage increase or decrease, with each step shown.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/proportion-calculator', section: 'home', calc: 'proportion',
-      title: 'Proportion Calculator & Solver with Steps | Math & Maths',
+      title: 'Proportion Calculator with Steps | All Math Solver',
       description: 'Free proportion calculator and proportion solver: solve A/B = C/D for the missing value using cross multiplication, explained step by step.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/age-calculator', section: 'home', calc: 'age',
-      title: 'Age Calculator: Years, Months & Days | Math & Maths Tools',
+      title: 'Age Calculator: Years, Months & Days | All Math Solver',
       description: 'Free age calculator: find your exact age in years, months and days from your date of birth, plus total days, hours and your next birthday.',
       priority: '0.9', changefreq: 'monthly'
     },
     {
       path: '/ac-to-dc-calculator', section: 'home', calc: 'acdc',
-      title: 'AC to DC Voltage Calculator | Math & Maths Tools',
+      title: 'AC to DC Voltage Calculator | All Math Solver',
       description: 'Free AC to DC voltage calculator for 230 V (UK, India) or 120 V (US, Canada) mains: RMS or peak AC to DC for half-wave and bridge rectifiers.',
       priority: '0.9', changefreq: 'monthly'
     },
@@ -91,7 +91,7 @@
     {
       path: '/cookie-policy', section: 'cookies',
       title: 'Cookie Policy | All Math Solver',
-      description: 'Which cookies and local storage All Math Solver uses (sign-in, recent history, language choice) and how to control them.',
+      description: 'Which cookies All Math Solver uses (sign-in, history, language, Google Analytics 4 statistics) and how to control or switch them off.',
       priority: '0.3', changefreq: 'yearly'
     },
     {

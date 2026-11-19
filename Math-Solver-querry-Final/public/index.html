@@ -15,16 +15,24 @@
   <meta name="apple-mobile-web-app-title" content="All Math Solver">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="application-name" content="All Math Solver">
+  <!-- speed: open the connections to the CDNs early -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <!-- icon and maths fonts load without blocking the first paint of the page -->
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  </noscript>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-  <!-- Google Identity Services Official SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <!-- MathLive Interactive MathField SDK & html2pdf -->
-  <script src="https://unpkg.com/mathlive@0.111.4"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Google Identity Services (sign-in) is loaded on demand by app.js -->
+  <!-- MathLive (the maths input box): deferred so it never blocks the page; the server removes it on
+       pages without a calculator. html2pdf is loaded only when the PDF button is pressed (app.js). -->
+  <script defer src="https://unpkg.com/mathlive@0.111.4/mathlive.min.js" id="mathliveScript"></script>
 
 </head>
 <body>
@@ -47,7 +55,7 @@
 
       <a href="/" class="logo nav-link-action" data-target="home">
           <!-- <i class="fa-solid fa-cube logo-icon"></i> -->
-            <img src="/images/AMS_Solver.png" alt="All Math Solver Logo" class="custom-logo">
+            <picture><source srcset="/images/AMS_Solver-260.webp" type="image/webp"><img src="/images/AMS_Solver.png" alt="All Math Solver Logo" class="custom-logo" width="130" height="130"></picture>
           <div class="logo-text-group">
           <span class="logo-title">Math Solver</span>
         </div>
@@ -649,6 +657,7 @@
         <li class="list-condition"><strong>Account details (only if you sign in).</strong> Your name, email address and how you signed in (Google or email). If you use a password, we never store it as plain text. It is protected with strong one-way hashing.</li>
         <li class="list-condition"><strong>Messages you send us.</strong> If you use the contact form, we keep your name, email address, subject and message so we can reply.</li>
         <li class="list-condition"><strong>Basic technical data.</strong> Like most websites, our server automatically records things such as your IP address, browser type and the time of your visit. This helps us keep the site secure and working.</li>
+        <li class="list-condition"><strong>Visit statistics.</strong> Google Analytics 4 tells us how many people visit, which pages they use, roughly which country they are in and what device they use. It does not tell us who you are.</li>
     </ul>
 
     <h2>Why do we use it?</h2>
@@ -662,12 +671,12 @@
     <p>We do <strong>not</strong> sell your personal information, and we do not use it for advertising.</p>
 
     <h2>Cookies and browser storage</h2>
-    <p>We use your browser's storage to remember your recent questions, your light or dark theme and, if you sign in, your login session. If you choose another language in the footer, Google Translate saves your choice in a cookie named <code>googtrans</code>. Our pages also load Google Tag Manager, a Google service that can load tools to measure how the site is used. Our <a href="/cookie-policy">Cookie Policy</a> explains this in more detail.</p>
+    <p>We use your browser's storage to remember your recent questions, your light or dark theme and, if you sign in, your login session. If you choose another language in the footer, Google Translate saves your choice in a cookie named <code>googtrans</code>. We also use <strong>Google Analytics 4</strong> (through Google Tag Manager) to count visits and see which pages are used. It sets the cookies <code>_ga</code> and <code>_ga_&lt;ID&gt;</code>. Our <a href="/cookie-policy">Cookie Policy</a> explains this in more detail and shows how to switch it off.</p>
 
     <h2>Who else is involved?</h2>
     <p>We use a few trusted services to run the site. They have their own privacy policies:</p>
     <ul>
-        <li class="list-condition"><strong>Google</strong>: for "Sign in with Google", for page translation if you choose another language, and for Google Tag Manager. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
+        <li class="list-condition"><strong>Google</strong>: for "Sign in with Google", page translation (if you choose another language), visit statistics (Google Analytics 4, loaded by Google Tag Manager) and Google Search Console, which shows us how our pages appear in Google Search. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</li>
         <li class="list-condition"><strong>Content delivery networks</strong> (such as jsDelivr, cdnjs and unpkg): these deliver the fonts, icons and maths display tools that the page needs. Like any website, they can see your IP address when your browser downloads a file.</li>
     </ul>
 
@@ -802,13 +811,19 @@
               <li class="list-condition"><strong>Sign-in session (essential):</strong> if you log in, a secure session token keeps you signed in. It is removed when you log out.</li>
               <li class="list-condition"><strong>Recent history and settings (functional):</strong> your recent calculations and preferences such as light or dark mode are kept in your browser's local storage so they are still there on your next visit.</li>
               <li class="list-condition"><strong>Language choice (functional):</strong> when you pick a language other than English, a cookie named <code>googtrans</code> remembers it, and Google Translate is loaded to translate the page. Google may set its own cookies when it is used.</li>
+              <li class="list-condition"><strong>Visit statistics (analytics):</strong> we use <strong>Google Analytics 4</strong>, loaded through Google Tag Manager, to count visits and see which pages are used. It sets the cookies <code>_ga</code> and <code>_ga_&lt;ID&gt;</code>, which keep a random ID so that repeat visits can be counted. They last up to 2 years.</li>
             </ul>
 
-            <h2>Advertising and analytics</h2>
-            <p>We do not currently use advertising cookies. If we add analytics or advertising in the future, this policy will be updated and, where the law requires it (for example under the UK GDPR, the EU ePrivacy rules or Canadian PIPEDA), we will ask for your consent first.</p>
+            <h2>Analytics: what it tells us</h2>
+            <p>Google Analytics 4 shows us totals, such as how many people visited, which pages and calculators they used, roughly which country they are in, and what kind of device they used. It does not tell us your name or email address. Google Analytics 4 does not store IP addresses. We use these numbers only to improve the site.</p>
+            <p>We also use <strong>Google Search Console</strong>, a free Google tool for website owners. It shows how our pages appear in Google Search, for example which search terms brought visitors. It does not set any cookies on our site.</p>
+
+            <h2>Advertising</h2>
+            <p>We do not use advertising cookies, and we do not sell your data.</p>
 
             <h2>How to control cookies</h2>
             <p>You can delete cookies and local storage at any time in your browser settings, and you can block cookies completely. If you block essential cookies, signing in will not work, but the calculators will still work. Choosing <strong>English</strong> in the language menu removes the language cookie.</p>
+            <p>To stop Google Analytics on all websites, you can install Google's <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Analytics opt-out browser add-on</a>, or block cookies from google-analytics.com in your browser. The site keeps working normally.</p>
 
             <h2>More information</h2>
             <p>See our <a href="/privacy-policy">Privacy Policy</a> for how we handle personal information, or <a href="/contact">contact us</a> with any questions.</p>
@@ -834,7 +849,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <a href="/" class="footer-logo nav-link-action" data-target="home" translate="no">
-            <span class="footer-logo-badge"><img src="/images/AMS_Solver.png" alt="All Math Solver logo" width="44" height="44" loading="lazy"></span>
+            <span class="footer-logo-badge"><picture><source srcset="/images/AMS_Solver-96.webp" type="image/webp"><img src="/images/AMS_Solver.png" alt="All Math Solver logo" width="44" height="44" loading="lazy"></picture></span>
             <span class="footer-logo-text">
               <span class="footer-logo-title notranslate">All Math Solver</span>
               <span class="footer-logo-sub">Math is Easy :)</span>
@@ -969,7 +984,7 @@
       </a>
     </div>
     <button type="button" class="mobile-install-app hidden" id="btnInstallAppMobile">
-      <span class="mobile-install-icon"><img src="/icons/icon-192.png" alt="All Math Solver app icon" width="36" height="36"></span>
+      <span class="mobile-install-icon"><img src="/icons/icon-192.png" alt="All Math Solver app icon" width="36" height="36" loading="lazy"></span>
       <span class="mobile-install-text"><strong>Install the app</strong><small>Free · works offline · no app store needed</small></span>
       <i class="fa-solid fa-download"></i>
     </button>
@@ -1059,15 +1074,28 @@
     </button>
   </div>
 
-  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-T6ML8NCM"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
+  // Google Tag Manager (Google Analytics 4): loaded right after the page has finished loading,
+  // so the analytics script (~180 KB) never slows down the first view of the page
+  (function () {
+    var loadGtm = function () {
+      if (window.__gtmLoaded) return; window.__gtmLoaded = true;
+      dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+      var s = document.createElement('script'); s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-T6ML8NCM';
+      document.head.appendChild(s);
+    };
+    if (document.readyState === 'complete') loadGtm();
+    else window.addEventListener('load', loadGtm, { once: true });
+  })();
 </script>
 
-  <script src="/js/site-routes.js"></script>
-  <script src="/js/app.js"></script>
+  <!-- deferred: they run in this order after the page is parsed, without delaying the first paint -->
+  <script src="/js/site-routes.js" defer></script>
+  <script src="/js/app.js" defer></script>
   <!-- Photo / camera feature paused: <script src="/js/photo-tool.js" defer></script> -->
   <script src="/js/lang.js" defer></script>
   <script src="/js/pwa.js" defer></script>

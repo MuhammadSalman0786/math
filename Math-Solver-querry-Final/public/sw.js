@@ -19,6 +19,7 @@ const CORE_FILES = [
   '/js/lang.js',
   '/js/site-routes.js',
   '/images/AMS_Solver.png',
+  '/images/AMS_Solver-260.webp',
   '/images/watermark-1920.webp',
   '/images/watermark-1024.webp',
   '/icons/icon-192.png',
@@ -77,6 +78,19 @@ async function networkFirstPage(event) {
   }
 }
 
+async function cacheFirstVersioned(req) {
+  const cache = await caches.open(CORE);
+  const hit = await cache.match(req); // exact URL including ?v=
+  if (hit) return hit;
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  } catch (e) {
+    return (await cache.match(req, { ignoreSearch: true })) || new Response('', { status: 504 });
+  }
+}
+
 async function networkFirstAsset(req) {
   const cache = await caches.open(CORE);
   try {
@@ -121,6 +135,8 @@ self.addEventListener('fetch', (event) => {
     if (isHtml(req)) { event.respondWith(networkFirstPage(event)); return; }
     // the site's own scripts and styles: newest first, so they always match the page
     // (stale copies after an update made new buttons do nothing); saved copy when offline
+    // versioned files (?v=<hash>) never change: cache first. Unversioned ones: newest first.
+    if (/\.(?:js|css)$/.test(url.pathname) && url.searchParams.has('v')) { event.respondWith(cacheFirstVersioned(req)); return; }
     if (/\.(?:js|css)$/.test(url.pathname)) { event.respondWith(networkFirstAsset(req)); return; }
     event.respondWith(staleWhileRevalidate(req, CORE));
     return;

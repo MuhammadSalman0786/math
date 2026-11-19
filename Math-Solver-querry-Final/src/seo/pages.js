@@ -9,7 +9,29 @@ const SITE = require('../../public/js/site-routes.js');
 const { CALC_CONTENT } = require('./content');
 
 const PUBLIC_DIR = path.join(__dirname, '../../public');
-const BUILD_DATE = new Date().toISOString().slice(0, 10);
+// sitemap <lastmod>: the date the page text last changed (newest of the files it is built from),
+// not the date the server was restarted, so Google can trust it
+const BUILD_DATE = (() => {
+  let t = 0;
+  for (const f of ['public/index.html', 'public/js/site-routes.js', 'src/seo/content.js']) {
+    try { t = Math.max(t, fs.statSync(path.join(__dirname, '../..', f)).mtimeMs); } catch (e) { /* missing */ }
+  }
+  return new Date(t || Date.now()).toISOString().slice(0, 10);
+})();
+
+// short content hash per file, so /css/style.css?v=<hash> can be cached for a year:
+// a new deploy changes the hash and therefore the URL
+const crypto = require('crypto');
+const ASSETS = ['/css/style.css', '/js/site-routes.js', '/js/app.js', '/js/lang.js', '/js/pwa.js'];
+let assetCache = null;
+function assetVersions() {
+  if (assetCache && process.env.NODE_ENV !== 'development') return assetCache;
+  assetCache = {};
+  for (const a of ASSETS) {
+    try { assetCache[a] = crypto.createHash('sha256').update(fs.readFileSync(path.join(PUBLIC_DIR, a))).digest('hex').slice(0, 10); } catch (e) { /* missing file */ }
+  }
+  return assetCache;
+}
 
 let templateCache = null;
 function template() {
@@ -226,6 +248,15 @@ function renderPage(req, route, opts = {}) {
       .replace(/(<p class="sub-heading" id="dynamicCalcSubheading">)[^<]*(<\/p>)/, '$1Sorry, that page does not exist. You can use the solver below or go back to the <a href="/">home page</a>.$2');
   }
 
+  // speed: the maths input library is only needed where there is a calculator
+  if (active !== 'sectionHome') html = html.replace(/\s*<script defer src="[^"]*mathlive[^"]*" id="mathliveScript"><\/script>/, '');
+  // calculator pages show formulas straight away: load the KaTeX styles normally there, so the
+  // formulas are laid out at their final size at once (no layout shift); other pages load them later
+  if (active === 'sectionHome') html = html.replace(/<link rel="preload" as="style" href="(https:\/\/cdn\.jsdelivr\.net\/npm\/katex[^"]+)" onload="[^"]*">/, '<link rel="stylesheet" href="$1">');
+  // long-cacheable, versioned URLs for the site's own CSS and JS
+  const ver = assetVersions();
+  html = html.replace(/(href|src)="(\/(?:css|js)\/[a-z-]+\.(?:css|js))"/g, (m, attr, file) => (ver[file] ? `${attr}="${file}?v=${ver[file]}"` : m));
+
   // tell the browser script which page this is
   html = html.replace('<body>', `<body data-route="${esc(route.path)}"${opts.notFound ? ' data-not-found="1"' : ''}>`);
   return html;
@@ -239,6 +270,7 @@ function robotsTxt(req) {
     'Disallow: /admin/',
     '',
     `Sitemap: ${baseUrl(req)}/sitemap.xml`,
+    `Sitemap: ${baseUrl(req)}/blog/sitemap_index.xml`,
     ''
   ].join('\n');
 }

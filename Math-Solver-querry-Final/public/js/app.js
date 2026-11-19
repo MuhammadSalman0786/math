@@ -310,7 +310,12 @@ function initGoogleAuthSystem() {
     .then(r => r.json())
     .then(cfg => {
       googleClientId = cfg.googleClientId || null;
-      if (googleClientId) waitForGoogleSdk(0);
+      // the Google script (~100 KB) is loaded only when it can be needed: when the login window
+      // opens, or a few seconds after the page has finished loading
+      if (googleClientId) {
+        const later = () => setTimeout(loadGoogleSdk, 3000);
+        if (document.readyState === 'complete') later(); else window.addEventListener('load', later, { once: true });
+      }
       else if (googleBtn) googleBtn.title = 'Google sign-in is not configured on this server yet';
     })
     .catch(() => {});
@@ -397,6 +402,21 @@ function initGoogleAuthSystem() {
   });
 }
 
+let googleSdkRequested = false;
+function loadGoogleSdk() {
+  if (!googleClientId) return;
+  if (!googleSdkRequested) {
+    googleSdkRequested = true;
+    if (!window.google?.accounts?.id) {
+      const sc = document.createElement('script');
+      sc.src = 'https://accounts.google.com/gsi/client';
+      sc.async = true;
+      document.head.appendChild(sc);
+    }
+    waitForGoogleSdk(0);
+  }
+}
+
 // The Google script loads asynchronously; wait for it (up to ~10 seconds)
 function waitForGoogleSdk(attempt) {
   if (window.google?.accounts?.id) {
@@ -451,6 +471,7 @@ async function handleOfficialGoogleCredential(response) {
 window.handleOfficialGoogleCredential = handleOfficialGoogleCredential;
 
 function openAuthModal(mode = 'login', customMessage = null) {
+  loadGoogleSdk();
   const modal = document.getElementById('authModalBackdrop');
   const notice = document.getElementById('authModalNotice');
   if (customMessage) {
@@ -1660,7 +1681,13 @@ function updateHistoryFade() {
     sec.addEventListener('scroll', updateHistoryFade, { passive: true });
     window.addEventListener('resize', updateHistoryFade);
   }
-  sec.classList.toggle('more-below', sec.scrollTop + sec.clientHeight < sec.scrollHeight - 4);
+  // read the sizes in the next frame, so this never forces an extra layout while the page is loading
+  if (sec.__fadePending) return;
+  sec.__fadePending = true;
+  requestAnimationFrame(() => {
+    sec.__fadePending = false;
+    sec.classList.toggle('more-below', sec.scrollTop + sec.clientHeight < sec.scrollHeight - 4);
+  });
 }
 
 function renderHistoryList(items) {
@@ -1778,12 +1805,18 @@ function downloadResultPDF() {
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  if (window.html2pdf) {
+  // html2pdf is large (~900 KB), so it is only downloaded the first time someone presses PDF
+  const run = () => {
     html2pdf().set(opt).from(resultCard).save();
     showToast("PDF Export", "Your PDF is being downloaded...", "success");
-  } else {
-    window.print();
-  }
+  };
+  if (window.html2pdf) { run(); return; }
+  showToast("PDF Export", "Preparing your PDF...", "info");
+  const sc = document.createElement('script');
+  sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  sc.onload = () => (window.html2pdf ? run() : window.print());
+  sc.onerror = () => window.print();
+  document.head.appendChild(sc);
 }
 
 // Turn LaTeX into readable plain text for copying, e.g. \frac{1}{2} -> (1)/(2), \sqrt{2} -> √(2)

@@ -55,7 +55,22 @@ app.get('/offline.html', (req, res, next) => { res.setHeader('X-Robots-Tag', 'no
 app.get('/index.html', (req, res) => res.redirect(301, '/'));
 
 // Static files (CSS, JS, images). index: false so "/" is rendered by the page handler below.
-app.use(express.static(path.join(__dirname, 'public'), { index: false, redirect: false }));
+app.use(express.static(path.join(__dirname, 'public'), {
+  index: false, redirect: false,
+  setHeaders: (res, filePath) => {
+    const req = res.req;
+    if (/\.(css|js)$/.test(filePath) && req && req.query && req.query.v) {
+      // versioned URL (?v=<content hash>): the file at this URL never changes
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(png|jpe?g|webp|gif|svg|ico|woff2?)$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000'); // images and icons: 30 days
+    } else if (/sw\.js$/.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    }
+  }
+}));
 
 // Reads the login token (if any) for every API request
 app.use('/api', attachUser);

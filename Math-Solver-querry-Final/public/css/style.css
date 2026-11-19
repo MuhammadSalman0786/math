@@ -2997,7 +2997,7 @@ body.dark-theme .mobile-install-app .fa-download { color: #a5b4fc; }
    photo tool) so it works whether or not the photo feature is switched on.
    =================================================== */
 .logo { height: 60px; }
-.logo img.custom-logo { pointer-events: none; }
+.logo img.custom-logo, .logo picture { pointer-events: none; }
 .btn-new-chat { position: relative; z-index: 2; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .btn-new-chat:active { transform: scale(0.98); background: rgba(122, 141, 211, 0.18); }
 .solver-card.flash-new { animation: amsFlashNew 0.7s ease; }
