@@ -3,7 +3,14 @@ const {
   createSessionToken, hashPassword, checkPassword, cleanName, isValidEmail
 } = require('../config/security');
 
-const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || '').trim();
+// Google Sign-In Client ID: the environment variable wins, otherwise src/config/google.json (public value)
+const GOOGLE_CLIENT_ID = (() => {
+  if ((process.env.GOOGLE_CLIENT_ID || '').trim()) return process.env.GOOGLE_CLIENT_ID.trim();
+  try {
+    const id = String(require('../config/google.json').clientId || '').trim();
+    return /^[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com$/.test(id) ? id : '';
+  } catch (e) { return ''; }
+})();
 
 // Small brute-force guard: max 10 failed password attempts per email per 15 minutes.
 const failedAttempts = new Map();

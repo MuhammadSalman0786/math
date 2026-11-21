@@ -1,0 +1,4 @@
+{
+  "_note": "Google Sign-In OAuth Client ID (public, not a secret: it is sent to every browser). The GOOGLE_CLIENT_ID environment variable overrides it. Never put the client secret here.",
+  "clientId": "207434055624-5luanir7jnehi5be7gm80dm3dcisaj7o.apps.googleusercontent.com"
+}
