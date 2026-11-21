@@ -3173,3 +3173,13 @@ html:not(.is-app) #btnGetAppMobile { display: none !important; }
   /* dark theme: a soft light outline keeps the logo's dark lettering readable without the old header colour */
   .is-app body.dark-theme .navbar .logo img.custom-logo { filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.95)); }
 }
+@media (max-width: 768px) {
+  /* app logo: + ÷ keys (simple) and √x ∫ keys (advanced), with "Simple · Advanced" under the name */
+  .is-app .navbar .logo { display: flex; align-items: center; gap: 10px; height: auto; text-decoration: none; }
+  .is-app .navbar .logo picture { display: none; }
+  .is-app .navbar .logo::before { content: ''; flex: none; width: 40px; height: 40px; background: url(/icons/app-logo.svg) center / contain no-repeat; }
+  .is-app .navbar .logo-text-group { display: flex !important; }
+  .is-app .navbar .logo .logo-title { display: flex !important; flex-direction: column; font-size: 0; line-height: 1.15; }
+  .is-app .navbar .logo .logo-title::before { content: 'All Math Solver'; font-size: 16px; font-weight: 800; color: var(--text-main); }
+  .is-app .navbar .logo .logo-title::after { content: 'Simple \00B7  Advanced'; font-size: 11.5px; font-weight: 700; color: var(--brand-green); letter-spacing: 0.2px; }
+}
