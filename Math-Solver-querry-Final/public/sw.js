@@ -19,9 +19,8 @@ const CORE_FILES = [
   '/js/lang.js',
   '/js/site-routes.js',
   '/js/app-ui.js', // installed app only
-  '/icons/app-logo.svg', // installed app only
+  '/icons/app-logo.svg', // header and footer logo
   '/images/AMS_Solver.png',
-  '/images/AMS_Solver-260.webp',
   '/images/watermark-1920.webp',
   '/images/watermark-1024.webp',
   '/icons/icon-192.png',
