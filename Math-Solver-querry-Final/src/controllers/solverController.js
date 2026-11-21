@@ -407,8 +407,45 @@ const tidyWhitespace = (q) => String(q || '')
     (m, kind, nums) => `${/^l|multiple/i.test(kind) ? 'lcm' : 'gcd'}(${nums.match(/\d+/g).join(',')})`);
 // drop a ")" that closes nothing (left over from braces typed in the maths box)
 const dropUnmatchedClose = (q) => { if (!/\)/.test(q)) return q; let d = 0, out = ''; for (const c of q) { if (c === '(') d++; else if (c === ')') { if (d === 0) continue; d--; } out += c; } return out; };
+// Expression formats Google sends to math solvers (MathSolver structured data):
+//   derivatives (expr)' or d/var expr, integrals \int expr / \int_{a}^{b} expr,
+//   limits \lim expr / \lim_{x\rightarrow a} expr
+function googleMathForms(q) {
+  let t = String(q || '').trim();
+  const varOf = (e) => {
+    const plainE = e.replace(/\\[a-zA-Z]+/g, ' ');
+    if (/(?<![a-zA-Z])x(?![a-zA-Z])/.test(plainE)) return 'x';
+    const m = plainE.match(/(?<![a-zA-Z])([a-z])(?![a-zA-Z])/);
+    return m && m[1] !== 'e' && m[1] !== 'i' ? m[1] : 'x';
+  };
+  // (expr)'  ->  d/dx expr   (the brackets must wrap the whole expression)
+  const pm = t.match(/^\(([\s\S]+)\)\s*'\s*$/);
+  if (pm) {
+    let depth = 0, wraps = true;
+    for (let i = 0; i < pm[1].length; i++) { const c = pm[1][i]; if (c === '(') depth++; else if (c === ')') { depth--; if (depth < 0) { wraps = false; break; } } }
+    if (wraps && depth === 0) t = `d/d${varOf(pm[1])} ${pm[1]}`;
+  }
+  // d/x expr  ->  d/dx expr
+  t = t.replace(/^d\s*\/\s*([a-z])\s+(?=\S)/, (m, v) => `d/d${v} `);
+  // d/dt expr, \frac{d}{dt} expr with a variable other than x: the plain-words form is the one the
+  // derivative solver reads correctly ("d/dt t^3" was otherwise read as a division)
+  const dm = t.match(/^(?:d\s*\/\s*d([a-wyz])|\\frac\{d\}\{d([a-wyz])\})\s*([\s\S]+)$/);
+  if (dm) {
+    const v = dm[1] || dm[2];
+    let e = dm[3].trim();
+    if (/^\(([\s\S]*)\)$/.test(e)) { let d = 0, ok = true; const inner = e.slice(1, -1); for (const c of inner) { if (c === '(') d++; else if (c === ')' && --d < 0) { ok = false; break; } } if (ok && d === 0) e = inner; }
+    t = `derivative of ${e} with respect to ${v}`;
+  }
+  // \lim expr with no subscript: the variable tends to infinity
+  const lm = t.match(/^\\lim(?![_a-zA-Z])\s*([\s\S]+)$/);
+  if (lm) t = `\\lim_{${varOf(lm[1])}\\to\\infty} ${lm[1]}`;
+  // \rightarrow inside a limit subscript -> \to
+  t = t.replace(/\\lim_\{([^{}]*?)\\(?:rightarrow|longrightarrow|Rightarrow)([^{}]*)\}/g, '\\lim_{$1\\to$2}');
+  return t;
+}
+
 function solveExpression(rawQueryIn) {
-  const raw = dropUnmatchedClose(tidyWhitespace(rawQueryIn));
+  const raw = dropUnmatchedClose(tidyWhitespace(googleMathForms(tidyWhitespace(rawQueryIn))));
   // gcd(84, 126) / lcm(12, 18, 30): the full working of the LCM / GCF calculator (prime factors + Euclid)
   const gl = raw.replace(/\\left|\\right|\\operatorname\{(\w+)\}/g, '$1').match(/^\s*\\?(gcd|lcm|hcf|gcf)\s*\(\s*(\d+(?:\s*,\s*\d+)+)\s*\)\s*$/i);
   if (gl) {

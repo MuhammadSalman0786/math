@@ -128,10 +128,35 @@ function calculatorContentHtml(calc, tpl) {
   return card + how + faq;
 }
 
+const MATH_SOLVER_TYPES = [
+  'Arithmetic', 'Algebra', 'Linear Equation', 'Quadratic Equation', 'Polynomial Equation', 'System of Equations',
+  'Exponential Equation', 'Logarithmic Equation', 'Radical Equation', 'Absolute Value Equation',
+  'Linear Inequality', 'Quadratic Inequality', 'Rational Expression', 'Polynomial Expression', 'Quadratic Expression',
+  'Trigonometry', 'Calculus', 'Derivative', 'Integral', 'Limit', 'Differential Equation',
+  'Linear Algebra', 'Matrix', 'Eigenvalue', 'Eigenvector', 'Statistics'
+];
+
 function structuredData(route, url, base) {
   const data = [];
   if (route.path === '/') {
     data.push({ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.SITE_NAME, url: base + '/' });
+    // Google "Math solver" rich result: tells Google which problems the solver handles and the URL
+    // that solves a given problem (/solve?q=...). Only problem types verified with tests are listed.
+    data.push({
+      '@context': 'https://schema.org',
+      '@type': ['MathSolver', 'LearningResource'],
+      name: SITE.SITE_NAME,
+      url: base + '/',
+      usageInfo: base + '/privacy-policy',
+      inLanguage: 'en',
+      learningResourceType: 'Math Solver',
+      potentialAction: [{
+        '@type': 'SolveMathAction',
+        target: base + '/solve?q={math_expression_string}',
+        'mathExpression-input': 'required name=math_expression_string',
+        eduQuestionType: MATH_SOLVER_TYPES
+      }]
+    });
   }
   const org = { '@type': 'Organization', name: SITE.SITE_NAME, url: base + '/', logo: { '@type': 'ImageObject', url: base + '/images/AMS_Solver.png' } };
   if (route.calc) {
@@ -165,19 +190,20 @@ function renderPage(req, route, opts = {}) {
   // ---- <head>: title, description, canonical, social tags, structured data
   const head = [
     `<meta name="description" content="${esc(route.description)}">`,
-    opts.notFound ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${esc(url)}">`,
+    opts.notFound ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${esc(opts.canonical || url)}">`,
+    opts.noindex ? '<meta name="robots" content="noindex, follow">' : '',
     `<meta property="og:site_name" content="${esc(SITE.SITE_NAME)}">`,
     '<meta property="og:locale" content="en_US">',
     '<meta property="og:locale:alternate" content="en_GB">',
     '<meta property="og:locale:alternate" content="en_IN">',
     '<meta property="og:locale:alternate" content="en_CA">',
     // one English site for every country: tell Google this page is the English version for all regions
-    opts.notFound ? '' : `<link rel="alternate" hreflang="en" href="${esc(url)}">`,
-    opts.notFound ? '' : `<link rel="alternate" hreflang="x-default" href="${esc(url)}">`,
+    opts.notFound ? '' : `<link rel="alternate" hreflang="en" href="${esc(opts.canonical || url)}">`,
+    opts.notFound ? '' : `<link rel="alternate" hreflang="x-default" href="${esc(opts.canonical || url)}">`,
     `<meta property="og:type" content="website">`,
     `<meta property="og:title" content="${esc(route.title)}">`,
     `<meta property="og:description" content="${esc(route.description)}">`,
-    opts.notFound ? '' : `<meta property="og:url" content="${esc(url)}">`,
+    opts.notFound ? '' : `<meta property="og:url" content="${esc(opts.canonical || url)}">`,
     `<meta property="og:image" content="${esc(base)}/images/AMS_Solver.png">`,
     '<meta name="twitter:card" content="summary">',
     opts.notFound ? '' : structuredData(route, url, base)
@@ -257,6 +283,24 @@ function renderPage(req, route, opts = {}) {
   const ver = assetVersions();
   html = html.replace(/(href|src)="(\/(?:css|js)\/[a-z-]+\.(?:css|js))"/g, (m, attr, file) => (ver[file] ? `${attr}="${file}?v=${ver[file]}"` : m));
 
+  // ---- /solve?q=...: the question in the maths box and its full solution already in the HTML
+  if (opts.solve) {
+    const { q, qText, result } = opts.solve;
+    html = html.replace(/(<h1 class="main-heading" id="dynamicCalcHeading">)[^<]*(<\/h1>)/, '$1Step-by-Step Solution$2')
+      .replace(/(<p class="sub-heading" id="dynamicCalcSubheading">)[^<]*(<\/p>)/, `$1${esc('Question: ' + qText)}$2`)
+      .replace(/(<math-field id="mainExprInput"[^>]*>)(<\/math-field>)/, `$1${esc(q)}$2`);
+    if (result && Array.isArray(result.steps)) {
+      const label = (t) => esc(String(t || '')).replace(/\$([^$]+)\$/g, (m, x) => `\\(${x}\\)`);
+      const stepsHtml = result.steps.filter(s => !/^Final Answer/i.test(s.label || '')).map(s =>
+        `<div class="step-row"><div class="step-title">${label(s.label)}</div>${s.katex && s.katex.trim() ? `<div class="step-math">\\[${esc(s.katex)}\\]</div>` : ''}</div>`).join('');
+      html = html.replace('<div id="katexStepsList" class="steps-flow"></div>', `<div id="katexStepsList" class="steps-flow">${stepsHtml}</div>`)
+        .replace('<div class="big-answer-box" id="bigAnswerBox"></div>', `<div class="big-answer-box" id="bigAnswerBox">\\[${esc(result.answer)}\\]</div>`);
+      html = setHidden(html, 'resultCard', false);
+      const json = JSON.stringify({ q, answer: result.answer, steps: result.steps }).replace(/</g, '\\u003c');
+      html = html.replace('</main>', `<script type="application/json" id="ssrResult">${json}</script>\n    </main>`);
+    }
+  }
+
   // tell the browser script which page this is
   html = html.replace('<body>', `<body data-route="${esc(route.path)}"${opts.notFound ? ' data-not-found="1"' : ''}>`);
   return html;
@@ -308,4 +352,37 @@ function pageHandler(req, res) {
   res.send(renderPage(req, route));
 }
 
-module.exports = { pageHandler, robotsTxt, sitemapXml, renderPage, baseUrl };
+// readable plain text for a LaTeX question/answer (titles and descriptions)
+function latexPlain(t) {
+  let s = String(t || '');
+  for (let i = 0; i < 4; i++) s = s.replace(/\\[dt]?frac\{([^{}]*)\}\{([^{}]*)\}/g, '($1)/($2)').replace(/\\sqrt\{([^{}]*)\}/g, '√($1)');
+  return s.replace(/\\left(?![a-zA-Z])|\\right(?![a-zA-Z])|\\,|\\;|\\!|\\quad/g, ' ').replace(/\\(?:cdot|times)/g, '×').replace(/\\div/g, '÷')
+    .replace(/\\pi/g, 'π').replace(/\\infty/g, '∞').replace(/\\(?:le|leq)\b/g, '≤').replace(/\\(?:ge|geq)\b/g, '≥').replace(/\\(?:to|rightarrow)\b/g, '→')
+    .replace(/\\int/g, '∫').replace(/\\sum/g, '∑').replace(/\\lim/g, 'lim').replace(/\\text\{([^{}]*)\}/g, '$1').replace(/\\mathbf\{([^{}]*)\}/g, '$1')
+    .replace(/\\([a-zA-Z]+)/g, '$1').replace(/[{}]/g, '').replace(/\s+/g, ' ').trim();
+}
+const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…');
+
+// /solve?q=<question>: solves the question on the server so the answer and every step are in the page
+function solveHandler(req, res) {
+  const q = String(req.query.q || '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, 500);
+  if (!q) return res.redirect(302, '/');
+  let result = null;
+  try { result = require('../controllers/solverController')._solveExpression(q); } catch (e) { result = null; }
+  const answer = result && result.answer ? String(result.answer) : '';
+  const solved = !!answer && !/Try writing|Sorry|not supported|Please type|could not be|Invalid input/i.test(answer);
+  const qText = latexPlain(q);
+  const aText = latexPlain(answer);
+  const route = {
+    path: '/solve', section: 'home', calc: 'expression',
+    title: clip(`Solve ${qText}`, 40) + ' | Step-by-Step | All Math Solver',
+    description: clip(solved ? `Step-by-step solution of ${qText}. Answer: ${aText}. Free math solver that explains every step.` : `Solve ${qText} step by step with the free All Math Solver.`, 158)
+  };
+  route.title = route.title.length > 60 ? clip(`Solve ${qText}`, 40) + ' | All Math Solver' : route.title;
+  const canonical = baseUrl(req) + '/solve?q=' + encodeURIComponent(q);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.send(renderPage(req, route, { solve: { q, qText, result }, canonical, noindex: !solved }));
+}
+
+module.exports = { pageHandler, solveHandler, robotsTxt, sitemapXml, renderPage, baseUrl };

@@ -84,6 +84,7 @@ app.use('/api', (req, res) => res.status(404).json({ success: false, error: 'Not
 
 // Every page URL (/, /age-calculator, /about, ...) gets its own server-rendered HTML. (/blog is the WordPress site.)
 // Unknown URLs return a real 404 page.
+app.get('/solve', seo.solveHandler);
 app.get('*', seo.pageHandler);
 
 // Bad JSON bodies etc.

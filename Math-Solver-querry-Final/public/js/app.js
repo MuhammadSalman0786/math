@@ -96,6 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
     e.stopPropagation();
     closeMobileSidebar();
     if (!document.getElementById('sectionHome')) { navigateTo('/'); return; }
+    if (location.pathname === '/solve') {
+      try { history.replaceState(history.state, '', '/'); } catch (err) {}
+      switchCalculatorMode(currentMode); // back to the home page heading
+    }
     document.getElementById('resultCard')?.classList.add('hidden');
     document.getElementById('symbolsDrawer')?.classList.add('hidden');
     if (window.PhotoSolve) window.PhotoSolve.clearPhoto();
@@ -113,6 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Everything below belongs to the calculator, which only exists on calculator pages
   if (document.getElementById('sectionHome')) safe(setupCalculatorUI);
+  // /solve?q=...: the server already solved it; draw the solution with KaTeX
+  safe(function showServerSolution() {
+    const box = document.getElementById('ssrResult');
+    if (!box) return;
+    const data = JSON.parse(box.textContent);
+    if (data && Array.isArray(data.steps)) renderResult(data.answer || '', data.steps);
+  });
   safe(applyPendingActions);
 });
 
@@ -1481,6 +1492,11 @@ async function handleCalculate() {
     const data = await res.json();
     
     if (res.ok && data.success && data.steps) {
+      if (currentMode === 'expression' && payload.query && (location.pathname === '/' || location.pathname === '/solve')) {
+        try { history.replaceState(history.state, '', '/solve?q=' + encodeURIComponent(payload.query)); } catch (e) {}
+        const h1 = document.getElementById('dynamicCalcHeading'), sub = document.getElementById('dynamicCalcSubheading');
+        if (h1 && h1.textContent === 'Step-by-Step Solution' && sub) sub.textContent = 'Question: ' + payload.query;
+      }
       // a question read from a photo keeps its photo (shown with the solution and in Recents)
       const photo = (EXPRESSION_MODES.includes(currentMode) && window.PhotoSolve) ? window.PhotoSolve.current() : null;
       renderResult(data.answer, data.steps, photo);

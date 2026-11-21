@@ -68,7 +68,8 @@ async function networkFirstPage(event) {
   try {
     const preload = event.preloadResponse ? await event.preloadResponse : null;
     const res = preload || await fetch(req);
-    if (res && res.ok && res.type === 'basic') cache.put(pageKey(url), res.clone());
+    // /solve?q=... pages differ by question: they are not kept for offline use
+    if (res && res.ok && res.type === 'basic' && url.pathname !== '/solve') cache.put(pageKey(url), res.clone());
     return res;
   } catch (e) {
     const cached = await cache.match(pageKey(url)) || await caches.match(pageKey(url), { ignoreSearch: true });
