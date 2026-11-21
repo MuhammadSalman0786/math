@@ -25,7 +25,7 @@
     (function () {
       try {
         var mq = function (m) { return window.matchMedia && window.matchMedia('(display-mode: ' + m + ')').matches; };
-        var fromApp = /[?&]source=(app|twa|shortcut)\b/.test(location.search) || document.referrer.indexOf('android-app://') === 0;
+        var fromApp = /[?&]source=(app|twa|shortcut)\b/.test(location.search) || document.referrer.indexOf('android-app://com.allmathsolver.app') === 0; // only OUR app (the Google app also sends android-app://)
         if (fromApp) sessionStorage.setItem('ams_app', '1');
         if (mq('standalone') || mq('fullscreen') || mq('minimal-ui') || navigator.standalone === true || fromApp || sessionStorage.getItem('ams_app') === '1') {
           document.documentElement.classList.add('is-app');

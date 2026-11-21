@@ -117,6 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Everything below belongs to the calculator, which only exists on calculator pages
   if (document.getElementById('sectionHome')) safe(setupCalculatorUI);
+  // app on a phone: show Recents under the input field (moves the live list, so every button keeps working)
+  safe(function setupAppRecents() {
+    if (!document.documentElement.classList.contains('is-app')) return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const anchor = document.getElementById('resultCard') || document.getElementById('solverCardAnchor');
+    const history = document.querySelector('#appSidebar .history-section');
+    if (!anchor || !history) return;
+    const box = document.createElement('section');
+    box.className = 'app-recents'; box.id = 'appRecents';
+    const login = document.getElementById('sidebarLoginCard');
+    if (login) box.appendChild(login);
+    box.appendChild(history);
+    anchor.after(box);
+    document.documentElement.classList.add('app-recents-moved');
+    if (typeof updateHistoryFade === 'function') updateHistoryFade();
+  });
   // /solve?q=...: the server already solved it; draw the solution with KaTeX
   safe(function showServerSolution() {
     const box = document.getElementById('ssrResult');

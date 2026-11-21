@@ -3078,6 +3078,20 @@ body.dark-theme .about-intro a, body.dark-theme .feature-card a { color: #a5b4fc
   .is-app .btn-login span, .is-app .user-name-text, .is-app .user-dropdown-arrow { display: none; }
 }
 
+/* website (not the app): the mobile screen stays as it was, with no app-only parts */
+html:not(.is-app) #sidebarLoginCard,
+html:not(.is-app) #btnGetAppMobile { display: none !important; }
+
+/* app on a phone: Recents sit under the input field instead of in a side drawer */
+.app-recents { display: none; }
+@media (max-width: 768px) {
+  .is-app .app-recents { display: block; margin: 16px 0 8px; padding: 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; }
+  .is-app .app-recents .history-section { margin-top: 0; max-height: 380px; padding-bottom: 0 !important; }
+  .is-app .app-recents .sidebar-login-card { margin: 0 0 12px; }
+  .is-app .app-recents .hist-math-target { max-width: none !important; }
+  .is-app.app-recents-moved #btnToggleSidebar { visibility: hidden; }
+}
+
 /* sign-in card in Recents (signed out only) */
 .sidebar-login-card { margin-top: 12px; padding: 12px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); }
 .sidebar-login-card.hidden { display: none; }

@@ -5,7 +5,7 @@
 
   var standalone = document.documentElement.classList.contains('is-app') ||
     (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: minimal-ui)').matches)) ||
-    window.navigator.standalone === true || document.referrer.indexOf('android-app://') === 0;
+    window.navigator.standalone === true || document.referrer.indexOf('android-app://com.allmathsolver.app') === 0;
   if (standalone) document.documentElement.classList.add('is-app');
 
   // ---- service worker
