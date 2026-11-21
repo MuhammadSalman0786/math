@@ -29,6 +29,10 @@
         if (fromApp) sessionStorage.setItem('ams_app', '1');
         if (mq('standalone') || mq('fullscreen') || mq('minimal-ui') || navigator.standalone === true || fromApp || sessionStorage.getItem('ams_app') === '1') {
           document.documentElement.classList.add('is-app');
+          // app-only interface (simple calculator, menu entry): the website never loads it
+          var pref = null; try { pref = localStorage.getItem('ams_app_mode'); } catch (e2) {}
+          if (location.pathname === '/' && !location.search.replace(/[?&]source=\w+/, '') && pref !== 'advanced') document.documentElement.classList.add('simple-on');
+          var ui = document.createElement('script'); ui.src = '/js/app-ui.js'; ui.async = true; document.head.appendChild(ui);
         }
       } catch (e) { /* storage blocked: website layout */ }
     })();
