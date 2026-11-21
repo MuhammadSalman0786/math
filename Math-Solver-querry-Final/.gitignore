@@ -1,0 +1,4 @@
+# Android signing key: never commit (backed up on the server in /root/backups/android-signing)
+*.keystore
+*.jks
+KEYSTORE-INFO.txt

@@ -37,8 +37,12 @@ exports.version = () => buildServiceWorker().version;
 //   TWA_SHA256_FINGERPRINTS   one or more SHA-256 certificate fingerprints, comma separated
 //                             (Play Console > App integrity > App signing key certificate)
 exports.assetLinks = (req, res) => {
-  const pkg = (process.env.TWA_PACKAGE_NAME || '').trim();
-  const prints = (process.env.TWA_SHA256_FINGERPRINTS || '').split(',').map(s => s.trim().toUpperCase()).filter(s => /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(s));
+  // environment variables win; otherwise the committed src/config/twa.json (public data)
+  let fileCfg = {};
+  try { fileCfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config', 'twa.json'), 'utf8')); } catch (e) { fileCfg = {}; }
+  const pkg = (process.env.TWA_PACKAGE_NAME || fileCfg.packageName || '').trim();
+  const rawPrints = process.env.TWA_SHA256_FINGERPRINTS ? process.env.TWA_SHA256_FINGERPRINTS.split(',') : (fileCfg.sha256Fingerprints || []);
+  const prints = rawPrints.map(s => String(s).trim().toUpperCase()).filter(s => /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(s));
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'public, max-age=3600');
   if (!pkg || !prints.length) return res.end('[]');

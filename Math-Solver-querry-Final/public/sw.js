@@ -131,7 +131,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   if (url.origin === self.location.origin) {
-    if (url.pathname.startsWith('/admin') || url.pathname === '/sw.js') return; // never cache these
+    if (url.pathname.startsWith('/admin') || url.pathname === '/sw.js' || url.pathname.startsWith('/downloads/')) return; // never cache these (the APK download goes straight to the network)
     if (url.pathname === '/blog' || url.pathname.startsWith('/blog/')) return; // WordPress blog: always straight to the network
     if (isHtml(req)) { event.respondWith(networkFirstPage(event)); return; }
     // the site's own scripts and styles: newest first, so they always match the page

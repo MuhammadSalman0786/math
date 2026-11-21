@@ -334,6 +334,7 @@ function initGoogleAuthSystem() {
   // Modal open & close
   document.getElementById('btnOpenLogin')?.addEventListener('click', () => openAuthModal('login'));
   registerSidebarBtn?.addEventListener('click', () => openAuthModal('register'));
+  document.getElementById('btnSidebarLogin')?.addEventListener('click', () => { closeMobileSidebar(); openAuthModal('login'); });
 
   btnClose?.addEventListener('click', closeAuthModal);
   modal?.addEventListener('click', (e) => {
@@ -510,6 +511,7 @@ function closeAuthModal() {
 
 function renderAuthUI() {
   renderMobileDrawerAuth();
+  document.getElementById('sidebarLoginCard')?.classList.toggle('hidden', !!currentUser);
   const container = document.getElementById('authContainer');
   if (!container) return;
 

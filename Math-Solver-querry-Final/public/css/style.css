@@ -3057,3 +3057,52 @@ body.dark-theme .about-intro a, body.dark-theme .feature-card a { color: #a5b4fc
   .policy-body h2 { font-size: 1.12rem; }
   .policy-body p, .policy-body li, .about-intro p, .about-list li, .notice-banner { font-size: 15.5px; }
 }
+
+
+/* ===================================================
+   INSTALLED APP (html.is-app): tools-only, like a native app
+   =================================================== */
+.is-app #calcDescriptions,
+.is-app .site-footer,
+.is-app .site-only,
+.is-app .switch-hint-text,
+.is-app #btnInstallApp,
+.is-app #btnInstallAppMobile,
+.is-app #btnGetAppMobile { display: none !important; }
+.is-app .main-content { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.is-app .header-section .sub-heading { display: none; }
+@media (max-width: 768px) {
+  /* in the app the login button stays in the header, next to the theme button */
+  .is-app #authContainer { display: block !important; }
+  .is-app .btn-login { padding: 7px 10px; }
+  .is-app .btn-login span, .is-app .user-name-text, .is-app .user-dropdown-arrow { display: none; }
+}
+
+/* sign-in card in Recents (signed out only) */
+.sidebar-login-card { margin-top: 12px; padding: 12px; border: 1px dashed var(--brand-green); border-radius: 10px; background: var(--bg-secondary); }
+.sidebar-login-card.hidden { display: none; }
+.sidebar-login-card p { margin: 0 0 8px; font-size: 13px; line-height: 1.5; color: var(--text-main); }
+.sidebar-login-card p i { color: var(--brand-green); }
+.btn-sidebar-login { width: 100%; padding: 8px; border: none; border-radius: 8px; background: var(--brand-green); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
+
+/* "Get the app" (website) */
+.get-app-btn { display: none; }
+@media (max-width: 768px) { .get-app-btn { display: inline-flex; } }
+.get-app-backdrop { position: fixed; inset: 0; z-index: 3500; background: rgba(15, 23, 42, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.get-app-backdrop.hidden { display: none; }
+.get-app-card { position: relative; width: min(420px, 100%); max-height: 100%; overflow: auto; background: var(--bg-card); color: var(--text-main); border-radius: 16px; padding: 24px 20px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); }
+.get-app-close { position: absolute; top: 8px; right: 10px; border: none; background: transparent; color: var(--text-muted); font-size: 20px; cursor: pointer; padding: 6px; }
+.get-app-icon { border-radius: 14px; display: block; margin: 0 auto 10px; }
+.get-app-card h2 { font-size: 1.2rem; margin: 0 0 6px; }
+.get-app-sub { font-size: 13px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.5; }
+.get-app-section { display: none; }
+.get-app-card[data-os="android"] .get-app-section[data-os="android"],
+.get-app-card[data-os="ios"] .get-app-section[data-os="ios"],
+.get-app-card[data-os="desktop"] .get-app-section[data-os="desktop"] { display: block; }
+.get-app-primary, .get-app-secondary { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; font-family: inherit; }
+.get-app-primary { background: var(--brand-green); color: #fff; border: none; }
+.get-app-secondary { margin-top: 10px; background: transparent; color: var(--text-main); border: 1.5px solid var(--border-color); }
+.get-app-note { font-size: 12.5px; color: var(--text-muted); margin: 8px 0 0; line-height: 1.5; }
+.get-app-note.hidden { display: none; }
+.get-app-steps { text-align: left; margin: 0; padding-left: 22px; font-size: 15px; line-height: 1.9; }
+@media (max-width: 420px) { .is-app .logo-title { display: none; } }

@@ -1,0 +1,7 @@
+{
+  "_note": "Android app (Trusted Web Activity) identity for /.well-known/assetlinks.json. Public information, not a secret. If the app is published on Google Play with Play App Signing, also add the 'App signing key certificate' SHA-256 from Play Console here.",
+  "packageName": "com.allmathsolver.app",
+  "sha256Fingerprints": [
+    "29:26:B3:17:50:48:62:6C:35:02:F4:7B:0F:DD:11:BB:7F:D6:D8:6E:08:02:07:57:F6:0B:9A:FE:E4:3F:CA:F5"
+  ]
+}

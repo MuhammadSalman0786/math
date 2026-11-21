@@ -64,6 +64,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     } else if (/\.(png|jpe?g|webp|gif|svg|ico|woff2?)$/.test(filePath)) {
       res.setHeader('Cache-Control', 'public, max-age=2592000'); // images and icons: 30 days
+    } else if (/\.apk$/.test(filePath)) {
+      res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+      res.setHeader('Content-Disposition', 'attachment; filename="all-math-solver.apk"');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
     } else if (/sw\.js$/.test(filePath)) {
       res.setHeader('Cache-Control', 'no-cache');
     } else {

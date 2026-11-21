@@ -19,6 +19,20 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <script>
+    // Installed app (home-screen app, Android APK / Play app, iPhone home screen): a cleaner,
+    // tools-only layout. Decided before the first paint so nothing jumps.
+    (function () {
+      try {
+        var mq = function (m) { return window.matchMedia && window.matchMedia('(display-mode: ' + m + ')').matches; };
+        var fromApp = /[?&]source=(app|twa|shortcut)\b/.test(location.search) || document.referrer.indexOf('android-app://') === 0;
+        if (fromApp) sessionStorage.setItem('ams_app', '1');
+        if (mq('standalone') || mq('fullscreen') || mq('minimal-ui') || navigator.standalone === true || fromApp || sessionStorage.getItem('ams_app') === '1') {
+          document.documentElement.classList.add('is-app');
+        }
+      } catch (e) { /* storage blocked: website layout */ }
+    })();
+  </script>
   <link rel="stylesheet" href="/css/style.css">
   <!-- icon and maths fonts load without blocking the first paint of the page -->
   <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -65,8 +79,8 @@
     <!-- Centered Nav Links -->
     <nav class="nav-center">
       <a href="/" class="nav-link active nav-link-action" data-target="home"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="/about" class="nav-link nav-link-action" data-target="about"><i class="fa-solid fa-circle-info"></i> About</a>
-      <a href="/blog" class="nav-link"><i class="fa-solid fa-newspaper"></i> Blog</a>
+      <a href="/about" class="site-only nav-link nav-link-action" data-target="about"><i class="fa-solid fa-circle-info"></i> About</a>
+      <a href="/blog" class="site-only nav-link"><i class="fa-solid fa-newspaper"></i> Blog</a>
       <a href="/" class="nav-link nav-link-action" data-target="solver" data-calc="expression"><i class="fa-solid fa-calculator"></i> Math Solver</a>
       
       <!-- More Calculators Dropdown -->
@@ -148,6 +162,9 @@
       <button type="button" class="btn-install-app hidden" id="btnInstallApp" title="Install the All Math Solver app">
         <i class="fa-solid fa-download"></i> <span>Install App</span>
       </button>
+      <button type="button" class="icon-btn get-app-btn" id="btnGetAppMobile" title="Get the All Math Solver app" aria-label="Get the All Math Solver app">
+        <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+      </button>
       <button class="icon-btn theme-toggle-btn" id="btnThemeToggle" title="Toggle Light/Dark Theme">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
       </button>
@@ -173,6 +190,11 @@
       <button class="btn-new-chat" id="btnNewChat">
         <i class="fa-solid fa-plus"></i> New Query
       </button>
+
+      <div class="sidebar-login-card" id="sidebarLoginCard">
+        <p><i class="fa-regular fa-user" aria-hidden="true"></i> Sign in to keep your history on every device: on the website and in the app.</p>
+        <button type="button" class="btn-sidebar-login" id="btnSidebarLogin">Login / Sign up</button>
+      </div>
 
       <div class="history-section">
         <div class="history-header">
@@ -927,10 +949,10 @@
       <a href="/" class="mobile-nav-item nav-link-action" data-target="home">
         <i class="fa-solid fa-house"></i> <span>Home</span>
       </a>
-      <a href="/about" class="mobile-nav-item nav-link-action" data-target="about">
+      <a href="/about" class="site-only mobile-nav-item nav-link-action" data-target="about">
         <i class="fa-solid fa-circle-info"></i> <span>About Us</span>
       </a>
-      <a href="/blog" class="mobile-nav-item">
+      <a href="/blog" class="site-only mobile-nav-item">
         <i class="fa-solid fa-newspaper"></i> <span>Blog & Tutorials</span>
       </a>
       <a href="/contact" class="mobile-nav-item nav-link-action" data-target="contact">
@@ -966,24 +988,24 @@
         <i class="fa-solid fa-bolt"></i> <span>AC to DC Calculator</span>
       </a>
       <div class="mobile-nav-divider"></div>
-      <div class="mobile-nav-subtitle">Legal & Policies</div>
-      <a href="/privacy-policy" class="mobile-nav-item nav-link-action" data-target="privacy">
+      <div class="mobile-nav-subtitle site-only">Legal & Policies</div>
+      <a href="/privacy-policy" class="site-only mobile-nav-item nav-link-action" data-target="privacy">
         <i class="fa-solid fa-shield-halved"></i> <span>Privacy Policy</span>
       </a>
-      <a href="/terms-and-conditions" class="mobile-nav-item nav-link-action" data-target="terms">
+      <a href="/terms-and-conditions" class="site-only mobile-nav-item nav-link-action" data-target="terms">
         <i class="fa-solid fa-file-contract"></i> <span>Terms & Conditions</span>
       </a>
-      <a href="/disclaimer" class="mobile-nav-item nav-link-action" data-target="disclaimer">
+      <a href="/disclaimer" class="site-only mobile-nav-item nav-link-action" data-target="disclaimer">
         <i class="fa-solid fa-circle-info"></i> <span>Disclaimer</span>
       </a>
-      <a href="/cookie-policy" class="mobile-nav-item nav-link-action" data-target="cookies">
+      <a href="/cookie-policy" class="site-only mobile-nav-item nav-link-action" data-target="cookies">
         <i class="fa-solid fa-cookie-bite"></i> <span>Cookie Policy</span>
       </a>
-      <a href="/site-map" class="mobile-nav-item nav-link-action" data-target="sitemap">
+      <a href="/site-map" class="site-only mobile-nav-item nav-link-action" data-target="sitemap">
         <i class="fa-solid fa-sitemap"></i> <span>Site Map</span>
       </a>
     </div>
-    <button type="button" class="mobile-install-app hidden" id="btnInstallAppMobile">
+    <button type="button" class="mobile-install-app" id="btnInstallAppMobile">
       <span class="mobile-install-icon"><img src="/icons/icon-192.png" alt="All Math Solver app icon" width="36" height="36" loading="lazy"></span>
       <span class="mobile-install-text"><strong>Install the app</strong><small>Free · works offline · no app store needed</small></span>
       <i class="fa-solid fa-download"></i>
@@ -994,6 +1016,32 @@
       </button>
     </div>
   </aside>
+
+<div class="get-app-backdrop hidden" id="getAppModal" role="dialog" aria-modal="true" aria-labelledby="getAppTitle">
+    <div class="get-app-card">
+      <button type="button" class="get-app-close" id="btnCloseGetApp" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      <img src="/icons/icon-192.png" alt="All Math Solver app icon" width="64" height="64" loading="lazy" class="get-app-icon">
+      <h2 id="getAppTitle">Get the All Math Solver app</h2>
+      <p class="get-app-sub">Free · opens straight to the tools · history syncs with the website when you sign in</p>
+      <div class="get-app-section" data-os="android">
+        <a class="get-app-primary" id="getAppApk" href="/downloads/all-math-solver.apk" download><i class="fa-brands fa-android" aria-hidden="true"></i> Download for Android (APK)</a>
+        <p class="get-app-note">After downloading, open the file and allow "Install unknown apps" if your phone asks.</p>
+        <button type="button" class="get-app-secondary" id="getAppInstallPwa"><i class="fa-brands fa-chrome" aria-hidden="true"></i> Or install from Chrome</button>
+        <p class="get-app-note hidden" id="getAppChromeSteps">In Chrome, tap the <strong>⋮</strong> menu (top right), then <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>
+      </div>
+      <div class="get-app-section" data-os="ios">
+        <ol class="get-app-steps">
+          <li>Open this site in <strong>Safari</strong>.</li>
+          <li>Tap the <strong>Share</strong> button <i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i>.</li>
+          <li>Choose <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li>
+        </ol>
+      </div>
+      <div class="get-app-section" data-os="desktop">
+        <button type="button" class="get-app-primary" id="getAppInstallDesktop"><i class="fa-solid fa-download" aria-hidden="true"></i> Install on this computer</button>
+        <p class="get-app-note">Or use the install icon in your browser's address bar (Chrome / Edge).</p>
+      </div>
+    </div>
+  </div>
 
 <div class="auth-modal-backdrop hidden" id="authModalBackdrop">
     <div class="auth-modal-card">

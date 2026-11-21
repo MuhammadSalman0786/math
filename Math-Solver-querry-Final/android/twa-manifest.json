@@ -1,0 +1,72 @@
+{
+  "packageId": "com.allmathsolver.app",
+  "host": "allmathsolver.com",
+  "name": "All Math Solver",
+  "launcherName": "All Math Solver",
+  "display": "standalone",
+  "themeColor": "#7A8DD3",
+  "themeColorDark": "#0F172A",
+  "navigationColor": "#FFFFFF",
+  "navigationColorDark": "#0F172A",
+  "navigationDividerColor": "#E5E7EB",
+  "navigationDividerColorDark": "#1E293B",
+  "backgroundColor": "#FFFFFF",
+  "enableNotifications": false,
+  "startUrl": "/?source=twa",
+  "iconUrl": "https://allmathsolver.com/icons/icon-512.png",
+  "maskableIconUrl": "https://allmathsolver.com/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./allmathsolver.keystore",
+    "alias": "allmathsolver"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Math Solver",
+      "shortName": "Solver",
+      "url": "/?source=shortcut",
+      "chosenIconUrl": "https://allmathsolver.com/icons/shortcut-solver.png"
+    },
+    {
+      "name": "Quadratic Equation Calculator",
+      "shortName": "Quadratic",
+      "url": "/quadratic-equation-calculator?source=shortcut",
+      "chosenIconUrl": "https://allmathsolver.com/icons/shortcut-quadratic.png"
+    },
+    {
+      "name": "Percentage Calculator",
+      "shortName": "Percent",
+      "url": "/percentage-calculator?source=shortcut",
+      "chosenIconUrl": "https://allmathsolver.com/icons/shortcut-percent.png"
+    },
+    {
+      "name": "LCM Calculator",
+      "shortName": "LCM",
+      "url": "/lcm-calculator?source=shortcut",
+      "chosenIconUrl": "https://allmathsolver.com/icons/shortcut-lcm.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://allmathsolver.com/site.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://allmathsolver.com/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}
