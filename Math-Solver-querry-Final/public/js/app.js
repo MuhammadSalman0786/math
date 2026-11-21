@@ -215,6 +215,7 @@ function initTheme() {
 let authToken = null;
 let googleClientId = null;
 let googleReady = false;
+let googleConfigLoaded = false; // the server's answer to /api/auth/config has arrived
 let userMenuListenerAdded = false;
 
 function authHeaders(extra = {}) {
@@ -321,6 +322,9 @@ function initGoogleAuthSystem() {
     .then(r => r.json())
     .then(cfg => {
       googleClientId = cfg.googleClientId || null;
+      googleConfigLoaded = true;
+      // the login window is already open: get the Google button ready now
+      if (googleClientId && !document.getElementById('authModalBackdrop')?.classList.contains('hidden')) loadGoogleSdk();
       // the Google script (~100 KB) is loaded only when it can be needed: when the login window
       // opens, or a few seconds after the page has finished loading
       if (googleClientId) {
@@ -329,7 +333,10 @@ function initGoogleAuthSystem() {
       }
       else if (googleBtn) googleBtn.title = 'Google sign-in is not configured on this server yet';
     })
-    .catch(() => {});
+    .catch(() => { googleConfigLoaded = true; });
+
+  // start loading the Google script as soon as someone reaches for the Login button
+  ['pointerdown', 'mouseenter', 'focus'].forEach(ev => document.getElementById('btnOpenLogin')?.addEventListener(ev, loadGoogleSdk, { once: true, passive: true }));
 
   // Modal open & close
   document.getElementById('btnOpenLogin')?.addEventListener('click', () => openAuthModal('login'));
@@ -369,14 +376,49 @@ function initGoogleAuthSystem() {
   window.__setAuthMode = setMode;
 
   // "Continue with Google" button
+  const useEmailInstead = (title, message) => {
+    showToast(title, message, 'info');
+    googleSection?.classList.add('hidden');
+    emailSection?.classList.remove('hidden');
+  };
   googleBtn?.addEventListener('click', () => {
     if (googleReady && window.google?.accounts?.id) {
       window.google.accounts.id.prompt();
       return;
     }
-    showToast('Google Sign-In Unavailable', 'Google sign-in is not set up on this site yet. Please use email and password.', 'info');
-    googleSection?.classList.add('hidden');
-    emailSection?.classList.remove('hidden');
+    // Google is set up but its script is still loading (a quick first tap): wait for it instead of
+    // sending the user to the email form. The official Google button then takes this one's place.
+    if (googleClientId || !googleConfigLoaded) {
+      if (googleBtn.dataset.waiting) return;
+      googleBtn.dataset.waiting = '1';
+      const label = googleBtn.innerHTML;
+      googleBtn.disabled = true;
+      googleBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> <span>Loading Google sign-in…</span>';
+      const restore = () => { googleBtn.disabled = false; googleBtn.innerHTML = label; delete googleBtn.dataset.waiting; };
+      const started = Date.now();
+      const tick = () => {
+        if (googleClientId) loadGoogleSdk();
+        if (googleReady && window.google?.accounts?.id) {
+          restore();
+          window.google.accounts.id.prompt();
+          return;
+        }
+        if (googleConfigLoaded && !googleClientId) {
+          restore();
+          useEmailInstead('Google Sign-In Unavailable', 'Google sign-in is not set up on this site yet. Please use email and password.');
+          return;
+        }
+        if (Date.now() - started > 12000) {
+          restore();
+          useEmailInstead('Google Sign-In Not Loading', 'Google sign-in could not load (check your connection). You can sign in with email and password instead.');
+          return;
+        }
+        setTimeout(tick, 150);
+      };
+      tick();
+      return;
+    }
+    useEmailInstead('Google Sign-In Unavailable', 'Google sign-in is not set up on this site yet. Please use email and password.');
   });
 
   // Email / password form
